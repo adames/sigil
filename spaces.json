@@ -1,0 +1,51 @@
+{
+  "_doc_icon": "Optional per-slot identity overlay (name / icon). yabai owns space EXISTENCE — this file just adds optional metadata on top. Empty by default: bar renders bare pills for whatever yabai has, named ws1, ws2, … in INACTIVE_LABEL gray. Customize a slot with `ws name N <name>` or `ws icon N <glyph>`. Color is theme-driven — use `ws theme NAME` to switch the palette. Icons use Nerd Font private-use codepoints; install via: brew install --cask font-jetbrains-mono-nerd-font",
+  "palette": "catppuccin-mocha",
+  "spaces": {
+    "1": {
+      "name": "main",
+      "color": "#cdd6f4",
+      "stableLogicalLabel": "ws1",
+      "iconSpec": {
+        "kind": "none",
+        "fallbackSfSymbol": "stop.fill",
+        "fallbackText": "WS",
+        "userOverridden": false
+      }
+    },
+    "2": {
+      "name": "dev",
+      "color": "#cdd6f4",
+      "stableLogicalLabel": "ws2",
+      "iconSpec": {
+        "kind": "sfSymbol",
+        "fallbackSfSymbol": "stop.fill",
+        "fallbackText": "WS",
+        "userOverridden": true,
+        "symbolName": "terminal"
+      }
+    },
+    "3": {
+      "name": "ai",
+      "color": "#cdd6f4",
+      "stableLogicalLabel": "ws3",
+      "iconSpec": {
+        "kind": "none",
+        "fallbackSfSymbol": "stop.fill",
+        "fallbackText": "WS",
+        "userOverridden": false
+      }
+    },
+    "4": {
+      "name": "misc",
+      "color": "#cdd6f4",
+      "stableLogicalLabel": "ws4",
+      "iconSpec": {
+        "kind": "none",
+        "fallbackSfSymbol": "stop.fill",
+        "fallbackText": "WS",
+        "userOverridden": false
+      }
+    }
+  }
+}

@@ -4,6 +4,24 @@ import Foundation
 /// Workspace status bar indicator using NSStatusItem.
 /// Shows colored pills for each workspace with current one highlighted.
 /// Replaces the SketchyBar-based workspace pill strip.
+
+// Single-instance enforcement: exit if another ws-statusbar is running
+let currentPID = ProcessInfo.processInfo.processIdentifier
+let task = Process()
+task.launchPath = "/bin/sh"
+task.arguments = ["-c", "pgrep -x ws-statusbar | grep -v \(currentPID)"]
+let pipe = Pipe()
+task.standardOutput = pipe
+task.standardError = FileHandle.nullDevice
+try? task.run()
+task.waitUntilExit()
+let data = pipe.fileHandleForReading.readDataToEndOfFile()
+if !data.isEmpty {
+    // Another instance is already running
+    FileHandle.standardError.write(Data("ws-statusbar: another instance running, exiting\\n".utf8))
+    exit(0)
+}
+
 let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 
