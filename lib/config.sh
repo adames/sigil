@@ -8,17 +8,8 @@
 : "${WORKSPACE_BAR:=ws-statusbar}"
 
 # XDG-compliant paths
-if [[ -n "$XDG_CONFIG_HOME" ]]; then
-    WORKSPACE_CONFIG_DIR="${XDG_CONFIG_HOME}/workspace"
-else
-    WORKSPACE_CONFIG_DIR="$HOME/.config/workspace"
-fi
-
-if [[ -n "$XDG_CACHE_HOME" ]]; then
-    WORKSPACE_CACHE_DIR="${XDG_CACHE_HOME}/workspace"
-else
-    WORKSPACE_CACHE_DIR="$HOME/.cache/workspace"
-fi
+WORKSPACE_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/workspace"
+WORKSPACE_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/workspace"
 
 WORKSPACE_BIN_DIR="$HOME/.local/bin"
 
