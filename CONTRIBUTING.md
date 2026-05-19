@@ -1,25 +1,24 @@
-# Contributing to Workspace
+# Contributing to Sigil
 
-Thank you for your interest in contributing! This document outlines the process and guidelines for contributing to the workspace project.
+Thank you for your interest in contributing! This document outlines the process and guidelines for contributing to the sigil project.
 
 ## Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/workspace.git
-cd workspace
+git clone https://github.com/adames/sigil.git
+cd sigil
 
-# Build the Swift package
+# Build and install
 ./install.sh
 
 # Or manually:
-cd configs/workspace/topology
 swift build -c release
 ```
 
 ## Architecture Overview
 
-The workspace system is organized into layers:
+Sigil is organized into layers:
 
 | Layer | Language | Purpose |
 |-------|----------|---------|
