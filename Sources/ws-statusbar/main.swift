@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import WorkspaceState
 
 /// Workspace status bar indicator using NSStatusItem.
 /// Shows colored pills for each workspace with current one highlighted.
@@ -31,6 +32,7 @@ app.run()
 
 final class StatusBarController: NSObject, NSMenuDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    private let windowManager: WindowManager = WindowManagerFactory.create()
     private var workspaces: [WorkspaceInfo] = []
     private var currentSlot: Int = 1
     private var configPath: String {
@@ -344,29 +346,13 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
     
     private func getCurrentSlot() -> Int {
-        // Try to read from yabai directly
-        let task = Process()
-        task.launchPath = "/bin/sh"
-        task.arguments = ["-c", "yabai -m query --spaces --space 2>/dev/null | jq '.index' 2>/dev/null || echo 1"]
-        
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = FileHandle.nullDevice
-        
-        do {
-            try task.run()
-            task.waitUntilExit()
-            
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            if let output = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
-               let index = Int(output), index > 0 {
-                return index
-            }
-        } catch {
-            // Fall through to cache
+        // Live read first; cache file is the fallback when the window
+        // manager is unreachable (briefly during boot, or if the user
+        // has WORKSPACE_WINDOW_MANAGER=none).
+        if let idx = try? windowManager.focusedSpaceIndex(), idx > 0 {
+            return idx
         }
-        
-        // Fallback: read from cache file
+
         let cachePath = "\(NSHomeDirectory())/.cache/workspace/current.env"
         if let content = try? String(contentsOfFile: cachePath, encoding: .utf8),
            let match = content.range(of: "WORKSPACE_SLOT=[0-9]+", options: .regularExpression),
@@ -374,7 +360,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
            let slot = Int(slotStr) {
             return slot
         }
-        
+
         return 1
     }
     
@@ -556,10 +542,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
     
     private func focusWorkspace(slot: Int) {
-        let task = Process()
-        task.launchPath = "/bin/sh"
-        task.arguments = ["-c", "yabai -m space --focus \(slot) 2>/dev/null || true"]
-        try? task.run()
+        try? windowManager.focusSpace(index: slot)
     }
     
     /// Decode \uXXXX escape sequences to actual unicode characters

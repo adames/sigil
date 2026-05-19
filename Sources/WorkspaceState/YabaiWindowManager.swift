@@ -66,7 +66,42 @@ public final class YabaiWindowManager: WindowManager {
     public func focusWindow(id: Int) throws {
         try runYabai(args: ["-m", "window", "--focus", "\(id)"])
     }
-    
+
+    // MARK: - Read-side queries
+
+    public func queryDisplays() throws -> [DisplayInfo] {
+        return try decodeQuery([DisplayInfo].self, args: ["-m", "query", "--displays"])
+    }
+
+    public func queryWindows() throws -> [WindowInfo] {
+        return try decodeQuery([WindowInfo].self, args: ["-m", "query", "--windows"])
+    }
+
+    public func querySpaces() throws -> [SpaceInfo] {
+        return try decodeQuery([SpaceInfo].self, args: ["-m", "query", "--spaces"])
+    }
+
+    /// Shared run+decode path for the read-side queries. yabai's stderr
+    /// is dropped (matches `runYabaiWithOutput`); a non-zero exit
+    /// surfaces as `commandFailed`, a parse error as `parseError`.
+    private func decodeQuery<T: Decodable>(
+        _ type: T.Type, args: [String]
+    ) throws -> T {
+        guard let output = try runYabaiWithOutput(args: args),
+              let data = output.data(using: .utf8) else {
+            throw WindowManagerError.commandFailed(
+                "yabai \(args.joined(separator: " ")): no output"
+            )
+        }
+        do {
+            return try JSONDecoder().decode(type, from: data)
+        } catch {
+            throw WindowManagerError.parseError(
+                "yabai \(args.joined(separator: " ")): \(error)"
+            )
+        }
+    }
+
     // MARK: - Private Helpers
     
     private func runYabai(args: [String]) throws {

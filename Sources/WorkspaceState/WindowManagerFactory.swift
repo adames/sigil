@@ -12,10 +12,9 @@ public enum WindowManagerFactory {
         case .yabai:
             return YabaiWindowManager(binaryPath: WindowManagerConfig.binaryPath)
         case .aerospace:
-            // TODO: Implement AerospaceWindowManager
-            // For now, fall back to yabai with a warning
-            print("Warning: aerospace support not yet implemented, falling back to yabai")
-            return YabaiWindowManager()
+            // Phase 1 scaffold: every method throws .notImplemented.
+            // Phase 2 fills in the real CLI invocations.
+            return AerospaceWindowManager(binaryPath: WindowManagerConfig.binaryPath)
         case .rectangle:
             // Rectangle doesn't support spaces, return a no-op manager
             print("Warning: rectangle does not support workspace spaces")
@@ -109,8 +108,12 @@ public final class NoOpWindowManager: WindowManager {
     public func focusedWindowID() throws -> Int? {
         return nil
     }
-    
+
     public func focusWindow(id: Int) throws {
         throw WindowManagerError.unavailable
     }
+
+    public func queryDisplays() throws -> [DisplayInfo] { [] }
+    public func queryWindows() throws -> [WindowInfo] { [] }
+    public func querySpaces() throws -> [SpaceInfo] { [] }
 }

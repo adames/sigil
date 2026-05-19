@@ -1,6 +1,7 @@
 import AppKit
 import CoreGraphics
 import Foundation
+import WorkspaceState
 
 // MARK: - SketchyBar per-display autohide
 //
@@ -53,23 +54,24 @@ final class AutohideDaemon {
     private let hiddenYOffset = -100
     private let shownYOffset  = 0
 
-    private let yabaiPath: String?
+    private let windowManager: WindowManager
     private let sketchybarPath: String?
 
     private var timer: DispatchSourceTimer?
     private var hiddenPerDisplay: [Int: Bool] = [:]
     private var screenObserver: NSObjectProtocol?
 
-    /// Frame-keyed cache of yabai display indices. Rebuilt lazily on the
-    /// next tick after `cacheDirty` flips true — set at init and on
-    /// every `NSApplication.didChangeScreenParametersNotification`
-    /// (display add/remove/reconfig). yabai re-numbers displays only on
-    /// those same events, so the cache stays consistent.
+    /// Frame-keyed cache of window-manager display indices. Rebuilt
+    /// lazily on the next tick after `cacheDirty` flips true — set at
+    /// init and on every
+    /// `NSApplication.didChangeScreenParametersNotification` (display
+    /// add/remove/reconfig). The window manager re-numbers displays
+    /// only on those same events, so the cache stays consistent.
     private var displayIndexCache: [DisplayKey: Int] = [:]
     private var cacheDirty: Bool = true
 
     init() {
-        self.yabaiPath      = AutohideDaemon.findBinary(name: "yabai")
+        self.windowManager  = WindowManagerFactory.create()
         self.sketchybarPath = AutohideDaemon.findBinary(name: "sketchybar")
     }
 
@@ -79,9 +81,11 @@ final class AutohideDaemon {
     }
 
     func start() {
-        guard yabaiPath != nil, sketchybarPath != nil else {
+        guard sketchybarPath != nil,
+              FileManager.default.isExecutableFile(atPath: windowManager.binaryPath)
+        else {
             FileHandle.standardError.write(Data(
-                "ws-autohide: yabai or sketchybar not on PATH — exiting\n".utf8))
+                "ws-autohide: window manager or sketchybar unavailable — exiting\n".utf8))
             exit(0)
         }
 
@@ -183,37 +187,18 @@ final class AutohideDaemon {
         }
     }
 
-    /// One yabai query → parse → fill cache. Parses JSON in-process via
-    /// JSONSerialization (no /bin/sh + jq chain). Resilient to yabai
-    /// being briefly unreachable — leaves cache empty, next miss flips
-    /// dirty again.
+    /// One window-manager query → fill cache. Resilient to the window
+    /// manager being briefly unreachable — leaves cache empty, next
+    /// miss flips dirty again.
     private func rebuildDisplayCache() {
         displayIndexCache = [:]
-        guard let yabai = yabaiPath else { return }
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: yabai)
-        task.arguments = ["-m", "query", "--displays"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-        do { try task.run(); task.waitUntilExit() } catch { return }
-        guard task.terminationStatus == 0 else { return }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        guard let arr = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
-        else { return }
-
-        for display in arr {
-            guard let idx = display["index"] as? Int,
-                  let frame = display["frame"] as? [String: Any],
-                  let x = frame["x"] as? Double,
-                  let y = frame["y"] as? Double,
-                  let w = frame["w"] as? Double,
-                  let h = frame["h"] as? Double
-            else { continue }
+        guard let displays = try? windowManager.queryDisplays() else { return }
+        for d in displays {
             let key = DisplayKey(
-                CGRect(x: CGFloat(x), y: CGFloat(y), width: CGFloat(w), height: CGFloat(h))
+                CGRect(x: CGFloat(d.frame.x), y: CGFloat(d.frame.y),
+                       width: CGFloat(d.frame.w), height: CGFloat(d.frame.h))
             )
-            displayIndexCache[key] = idx
+            displayIndexCache[key] = d.index
         }
     }
 
@@ -243,20 +228,23 @@ final class AutohideDaemon {
         if hiddenPerDisplay[yidx] == hidden { return }
         hiddenPerDisplay[yidx] = hidden
         let offset = hidden ? hiddenYOffset : shownYOffset
-        guard let yabai = yabaiPath, let sketchybar = sketchybarPath else { return }
+        guard let sketchybar = sketchybarPath else { return }
 
-        // Bulk update: one shell pipeline yielding one sketchybar call per
-        // space.* pill on this display, then a final set for the
-        // workspace.name.<yidx> chip so it hides/shows in lockstep with
-        // the pills it labels. Only path that still uses /bin/sh — and
-        // it only fires on transitions, not every tick.
-        let cmd = """
-        \(yabai) -m query --spaces \
-        | /usr/bin/jq -r '.[] | select(.display == \(yidx)) | .index' \
-        | while read sid; do \(sketchybar) --set "space.$sid" y_offset=\(offset) >/dev/null 2>&1; done
-        \(sketchybar) --set "workspace.name.\(yidx)" y_offset=\(offset) >/dev/null 2>&1
-        """
-        runShell(cmd)
+        // Bulk update: one sketchybar call per space.* pill on this
+        // display, then a final set for the workspace.name.<yidx> chip
+        // so it hides/shows in lockstep with the pills it labels.
+        // Fires only on transitions, not every tick.
+        let spaces = (try? windowManager.querySpaces()) ?? []
+        for space in spaces where space.display == yidx {
+            runSketchybarSet(
+                binary: sketchybar,
+                args: ["--set", "space.\(space.index)", "y_offset=\(offset)"]
+            )
+        }
+        runSketchybarSet(
+            binary: sketchybar,
+            args: ["--set", "workspace.name.\(yidx)", "y_offset=\(offset)"]
+        )
     }
 
     // MARK: - Coordinate helpers
@@ -286,10 +274,12 @@ final class AutohideDaemon {
         return nil
     }
 
-    private func runShell(_ cmd: String) {
+    private func runSketchybarSet(binary: String, args: [String]) {
         let proc = Process()
-        proc.launchPath = "/bin/sh"
-        proc.arguments = ["-c", cmd]
+        proc.executableURL = URL(fileURLWithPath: binary)
+        proc.arguments = args
+        proc.standardOutput = FileHandle.nullDevice
+        proc.standardError = FileHandle.nullDevice
         do { try proc.run() } catch { /* swallowed; next tick retries */ }
     }
 }

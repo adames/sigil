@@ -1,4 +1,5 @@
 import Foundation
+import WorkspaceState
 
 /// The "real" service. Spawns yabai / ws, reads spaces.json.
 /// SF Symbols are stored directly; Nerd Font map available for
@@ -18,10 +19,13 @@ final class ProductionWorkspaceService: WorkspaceService {
     }
 
     private let paths: Paths
+    private let windowManager: WindowManager
     private var cachedIconMap: Set<String>?
 
-    init(paths: Paths = .default) {
+    init(paths: Paths = .default,
+         windowManager: WindowManager = WindowManagerFactory.create()) {
         self.paths = paths
+        self.windowManager = windowManager
     }
 
     // MARK: - Sync reads
@@ -47,37 +51,19 @@ final class ProductionWorkspaceService: WorkspaceService {
         }
     }
 
-    /// Parse `yabai -m query --spaces` into a `[slot index → display
-    /// index]` map. Empty when yabai is unreachable; the caller treats
-    /// that as "no spaces" and renders an empty list.
+    /// Build a `[slot index → display index]` map from the window
+    /// manager's space snapshot. Empty when the window manager is
+    /// unreachable; the caller treats that as "no spaces" and renders
+    /// an empty list.
     private func querySpaceDisplays() -> [Int: Int] {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: paths.yabaiBinary)
-        task.arguments = ["-m", "query", "--spaces"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-        do { try task.run(); task.waitUntilExit() } catch { return [:] }
-        guard task.terminationStatus == 0 else { return [:] }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        guard let arr = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
-        else { return [:] }
+        guard let spaces = try? windowManager.querySpaces() else { return [:] }
         var out: [Int: Int] = [:]
-        for entry in arr {
-            guard let idx = entry["index"] as? Int,
-                  let display = entry["display"] as? Int
-            else { continue }
-            out[idx] = display
-        }
+        for space in spaces { out[space.index] = space.display }
         return out
     }
 
     func focusedSpaceIndex() -> Int? {
-        guard let data = runYabaiCapture(args: ["-m", "query", "--spaces", "--space"]),
-              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let idx = obj["index"] as? Int
-        else { return nil }
-        return idx
+        return try? windowManager.focusedSpaceIndex()
     }
 
     func listSnapshots() -> [String] {
@@ -214,10 +200,6 @@ final class ProductionWorkspaceService: WorkspaceService {
         return keys
     }
 
-    private func querySpaceCount() -> Int {
-        Self.querySpaceCountSync(binary: paths.yabaiBinary)
-    }
-
     private struct IdentityRaw: Decodable {
         let name: String?
         let color: String?
@@ -314,18 +296,6 @@ final class ProductionWorkspaceService: WorkspaceService {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8) ?? ""
         return CommandResult(success: task.terminationStatus == 0, output: output)
-    }
-
-    private func runYabaiCapture(args: [String]) -> Data? {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: paths.yabaiBinary)
-        task.arguments = args
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-        do { try task.run(); task.waitUntilExit() } catch { return nil }
-        guard task.terminationStatus == 0 else { return nil }
-        return pipe.fileHandleForReading.readDataToEndOfFile()
     }
 
     private func runWsCapture(args: [String]) -> String? {
