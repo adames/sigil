@@ -1,0 +1,43 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ws_cheatsheet.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ws_cheatsheet.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetData.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetView.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-cheatsheet/FamilyColors.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-cheatsheet/ModifierBadge.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-cheatsheet/SpatialKeyboardView.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-cheatsheet/main.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main.dia"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/ws_statusbar.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/ws_statusbar.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-statusbar/main.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main.dia"
+  }
+}

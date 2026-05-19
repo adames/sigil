@@ -1,0 +1,67 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ws_prompt.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ws_prompt.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/ManageController.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/ManageView.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/ProductionWorkspaceService.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/PromptController.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/PromptView.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/Simulation.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceData.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceService.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/WsPromptApp.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-prompt/main.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main.dia"
+  }
+}

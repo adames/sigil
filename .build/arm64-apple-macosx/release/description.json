@@ -1,0 +1,4527 @@
+{
+  "builtTestProducts" : [
+    {
+      "binaryPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.xctest/Contents/MacOS/WorkspaceTopologyPackageTests",
+      "packagePath" : "/Users/adames/.config/workspace",
+      "productName" : "WorkspaceTopologyPackageTests"
+    }
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.AdaptersAppKit-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/AdaptersAppKit/AccessibilityProbe.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/AdaptersAppKit/WorkspaceWindowDelegate.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/ObjCBridge.m.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "AdaptersAppKit",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/AdaptersAppKit.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/AccessibilityProbe.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/WorkspaceWindowDelegate.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-Xcc",
+        "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/include/AdaptersAppKit-Swift.h",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/AccessibilityProbe.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/WorkspaceWindowDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/AdaptersAppKit.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/AdaptersAppKit/AccessibilityProbe.swift",
+        "/Users/adames/.config/workspace/Sources/AdaptersAppKit/WorkspaceWindowDelegate.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.DisplayTopology-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/CacheEncoding.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplaySnapshot.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplayTopologyService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/Logger.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/ReconfigCoalescer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "DisplayTopology",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/CacheEncoding.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplaySnapshot.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplayTopologyService.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/Logger.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/ReconfigCoalescer.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/include/DisplayTopology-Swift.h",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/CacheEncoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplaySnapshot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplayTopologyService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/Logger.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/ReconfigCoalescer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/DisplayTopology/CacheEncoding.swift",
+        "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplaySnapshot.swift",
+        "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplayTopologyService.swift",
+        "/Users/adames/.config/workspace/Sources/DisplayTopology/Logger.swift",
+        "/Users/adames/.config/workspace/Sources/DisplayTopology/ReconfigCoalescer.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.DisplayTopologyTests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/DisplayTopologyTests/ReconfigCoalescerTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "DisplayTopologyTests",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopologyTests.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-F",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopologyTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Tests/DisplayTopologyTests/ReconfigCoalescerTests.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.LayoutPolicy-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/LayoutPolicy/DensityClassifier.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicy.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicyEngine.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "LayoutPolicy",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/include/LayoutPolicy-Swift.h",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/LayoutPolicy/DensityClassifier.swift",
+        "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicy.swift",
+        "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicyEngine.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.LayoutPolicyTests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/DisplaySnapshotFixtures.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/LayoutPolicyEngineTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "LayoutPolicyTests",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicyTests.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-F",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicyTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/DisplaySnapshotFixtures.swift",
+        "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/LayoutPolicyEngineTests.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.UITests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/UITests/BarVisibilityRuleTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/UITests/FocusRestorationTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/UITests/ScreenshotOnLaunchTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/AdaptersAppKit.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "UITests",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/UITests.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/BarVisibilityRuleTests.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/FocusRestorationTests.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/ScreenshotOnLaunchTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-Xcc",
+        "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-F",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/BarVisibilityRuleTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/FocusRestorationTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/ScreenshotOnLaunchTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/UITests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Tests/UITests/BarVisibilityRuleTests.swift",
+        "/Users/adames/.config/workspace/Tests/UITests/FocusRestorationTests.swift",
+        "/Users/adames/.config/workspace/Tests/UITests/ScreenshotOnLaunchTests.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.WorkspaceState-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/IconResolver.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/IconSpec.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/Migration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/SfSymbolFallbacks.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManagerFactory.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceSlot.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceStateStore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/YabaiWindowManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "WorkspaceState",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/include/WorkspaceState-Swift.h",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/IconResolver.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/IconSpec.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/Migration.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/SfSymbolFallbacks.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManager.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManagerFactory.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceConfig.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceSlot.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceStateStore.swift",
+        "/Users/adames/.config/workspace/Sources/WorkspaceState/YabaiWindowManager.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.WorkspaceStateTests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/IconResolverTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/MigrationTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "WorkspaceStateTests",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceStateTests.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-F",
+        "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceStateTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/IconResolverTests.swift",
+        "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/MigrationTests.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.WorkspaceTopologyPackageTests-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceStateTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/UITests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicyTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopologyTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "WorkspaceTopologyPackageTests",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceTopologyPackageTests.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-Xcc",
+        "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/include/WorkspaceTopologyPackageTests-Swift.h",
+        "-color-diagnostics",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceTopologyPackageTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.WsUI-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WsUI/Color+Hex.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WsUI/DesignSystem.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WsUI/FuzzyMatch.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "WsUI",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WsUI.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/include/WsUI-Swift.h",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WsUI.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/WsUI/Color+Hex.swift",
+        "/Users/adames/.config/workspace/Sources/WsUI/DesignSystem.swift",
+        "/Users/adames/.config/workspace/Sources/WsUI/FuzzyMatch.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-autohide-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-autohide/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_autohide",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_autohide.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_autohide_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_autohide.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-autohide/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-cheatsheet-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetData.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/FamilyColors.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/ModifierBadge.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/SpatialKeyboardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WsUI.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_cheatsheet",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_cheatsheet.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_cheatsheet_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_cheatsheet.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetData.swift",
+        "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetView.swift",
+        "/Users/adames/.config/workspace/Sources/ws-cheatsheet/FamilyColors.swift",
+        "/Users/adames/.config/workspace/Sources/ws-cheatsheet/ModifierBadge.swift",
+        "/Users/adames/.config/workspace/Sources/ws-cheatsheet/SpatialKeyboardView.swift",
+        "/Users/adames/.config/workspace/Sources/ws-cheatsheet/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-picker-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/PickerController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/PickerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/Simulation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/WindowItem.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/WindowSource.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/WsPickerApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WsUI.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_picker",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_picker.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_picker_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_picker.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-picker/PickerController.swift",
+        "/Users/adames/.config/workspace/Sources/ws-picker/PickerView.swift",
+        "/Users/adames/.config/workspace/Sources/ws-picker/Simulation.swift",
+        "/Users/adames/.config/workspace/Sources/ws-picker/WindowItem.swift",
+        "/Users/adames/.config/workspace/Sources/ws-picker/WindowSource.swift",
+        "/Users/adames/.config/workspace/Sources/ws-picker/WsPickerApp.swift",
+        "/Users/adames/.config/workspace/Sources/ws-picker/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-prompt-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/ManageController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/ManageView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/ProductionWorkspaceService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/PromptController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/PromptView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/Simulation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceData.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/WsPromptApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WsUI.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_prompt",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_prompt.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_prompt_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_prompt.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-prompt/ManageController.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/ManageView.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/ProductionWorkspaceService.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/PromptController.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/PromptView.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/Simulation.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceData.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceService.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/WsPromptApp.swift",
+        "/Users/adames/.config/workspace/Sources/ws-prompt/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-snap-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-snap/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_snap",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_snap.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_snap_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_snap.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-snap/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-statusbar-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-statusbar/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_statusbar",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_statusbar.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_statusbar_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_statusbar.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-statusbar/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-topology-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topology/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_topology",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_topology.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_topology_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_topology.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-topology/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build",
+      "wholeModuleOptimization" : true
+    },
+    "C.ws-topologyd-arm64-apple-macosx-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/sources",
+      "importPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topologyd/EnrichedTopology.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topologyd/LayoutEnvRenderer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topologyd/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/DisplayTopology.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/LayoutPolicy.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/WorkspaceState.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/AdaptersAppKit.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "ws_topologyd",
+      "moduleOutputPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_topologyd.swiftmodule",
+      "objects" : [
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer.swift.o",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx14.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "14",
+        "-serialize-diagnostics",
+        "-O",
+        "-j14",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-Xcc",
+        "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+        "-Xcc",
+        "-I",
+        "-Xcc",
+        "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+        "-module-cache-path",
+        "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "ws_topologyd_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "workspace"
+      ],
+      "outputFileMapPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules/ws_topologyd.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/adames/.config/workspace/Sources/ws-topologyd/EnrichedTopology.swift",
+        "/Users/adames/.config/workspace/Sources/ws-topologyd/LayoutEnvRenderer.swift",
+        "/Users/adames/.config/workspace/Sources/ws-topologyd/main.swift"
+      ],
+      "tempsPath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build",
+      "wholeModuleOptimization" : true
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "AdaptersAppKit" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "AdaptersAppKit",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/AdaptersAppKit/AccessibilityProbe.swift",
+      "/Users/adames/.config/workspace/Sources/AdaptersAppKit/WorkspaceWindowDelegate.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-Xcc",
+      "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/include/AdaptersAppKit-Swift.h",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "DisplayTopology" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "DisplayTopology",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/DisplayTopology/CacheEncoding.swift",
+      "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplaySnapshot.swift",
+      "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplayTopologyService.swift",
+      "/Users/adames/.config/workspace/Sources/DisplayTopology/Logger.swift",
+      "/Users/adames/.config/workspace/Sources/DisplayTopology/ReconfigCoalescer.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/include/DisplayTopology-Swift.h",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "DisplayTopologyTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "DisplayTopologyTests",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Tests/DisplayTopologyTests/ReconfigCoalescerTests.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-F",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "LayoutPolicy" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "LayoutPolicy",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/LayoutPolicy/DensityClassifier.swift",
+      "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicy.swift",
+      "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicyEngine.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/include/LayoutPolicy-Swift.h",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "LayoutPolicyTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "LayoutPolicyTests",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/DisplaySnapshotFixtures.swift",
+      "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/LayoutPolicyEngineTests.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-F",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "UITests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "UITests",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Tests/UITests/BarVisibilityRuleTests.swift",
+      "/Users/adames/.config/workspace/Tests/UITests/FocusRestorationTests.swift",
+      "/Users/adames/.config/workspace/Tests/UITests/ScreenshotOnLaunchTests.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-Xcc",
+      "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-F",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "WorkspaceState" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "WorkspaceState",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/IconResolver.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/IconSpec.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/Migration.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/SfSymbolFallbacks.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManager.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManagerFactory.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceConfig.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceSlot.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceStateStore.swift",
+      "/Users/adames/.config/workspace/Sources/WorkspaceState/YabaiWindowManager.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/include/WorkspaceState-Swift.h",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "WorkspaceStateTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "WorkspaceStateTests",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/IconResolverTests.swift",
+      "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/MigrationTests.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/index/store",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-F",
+      "/Library/Developer/CommandLineTools/Library/Developer/Frameworks",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "WorkspaceTopologyPackageTests" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "WorkspaceTopologyPackageTests",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-Xcc",
+      "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/include/WorkspaceTopologyPackageTests-Swift.h",
+      "-color-diagnostics",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "WsUI" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "WsUI",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/WsUI/Color+Hex.swift",
+      "/Users/adames/.config/workspace/Sources/WsUI/DesignSystem.swift",
+      "/Users/adames/.config/workspace/Sources/WsUI/FuzzyMatch.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/include/WsUI-Swift.h",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_autohide" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_autohide",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-autohide/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_autohide_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_cheatsheet" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_cheatsheet",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetData.swift",
+      "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetView.swift",
+      "/Users/adames/.config/workspace/Sources/ws-cheatsheet/FamilyColors.swift",
+      "/Users/adames/.config/workspace/Sources/ws-cheatsheet/ModifierBadge.swift",
+      "/Users/adames/.config/workspace/Sources/ws-cheatsheet/SpatialKeyboardView.swift",
+      "/Users/adames/.config/workspace/Sources/ws-cheatsheet/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_cheatsheet_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_picker" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_picker",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-picker/PickerController.swift",
+      "/Users/adames/.config/workspace/Sources/ws-picker/PickerView.swift",
+      "/Users/adames/.config/workspace/Sources/ws-picker/Simulation.swift",
+      "/Users/adames/.config/workspace/Sources/ws-picker/WindowItem.swift",
+      "/Users/adames/.config/workspace/Sources/ws-picker/WindowSource.swift",
+      "/Users/adames/.config/workspace/Sources/ws-picker/WsPickerApp.swift",
+      "/Users/adames/.config/workspace/Sources/ws-picker/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_picker_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_prompt" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_prompt",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/ManageController.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/ManageView.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/ProductionWorkspaceService.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/PromptController.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/PromptView.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/Simulation.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceData.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceService.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/WsPromptApp.swift",
+      "/Users/adames/.config/workspace/Sources/ws-prompt/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_prompt_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_snap" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_snap",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-snap/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_snap_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_statusbar" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_statusbar",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-statusbar/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_statusbar_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_topology" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_topology",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-topology/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_topology_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ],
+    "ws_topologyd" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "ws_topologyd",
+      "-package-name",
+      "workspace",
+      "-c",
+      "/Users/adames/.config/workspace/Sources/ws-topologyd/EnrichedTopology.swift",
+      "/Users/adames/.config/workspace/Sources/ws-topologyd/LayoutEnvRenderer.swift",
+      "/Users/adames/.config/workspace/Sources/ws-topologyd/main.swift",
+      "-I",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx14.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "14",
+      "-serialize-diagnostics",
+      "-O",
+      "-j14",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-Xcc",
+      "-fmodule-map-file=/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/module.modulemap",
+      "-Xcc",
+      "-I",
+      "-Xcc",
+      "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include",
+      "-module-cache-path",
+      "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "ws_topologyd_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "workspace",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "AdaptersAppKit" : [
+      "AdaptersAppKitObjC",
+      "LayoutPolicy",
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "AdaptersAppKitObjC" : [
+
+    ],
+    "DisplayTopology" : [
+      "WorkspaceState"
+    ],
+    "DisplayTopologyTests" : [
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "LayoutPolicy" : [
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "LayoutPolicyTests" : [
+      "LayoutPolicy",
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "UITests" : [
+      "AdaptersAppKit",
+      "AdaptersAppKitObjC",
+      "LayoutPolicy",
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "WorkspaceState" : [
+
+    ],
+    "WorkspaceStateTests" : [
+      "WorkspaceState"
+    ],
+    "WorkspaceTopologyPackageTests" : [
+      "DisplayTopologyTests",
+      "LayoutPolicyTests",
+      "UITests",
+      "AdaptersAppKit",
+      "AdaptersAppKitObjC",
+      "LayoutPolicy",
+      "DisplayTopology",
+      "WorkspaceStateTests",
+      "WorkspaceState"
+    ],
+    "WsUI" : [
+
+    ],
+    "ws_autohide" : [
+
+    ],
+    "ws_cheatsheet" : [
+      "WsUI",
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "ws_picker" : [
+      "WsUI"
+    ],
+    "ws_prompt" : [
+      "WsUI"
+    ],
+    "ws_snap" : [
+
+    ],
+    "ws_statusbar" : [
+      "WorkspaceState"
+    ],
+    "ws_topology" : [
+      "LayoutPolicy",
+      "DisplayTopology",
+      "WorkspaceState"
+    ],
+    "ws_topologyd" : [
+      "AdaptersAppKit",
+      "AdaptersAppKitObjC",
+      "LayoutPolicy",
+      "DisplayTopology",
+      "WorkspaceState"
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift" : {
+      "inputs" : [
+
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift"
+        }
+      ]
+    }
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/AdaptersAppKit/AccessibilityProbe.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/AdaptersAppKit/WorkspaceWindowDelegate.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/CacheEncoding.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplaySnapshot.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/DisplayTopologyService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/Logger.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/DisplayTopology/ReconfigCoalescer.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/DisplayTopologyTests/ReconfigCoalescerTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/LayoutPolicy/DensityClassifier.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicy.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicyEngine.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/DisplaySnapshotFixtures.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/LayoutPolicyEngineTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/UITests/BarVisibilityRuleTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/UITests/FocusRestorationTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/UITests/ScreenshotOnLaunchTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/IconResolver.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/IconSpec.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/Migration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/SfSymbolFallbacks.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManager.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WindowManagerFactory.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceConfig.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceSlot.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/WorkspaceStateStore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WorkspaceState/YabaiWindowManager.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/IconResolverTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/MigrationTests.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/AccessibilityProbe.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/WorkspaceWindowDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/ObjCBridge.m.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/CacheEncoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplaySnapshot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplayTopologyService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/Logger.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/ReconfigCoalescer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/BarVisibilityRuleTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/FocusRestorationTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/UITests.build/ScreenshotOnLaunchTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WsUI/Color+Hex.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WsUI/DesignSystem.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/WsUI/FuzzyMatch.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-autohide.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-autohide.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-cheatsheet.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/CacheEncoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplaySnapshot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplayTopologyService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/Logger.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/ReconfigCoalescer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetData.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/CheatsheetView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/FamilyColors.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/ModifierBadge.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/SpatialKeyboardView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-cheatsheet.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-picker.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-picker.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-prompt.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ManageView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/ProductionWorkspaceService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptController.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/PromptView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/Simulation.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceData.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WorkspaceService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/WsPromptApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-prompt.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-snap.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-snap.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-statusbar.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-statusbar.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-topology.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/CacheEncoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplaySnapshot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplayTopologyService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/Logger.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/ReconfigCoalescer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-topology.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-topologyd.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/AccessibilityProbe.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/WorkspaceWindowDelegate.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKitObjC.build/ObjCBridge.m.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/CacheEncoding.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplaySnapshot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/DisplayTopologyService.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/Logger.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/ReconfigCoalescer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconResolver.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/IconSpec.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/Migration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/SfSymbolFallbacks.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WindowManagerFactory.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceConfig.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceSlot.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/WorkspaceStateStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/YabaiWindowManager.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws-topologyd.product/Objects.LinkFileList"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-autohide/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_autohide.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetData.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/CheatsheetView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/FamilyColors.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/ModifierBadge.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/SpatialKeyboardView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-cheatsheet/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_cheatsheet.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/PickerController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/PickerView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/Simulation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/WindowItem.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/WindowSource.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/WsPickerApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-picker/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/ManageController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/ManageView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/ProductionWorkspaceService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/PromptController.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/PromptView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/Simulation.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceData.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/WorkspaceService.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/WsPromptApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-prompt/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_prompt.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-snap/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_snap.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-statusbar/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_statusbar.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topology/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topology.build/sources"
+    },
+    "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topologyd/EnrichedTopology.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topologyd/LayoutEnvRenderer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/adames/.config/workspace/Sources/ws-topologyd/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/sources"
+    }
+  }
+}

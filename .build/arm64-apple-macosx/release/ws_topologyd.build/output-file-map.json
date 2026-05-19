@@ -1,0 +1,25 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/ws_topologyd.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/ws_topologyd.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-topologyd/EnrichedTopology.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/EnrichedTopology.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-topologyd/LayoutEnvRenderer.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/LayoutEnvRenderer.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-topologyd/main.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_topologyd.build/main.dia"
+  }
+}

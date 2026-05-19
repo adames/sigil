@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/DisplayTopologyTests.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/DisplayTopologyTests.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Tests/DisplayTopologyTests/ReconfigCoalescerTests.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopologyTests.build/ReconfigCoalescerTests.dia"
+  }
+}

@@ -1,18 +1,5 @@
 {
-  "banner": [
-    {
-      "k": "caps",
-      "v": "tap → Esc"
-    },
-    {
-      "k": "caps + …",
-      "v": "Hyper (⌃⌥⌘⇧)  ·  +shift = Mod"
-    },
-    {
-      "k": "C-Space …",
-      "v": "Tmux prefix"
-    }
-  ],
+  "banner": [],
   "columns": [
     {
       "sections": [
@@ -119,11 +106,7 @@
           "family": "system",
           "sub": "skhd · auto-detected apps",
           "idea": "Each chord spawns a new window of an auto-detected app. Override the choice with $WS_* env vars."
-        }
-      ]
-    },
-    {
-      "sections": [
+        },
         {
           "title": "Tmux",
           "rows": [
@@ -239,11 +222,7 @@
           "family": "terminal",
           "sub": "zsh · vi mode · fzf · zoxide",
           "idea": "fzf, zoxide and vi-mode turn the shell into a navigable surface, not a typewriter."
-        }
-      ]
-    },
-    {
-      "sections": [
+        },
         {
           "title": "Vim · Motion",
           "rows": [

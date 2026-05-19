@@ -1,0 +1,19 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyTests.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyTests.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/DisplaySnapshotFixtures.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/DisplaySnapshotFixtures.dia"
+  },
+  "/Users/adames/.config/workspace/Tests/LayoutPolicyTests/LayoutPolicyEngineTests.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicyTests.build/LayoutPolicyEngineTests.dia"
+  }
+}

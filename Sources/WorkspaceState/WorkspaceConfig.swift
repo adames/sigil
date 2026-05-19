@@ -3,7 +3,7 @@ import Foundation
 /// Central configuration for workspace system.
 /// These values are read from environment variables at build time,
 /// allowing customization without code changes.
-public enum WorkspaceConfig {
+public enum WorkspaceSystem {
     /// The bundle prefix for all workspace binaries.
     /// Override with WORKSPACE_BUNDLE_PREFIX env var at build time.
     /// Default: "com.user.workspace"

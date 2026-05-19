@@ -64,6 +64,7 @@ let package = Package(
     targets: [
         .target(
             name: "DisplayTopology",
+            dependencies: ["WorkspaceState"],
             path: "Sources/DisplayTopology"
         ),
         // Shared SwiftUI helpers used by every overlay binary. Tiny by

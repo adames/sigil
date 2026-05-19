@@ -1,0 +1,25 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/LayoutPolicy/DensityClassifier.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/DensityClassifier.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicy.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicy.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/LayoutPolicy/LayoutPolicyEngine.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/LayoutPolicyEngine.dia"
+  }
+}

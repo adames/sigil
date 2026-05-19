@@ -17,7 +17,7 @@ public final class ReconfigCoalescer: @unchecked Sendable {
 
     public init(
         trailingWindow: TimeInterval = 0.05,
-        queue: DispatchQueue = DispatchQueue(label: "\(WorkspaceConfig.bundlePrefix).topology.coalesce"),
+        queue: DispatchQueue = DispatchQueue(label: "\(WorkspaceSystem.bundlePrefix).topology.coalesce"),
         onFire: @escaping () -> Void
     ) {
         self.trailingWindow = trailingWindow

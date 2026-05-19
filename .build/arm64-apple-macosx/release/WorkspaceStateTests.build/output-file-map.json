@@ -1,0 +1,19 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/WorkspaceStateTests.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/WorkspaceStateTests.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/IconResolverTests.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/IconResolverTests.dia"
+  },
+  "/Users/adames/.config/workspace/Tests/WorkspaceStateTests/MigrationTests.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceStateTests.build/MigrationTests.dia"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/WorkspaceTopologyPackageTests.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/WorkspaceTopologyPackageTests.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.derived/runner.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/runner.dia"
+  }
+}

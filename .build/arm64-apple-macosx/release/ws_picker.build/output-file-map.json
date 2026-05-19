@@ -1,0 +1,49 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/ws_picker.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/ws_picker.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/PickerController.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerController.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/PickerView.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/PickerView.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/Simulation.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/Simulation.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/WindowItem.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowItem.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/WindowSource.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WindowSource.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/WsPickerApp.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/WsPickerApp.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/ws-picker/main.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/ws_picker.build/main.dia"
+  }
+}

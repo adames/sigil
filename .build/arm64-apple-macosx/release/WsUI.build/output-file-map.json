@@ -1,0 +1,25 @@
+{
+  "": {
+    "dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/WsUI.d",
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/WsUI.o",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/primary.swiftdeps"
+  },
+  "/Users/adames/.config/workspace/Sources/WsUI/Color+Hex.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/Color+Hex.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/WsUI/DesignSystem.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/DesignSystem.dia"
+  },
+  "/Users/adames/.config/workspace/Sources/WsUI/FuzzyMatch.swift": {
+    "object": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swift.o",
+    "swiftmodule": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch~partial.swiftmodule",
+    "swift-dependencies": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.swiftdeps",
+    "diagnostics": "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/FuzzyMatch.dia"
+  }
+}

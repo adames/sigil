@@ -1,0 +1,4 @@
+module AdaptersAppKitObjC {
+    umbrella header "/Users/adames/.config/workspace/Sources/AdaptersAppKit/include/AdaptersAppKitObjC.h"
+    export *
+}

@@ -1,0 +1,3 @@
+module AdaptersAppKit {
+    header "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/AdaptersAppKit.build/include/AdaptersAppKit-Swift.h"
+}

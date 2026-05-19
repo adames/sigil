@@ -1,0 +1,3 @@
+module WorkspaceState {
+    header "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceState.build/include/WorkspaceState-Swift.h"
+}

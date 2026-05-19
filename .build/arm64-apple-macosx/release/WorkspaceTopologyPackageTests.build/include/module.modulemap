@@ -1,0 +1,3 @@
+module WorkspaceTopologyPackageTests {
+    header "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WorkspaceTopologyPackageTests.build/include/WorkspaceTopologyPackageTests-Swift.h"
+}
