@@ -116,16 +116,17 @@ let package = Package(
         ),
         .executableTarget(
             name: "ws-prompt",
-            dependencies: ["WsUI"],
+            dependencies: ["WsUI", "WorkspaceState"],
             path: "Sources/ws-prompt"
         ),
         .executableTarget(
             name: "ws-picker",
-            dependencies: ["WsUI"],
+            dependencies: ["WsUI", "WorkspaceState"],
             path: "Sources/ws-picker"
         ),
         .executableTarget(
             name: "ws-autohide",
+            dependencies: ["WorkspaceState"],
             path: "Sources/ws-autohide"
         ),
         .executableTarget(

@@ -63,17 +63,47 @@ public enum WindowManagerConfig {
             ?? "yabai"
     }()
     
-    /// Path to window manager binary
+    /// Path to window manager binary. yabai install paths vary
+    /// (Apple-Silicon Homebrew, Intel Homebrew, or a user-installed
+    /// binary). `YABAI_BIN` env var wins when set — the bash test
+    /// harness uses this to point at the yabai-stub; the corresponding
+    /// `AEROSPACE_BIN` is honored the same way.
     public static let binaryPath: String = {
+        let env = ProcessInfo.processInfo.environment
         switch `default` {
         case "yabai":
-            return "/opt/homebrew/bin/yabai"
+            return resolveBinary(
+                envVar: "YABAI_BIN",
+                candidates: ["/opt/homebrew/bin/yabai", "/usr/local/bin/yabai"],
+                env: env
+            )
         case "aerospace":
-            return "/opt/homebrew/bin/aerospace"
+            return resolveBinary(
+                envVar: "AEROSPACE_BIN",
+                candidates: [
+                    "/opt/homebrew/bin/aerospace",
+                    "/usr/local/bin/aerospace"
+                ],
+                env: env
+            )
         case "rectangle":
             return "/Applications/Rectangle.app/Contents/MacOS/Rectangle"
         default:
             return ""
         }
     }()
+
+    private static func resolveBinary(
+        envVar: String, candidates: [String], env: [String: String]
+    ) -> String {
+        if let override = env[envVar], !override.isEmpty,
+           FileManager.default.isExecutableFile(atPath: override) {
+            return override
+        }
+        for path in candidates
+        where FileManager.default.isExecutableFile(atPath: path) {
+            return path
+        }
+        return candidates.first ?? ""
+    }
 }
