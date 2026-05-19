@@ -1,4 +1,4 @@
-# Sigil
+# Sigil Workspace
 
 Workspace management for macOS. SwiftUI overlays, menu bar, and yabai integration.
 
