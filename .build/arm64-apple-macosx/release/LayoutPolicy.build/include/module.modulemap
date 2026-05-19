@@ -1,3 +1,0 @@
-module LayoutPolicy {
-    header "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/LayoutPolicy.build/include/LayoutPolicy-Swift.h"
-}

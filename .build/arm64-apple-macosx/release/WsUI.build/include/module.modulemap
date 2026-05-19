@@ -1,3 +1,0 @@
-module WsUI {
-    header "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/WsUI.build/include/WsUI-Swift.h"
-}

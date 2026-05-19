@@ -1,3 +1,0 @@
-module DisplayTopology {
-    header "/Users/adames/.config/workspace/.build/arm64-apple-macosx/release/DisplayTopology.build/include/DisplayTopology-Swift.h"
-}
