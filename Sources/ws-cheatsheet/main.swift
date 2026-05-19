@@ -108,15 +108,22 @@ window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCy
 window.isReleasedWhenClosed = false
 window.contentView = NSHostingView(rootView: view)
 
-window.makeKeyAndOrderFront(nil)
+// Activate app first, then show window (prevents focus-loss race)
 NSApp.activate(ignoringOtherApps: true)
+window.makeKeyAndOrderFront(nil)
 
 // MARK: - Dismissal: Esc, focus loss, SIGTERM
 
 class AppController: NSObject, NSWindowDelegate {
+    private let openTime = Date()
+    
     func windowDidResignKey(_ notification: Notification) {
-        // User clicked elsewhere — close the HUD.
-        terminate()
+        // Only close if we've been visible for > 1 second.
+        // Prevents immediate dismissal during initial activation transition.
+        let visibleDuration = Date().timeIntervalSince(openTime)
+        if visibleDuration > 1.0 {
+            terminate()
+        }
     }
 }
 let controller = AppController()
