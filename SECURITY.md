@@ -1,41 +1,16 @@
-# Security Policy
+# Security
 
-## Supported Versions
+Found a security bug? Email me: adameshodelin@gmail.com
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 0.x     | :white_check_mark: |
+Don't post it publicly. I'll fix it and credit you (or not, up to you).
 
-## Reporting a Vulnerability
+## What Sigil does
 
-If you discover a security vulnerability in Sigil, please report it responsibly:
+- No network calls
+- Keeps data local (`~/.config/workspace/`, `~/.cache/workspace/`)
+- Uses macOS Accessibility API (you have to grant permission)
+- Runs as your user, not root
 
-1. **Do not** open a public issue
-2. Email the maintainer directly at: adameshodelin@gmail.com
-3. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if any)
+## Code size
 
-You can expect:
-- Acknowledgment within 48 hours
-- Assessment within 1 week
-- Fix timeline communication
-- Credit in the release notes (unless you prefer anonymity)
-
-## Security Considerations
-
-Sigil operates with the following security model:
-
-- **No network access**: Sigil does not make any network connections
-- **Local-only**: All data stays on your machine (`~/.config/workspace/`, `~/.cache/workspace/`)
-- **Accessibility API**: Uses macOS Accessibility API for window management (requires user permission)
-- **LaunchAgents**: Runs as user process, not system daemon
-
-## Audit
-
-The codebase is small and auditable:
-- ~3000 lines of Swift
-- ~500 lines of Bash
-- No external dependencies beyond Swift standard library and Apple frameworks
+~3000 lines Swift, ~500 lines Bash. No external deps. Read it if you want.

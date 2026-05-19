@@ -1,232 +1,79 @@
 # Sigil
 
-A native Swift package providing workspace identity, display topology,
-and menu bar / SketchyBar integration for macOS. Uses SF Symbols for
-native Apple surfaces with Nerd Font available for cross-platform use.
-No private APIs, model tables, or fragile raw glyph bytes in JSON.
+Workspace management for macOS. SwiftUI overlays, menu bar, and yabai integration.
 
-**Repository:** `github.com/adames/sigil`  
-**Install location:** `~/.config/workspace/` (cloned as git repo)
+**Repo:** github.com/adames/sigil  
+**Installs to:** ~/.config/workspace/
 
-This is the standalone, open-source workspace management system for macOS.
-It publishes one normalized cache file (`~/.cache/workspace/layout.env`)
-that every shell adapter (SketchyBar plugins, the cascade, the workspace
-CLI) reads to drive layout, max-visible counts, and notch geometry.
+## Install
 
-## Development Workflow
-
-```
-~/projects/sigil          ← Your working copy (develop here)
-    git@github.com:adames/sigil.git
-    
-~/.config/workspace/      ← Deployed runtime copy (cloned by bootstrap)
-    git@github.com:adames/sigil.git
-    
-~/dotfiles/               ← Your dotfiles (separate repo)
-    git@github.com:adames/dotfiles.git
-    installs yabai, skhd, karabiner configs
-    clones sigil → ~/.config/workspace/
-```
-
-**Day-to-day development:**
-1. Work in `~/projects/sigil` (or `~/.config/workspace` directly)
-2. Push to `github.com/adames/sigil`
-3. On new machines, `~/dotfiles/bootstrap.sh` clones sigil automatically
-
-## What it owns
-
-| Subsystem | Purpose |
-|---|---|
-| **Native Swift package** | `ws-topology` (one-shot CLI) + `ws-topologyd` (long-running launchd agent). Enumerates `NSScreen.screens`, classifies each into `notchedBuiltIn` / `compactBuiltIn` / `externalRectangular` / `mirrorSecondary`, debounces Core Graphics reconfig callbacks, and writes `topology.json` + `layout.env`. |
-| **Typed icon spec** | `IconSpec { kind, symbolName, codepoint, fallbackSfSymbol, fallbackText, userOverridden }`. SF Symbols are default (`kind: sfSymbol`); Nerd Font available for Linux/terminal use (`kind: nerdFont`). v1→v2 migration tool. |
-| **Per-host overlay** | `spaces.<hostname>.json` overrides the shared `spaces.json` on this machine. `workspace host` subcommands. Resolution helper sourced by every cascade reader. |
-| **Menu bar status** | `ws-statusbar` — NSStatusItem-based menu bar app with elevation design (`_N_` for current workspace) and dropdown showing `# name [SF Symbol icon]`. Replaces SketchyBar for users who prefer native menu bar integration. |
-| **Layout policy** | Notched: pills split symmetrically around the camera housing, the two halves anchored to `auxiliaryTopLeftArea.maxX` and `auxiliaryTopRightArea.minX`. Non-notched: pills centered in `visibleFrame`. Density mode (sparse / comfort / dense) picks gap from `(N × pill_w) / usable_w`. |
-| **Cheatsheet HUD** | `ws-cheatsheet` SwiftUI window (Caps+; via skhd). Section data lives in hand-editable `~/.config/workspace/cheatsheet.json`. Single-instance toggle via PID file. Replaced 410 lines of Hammerspoon Lua + HTML/CSS. |
-| **AX absolute-snap CLI** | `ws-snap` (manual use; no chord bound today). One-shot AX writes to move yabai-unmanaged windows. The common new-window case is now handled by `stage-window.sh` from yabai's `window_created` signal. |
-| **SketchyBar (optional)** | `per-display-pills.sh` — left-aligned pills with SF Symbol icons. `ws-autohide` launchd agent for auto-hide. Use either SketchyBar or ws-statusbar, not both. |
-
-## File layout
-
-```
-~/.config/workspace/                         ← Runtime install (this directory)
-├── Package.swift                             swift-tools 6.0, deployment .macOS(.v14)
-├── Sources/
-│   ├── DisplayTopology/                      NSScreen + CGDisplay enumeration; debounce coalescer
-│   ├── LayoutPolicy/                         pure [DisplaySnapshot] → [LayoutPolicy]
-│   ├── WorkspaceState/                       IconSpec + WorkspaceStateStore + v1→v2 Migration + WindowManager abstraction
-│   ├── AdaptersAppKit/                       window-delegate sample, accessibility probe (+ ObjC bridge)
-│   ├── ws-topology/                          one-shot CLI
-│   ├── ws-topologyd/                         launchd agent (CGDisplayRegisterReconfigurationCallback)
-│   ├── ws-cheatsheet/                        SwiftUI HUD (Caps+; via skhd)
-│   ├── ws-autohide/                          launchd agent — SketchyBar per-display autohide poller
-│   ├── ws-statusbar/                         NSStatusItem menu bar app with elevation design
-│   ├── ws-prompt/                            SwiftUI overlay (focus/send/manage workspaces)
-│   ├── ws-picker/                            SwiftUI overlay (change workspace with fuzzy search)
-│   └── ws-snap/                              one-shot AX CLI — manual absolute snap
-├── Tests/                                    XCTest suites (require full Xcode; see "Testing")
-├── launchd/
-│   ├── com.template.workspace.topologyd.plist    ← template for LaunchAgent
-│   ├── com.template.workspace.autohide.plist       ← template
-│   └── com.template.workspace.statusbar.plist      ← template
-├── install.sh                                build + symlink + load
-├── cli/ws                                    ← bash workspace CLI
-├── lib/                                      ← shell libraries (config.sh, window-manager.sh)
-├── MIGRATION.md                              v1 → v2 spaces.json
-└── MANUAL_TEST_MATRIX.md                     hardware scenarios
-```
-
-**Note:** The sketchybar plugins live in the dotfiles repo (`~/dotfiles/configs/sketchybar/`).
-They consume the cache files that sigil produces.
-
-
-## Cache surfaces (the render hot-path)
-
-| File | Writer | Consumers | What's in it |
-|---|---|---|---|
-| `~/.config/workspace/spaces.json` (v2) | `workspace` CLI, `ws-topology migrate` | everyone | slot identity: `{name, color, iconSpec, stableLogicalLabel}` |
-| `~/.cache/workspace/current.env` | `on-space-changed.sh` (atomic mv) | tmux, starship, `paint-all.sh` | focused-space `MACOS_SPACE_{INDEX,NAME,COLOR,ICON,DISPLAY,ANSI}` |
-| `~/.cache/workspace/topology.json` | `ws-topologyd` (atomic mv) | future native bar, diagnostics | per-display snapshot + policy |
-| `~/.cache/workspace/layout.env` | `ws-topologyd` (atomic mv) | `notch-detect.sh`, `per-display-pills.sh` | `WS_LAPTOP_HAS_NOTCH`, `WS_LAPTOP_DISPLAY_ID`, `WS_MAX_VISIBLE_SLOTS_<id>` (active consumers); the daemon still publishes `WS_TOP_REGION_W_<id>` / `WS_NOTCH_X_<id>` / `WS_NOTCH_W_<id>` / `WS_PILL_AVG_WIDTH_PT_<id>` for diagnostics, but no shell consumer reads them after the left-aligned navbar refactor retired `recenter.sh`. |
-
-`current.env` is keyed on focused space; `layout.env` is keyed on display.
-They never overlap.
-
-## Layout rules
-
-**Layout: left-aligned, no centering math.** The previous version of
-this section described a notched/non-notched split-and-center layout
-implemented by `recenter.sh`, with density modes (sparse / comfort /
-dense) picking inter-pill gaps from `(N × pill_w) / usable_w`. That
-all got ripped out in the left-aligned refactor — items now anchor
-left and SketchyBar lays them out from the screen corner toward the
-center automatically. The only Swift-side input still consumed is
-`WS_MAX_VISIBLE_SLOTS_<id>`, which caps the count on notched
-displays so pills don't slide under the camera housing. The
-LayoutPolicy module still computes the older auxiliary-region geometry
-for diagnostic completeness, but no shell adapter reads it.
-
-## Build / install
-
-### Fresh install (via dotfiles bootstrap)
+### Via dotfiles (recommended)
 ```bash
 git clone git@github.com:adames/dotfiles.git ~/dotfiles
-~/dotfiles/bootstrap.sh        # clones sigil → ~/.config/workspace, builds everything
+~/dotfiles/bootstrap.sh
 ```
 
-### Manual install (if you already have the repo)
+### Manual
 ```bash
 cd ~/.config/workspace
-./install.sh                   # builds + symlinks + loads LaunchAgents
+./install.sh
 ```
 
-This builds with `swift build -c release`, symlinks all binaries
-(`ws-topology`, `ws-prompt`, `ws-picker`, `ws-statusbar`, etc.) into
-`~/.local/bin/`, generates LaunchAgent plists from templates, and
-`launchctl bootstrap`s them.
+## What you get
 
-## Integration with dotfiles
+| Binary | What it does | Trigger |
+|--------|--------------|---------|
+| ws-prompt | Focus/send/manage workspace overlay | Caps+f, Caps+g, Caps+w |
+| ws-picker | Fuzzy find window across workspaces | Caps+e |
+| ws-cheatsheet | Key reference HUD | Caps+; |
+| ws-statusbar | Menu bar current workspace | Auto-start |
+| ws-topologyd | Display detection daemon | Auto-start |
+| ws-autohide | SketchyBar auto-hide | Auto-start (if using SketchyBar) |
+| ws-snap | Snap floating windows | Caps+hjkl (on floats) |
+| ws-topology | CLI for topology/layout | `ws-topology dump` |
 
-Sigil is designed to work with (but separate from) your dotfiles:
+## Development
 
-| Sigil provides | Dotfiles provides |
-|----------------|-------------------|
-| Workspace overlays (`ws-prompt`, `ws-picker`) | `skhdrc` hotkey bindings |
-| Topology daemon (`ws-topologyd`) | `yabairc` window tiling |
-| Menu bar (`ws-statusbar`) OR SketchyBar integration | SketchyBar plugins (consumes sigil's cache) |
-| Swift binaries | Shell CLI (`cli/ws`), shell libraries (`lib/`) |
-| LaunchAgent templates | Karabiner Elements config |
+```
+~/projects/sigil         # Your dev copy
+git@github.com:adames/sigil.git
 
-See: `github.com/adames/dotfiles`
+~/.config/workspace/     # Runtime install (cloned by bootstrap)
 
-Requires Swift 5.10+ (ships with Command Line Tools 15) and macOS 14+.
-Tested on macOS 26.3.1 / Mac15,10 (M3 Max 14") and MacBookPro17,1 (M1 13").
+~/dotfiles/              # System configs (separate repo)
+```
 
-## CLI quickstart
+Work in `~/projects/sigil`, push to GitHub, pull in `~/.config/workspace` to test.
+
+## Files
+
+| Path | Purpose |
+|------|---------|
+| ~/.config/workspace/spaces.json | Workspace definitions |
+| ~/.config/workspace/cheatsheet.json | Keymap reference |
+| ~/.cache/workspace/current.env | Active workspace (read by tmux/starship) |
+| ~/.cache/workspace/layout.env | Display topology |
+
+## Requirements
+
+- macOS 14+
+- Swift 6.0+ (Xcode or Command Line Tools)
+- yabai (for window tiling)
+- skhd (for hotkeys)
+
+## CLI
 
 ```bash
-ws-topology dump                                # current display snapshot, JSON
-ws-topology layout                              # per-display layout policy, JSON
-ws-topology migrate                             # dry-run v1 → v2; prints to stdout
-ws-topology migrate --apply                     # writes v2 (idempotent on v2 inputs)
-ws-topology resolve-icon <slot> --surface=font|native
+ws-topology dump              # Display info as JSON
+ws-topology layout            # Layout policy as JSON
+ws-topology migrate --apply   # Migrate spaces.json v1→v2
 
-workspace migrate                               # delegates to ws-topology migrate
-workspace host {status,init,reset,list}         # per-host overlay management
-workspace icon <slot> <glyph>                   # sets iconSpec.codepoint + userOverridden=true
-workspace name <slot> <new>                     # rename — preserves overrides
+workspace host init           # Create per-host overlay
+workspace host reset          # Remove per-host overlay
+workspace icon 1 "house"      # Set workspace icon
+workspace name 1 "work"       # Rename workspace
 ```
 
-## Testing
+## License
 
-XCTest ships with full Xcode but **not** with Command Line Tools alone.
-`swift build` works on CLT-only machines; `swift test` does not. Install
-Xcode to run the suites. Files in `Tests/` are valid and exercise:
-
-- `LayoutPolicyTests/` — notched / compact / external / mirror / fallback
-  resolution. Fixtures modeled on `Mac15,10` and `MacBookPro17,1`.
-- `WorkspaceStateTests/` — IconResolver fallback chain, v1→v2 migration
-  idempotence, override-survives-rename invariant, invalid-glyph
-  graceful fallback.
-- `DisplayTopologyTests/ReconfigCoalescerTests` — 50ms trailing debounce
-  behavior under bursts.
-- `Tests/UITests/` — scaffolding for XCUIAutomation host-app tests.
-  These currently `XCTSkipIf(true)` because Swift Package Manager
-  doesn't provide a host application target; flesh them out by creating
-  a thin macOS app target in Xcode that links `AdaptersAppKit`.
-
-## Tuning
-
-After the left-aligned refactor there is nothing user-tunable in the
-navbar layout — items lay out from the left corner with a fixed
-inter-pill gap. The previously documented `WS_NOTCH_PAD_LEFT_PT` /
-`_RIGHT_PT` / `WS_NOTCH_PADDING_PT` knobs and the
-`~/.config/workspace/sketchybar-tuning.env` file are retired and no
-longer read by any consumer.
-
-## What it replaces
-
-| Before | After |
-|---|---|
-| `sysctl hw.model` notch detection table | `NSScreen.safeAreaInsets.top > 0` via daemon |
-| `NOTCH_WIDTH=400` heuristic in `recenter.sh` | recenter retired; left-aligned layout sidesteps the notch geometry entirely. `WS_TOP_REGION_W_<id>` / `WS_NOTCH_W_<id>` still published for diagnostics. |
-| `NOTCH_MAX_VISIBLE=10` constant | `WS_MAX_VISIBLE_SLOTS_<id>` (derived from combined aux width) |
-| Raw Nerd Font PUA bytes in JSON `.icon` | `iconSpec.symbolName = "house.fill"`; SF Symbol rendered natively in AppKit/SwiftUI |
-| Static `cmd + alt + ctrl + shift - N` block in `skhdrc` | Replaced by ws-prompt SwiftUI overlays (`Caps + f` focus, `Caps + g` send, `Caps + w` manage, `Caps + e` change via ws-picker) — digit keys inside each overlay address slots 1..10. |
-| Per-consumer rediscovery of display roles via yabai queries | Single `layout.env` from `ws-topologyd` |
-| `space_changed` triggered full chain rebuild + two-pass write | Single-pass batched writes; `per-display-pills.sh` only re-runs on display events |
-| Duplicate `workspace_on_space_change` signal firing cascade twice | Single `ws_space_changed` registration |
-| Nav chevrons (`<` / `>`) bracketing the pills | Removed — pills speak for themselves |
-
-## OSLog channels
-
-Subsystem `com.adames.workspace.topology`. Categories: `topology`, `policy`, `icon`, `accessibility`.
-
-```bash
-log stream --predicate 'subsystem == "com.adames.workspace.topology"'
-```
-
-## Rollback
-
-| What | How |
-|---|---|
-| spaces.json edit | edit by hand or use `workspace name/color/icon` — every mutation atomic via the `WS_NORMALIZE_JQ` filter |
-| Topology daemon | `launchctl bootout "gui/$(id -u)/com.adames.workspace.topologyd"` |
-| Per-host overlay | `workspace host reset` |
-| Notch padding | retired with the left-aligned refactor (no longer tunable / needed) |
-| Plugin edits | `cd ~/dotfiles && git checkout configs/sketchybar configs/workspace` then re-run `macos/bootstrap.sh` |
-
-## Out of scope / deferred
-
-- **Adopted-display modal** — first-time prompt when an unknown monitor appears. Not implemented.
-- **Menu-bar auto-hide** via `kAXMenuOpenedNotification` in `ws-topologyd`. Not implemented.
-- **Leader-prefix hotkeys for slots > 10** — currently capped at 10 by digit-key hardware; overflow reachable via `workspace focus <name>`.
-- **Auto-iconing from slot names when `userOverridden == false`** — SF Symbol dictionary in `sf-to-nerd.json` covers ~113 common names; fuzzy match for arbitrary renamed slots is a follow-up.
-- **External monitor model identification** — layout policy uses runtime density classification, so identification is not blocking.
-
-## What ships in the package
-
-`ws-topology` (one-shot CLI), `ws-topologyd` (launchd agent), and
-`ws-cheatsheet` (SwiftUI HUD that replaces the previous `cheatsheet.lua`
-overlay; content lives in `~/.config/workspace/cheatsheet.json`). The
-package's [install.sh](install.sh) builds + symlinks all three.
+MIT
