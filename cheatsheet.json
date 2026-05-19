@@ -1,5 +1,22 @@
 {
-  "banner": [],
+  "banner": [
+    {
+      "k": "caps",
+      "v": "Hyper (⌃⌥⌘⇧) — navigate / open"
+    },
+    {
+      "k": "caps + shift",
+      "v": "Mod (⌃⌥⌘) — modify / destructive"
+    },
+    {
+      "k": "C-a",
+      "v": "tmux prefix"
+    },
+    {
+      "k": "SPC",
+      "v": "nvim leader"
+    }
+  ],
   "columns": [
     {
       "sections": [
@@ -106,7 +123,11 @@
           "family": "system",
           "sub": "skhd · auto-detected apps",
           "idea": "Each chord spawns a new window of an auto-detected app. Override the choice with $WS_* env vars."
-        },
+        }
+      ]
+    },
+    {
+      "sections": [
         {
           "title": "Tmux",
           "rows": [
@@ -222,7 +243,11 @@
           "family": "terminal",
           "sub": "zsh · vi mode · fzf · zoxide",
           "idea": "fzf, zoxide and vi-mode turn the shell into a navigable surface, not a typewriter."
-        },
+        }
+      ]
+    },
+    {
+      "sections": [
         {
           "title": "Vim · Motion",
           "rows": [

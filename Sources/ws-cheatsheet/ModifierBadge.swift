@@ -43,7 +43,7 @@ struct ModifierBadge: View {
     var body: some View {
         Circle()
             .fill(family.color)
-            .frame(width: 6, height: 6)
+            .frame(width: 5, height: 5)
             .opacity(family == .raw ? 0.55 : 0.95)
     }
 }

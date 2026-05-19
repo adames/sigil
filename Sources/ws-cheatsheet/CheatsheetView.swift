@@ -20,12 +20,12 @@ struct CheatsheetView: View {
     let document: CheatsheetDocument
     let timestamp: String
 
-    private let outerHPadding: CGFloat = 40
-    private let outerTopPadding: CGFloat = 36
-    private let outerBottomPadding: CGFloat = 22
-    private let columnSpacing: CGFloat = 14
-    private let cardSpacing: CGFloat = 14
-    private let maxPageWidth: CGFloat = 1720
+    // Compact layout: maximize density while preserving hierarchy
+    private let outerHPadding: CGFloat = 20
+    private let outerTopPadding: CGFloat = 20
+    private let outerBottomPadding: CGFloat = 16
+    private let columnSpacing: CGFloat = 12
+    private let cardSpacing: CGFloat = 10
 
     var body: some View {
         ZStack {
@@ -37,26 +37,22 @@ struct CheatsheetView: View {
             .padding(.horizontal, outerHPadding)
             .padding(.top, outerTopPadding)
             .padding(.bottom, outerBottomPadding)
-            .frame(maxWidth: maxPageWidth, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
-    /// Static family columns. Each column gets an equal share of the
-    /// available width via `.frame(maxWidth: .infinity)`; SwiftUI's
-    /// `HStack` splits leftover space evenly across its children.
+    /// Static family columns fill available width, no scrolling.
+    /// Each column gets equal width; cards compress vertically to fit.
     private var columnGrid: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            HStack(alignment: .top, spacing: columnSpacing) {
-                ForEach(document.columns) { column in
-                    VStack(spacing: cardSpacing) {
-                        ForEach(column.sections) { section in
-                            SectionCard(section: section)
-                        }
+        HStack(alignment: .top, spacing: columnSpacing) {
+            ForEach(document.columns) { column in
+                VStack(spacing: cardSpacing) {
+                    ForEach(column.sections) { section in
+                        SectionCard(section: section)
                     }
-                    .frame(maxWidth: .infinity, alignment: .top)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            .padding(.bottom, 6)
         }
     }
 
@@ -69,7 +65,7 @@ struct CheatsheetView: View {
                     ModifierBadge(forChord: item.k)
                     KeyCap(text: item.k)
                     Text(item.v)
-                        .font(.system(size: 10))
+                        .font(.system(size: 9))
                         .foregroundColor(.white.opacity(0.58))
                         .lineLimit(1)
                 }
@@ -96,7 +92,7 @@ struct CheatsheetView: View {
         HStack {
             Spacer()
             Text("CAPS + ; (or Esc) TO CLOSE  ·  \(timestamp)")
-                .font(.system(size: 10))
+                .font(.system(size: 9))
                 .tracking(0.5)
                 .foregroundColor(.white.opacity(0.25))
             Spacer()
@@ -113,25 +109,25 @@ private struct SectionCard: View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(section.title.uppercased())
-                    .font(.system(size: 18, weight: .semibold))
-                    .tracking(0.9)
+                    .font(.system(size: 13, weight: .semibold))
+                    .tracking(0.7)
                     .foregroundColor(accentColor)
-                    .padding(.bottom, 3)
+                    .padding(.bottom, 2)
 
                 if let sub = section.sub, !sub.isEmpty {
                     Text(sub)
-                        .font(.system(size: 12))
+                        .font(.system(size: 9))
                         .foregroundColor(.white.opacity(0.38))
-                        .padding(.bottom, section.idea == nil ? 12 : 8)
+                        .padding(.bottom, section.idea == nil ? 8 : 4)
                 }
 
                 if let idea = section.idea, !idea.isEmpty {
                     Text(idea)
-                        .font(.system(size: 13))
+                        .font(.system(size: 10))
                         .italic()
                         .foregroundColor(accentColor.opacity(0.85))
                         .fixedSize(horizontal: false, vertical: true)
-                        .padding(.bottom, 12)
+                        .padding(.bottom, 8)
                 }
 
                 // Custom-layout sections (currently only "keyboard") render
@@ -145,9 +141,9 @@ private struct SectionCard: View {
                     rowView(row)
                 }
             }
-            .padding(.horizontal, 18)
-            .padding(.top, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, 12)
+            .padding(.top, 10)
+            .padding(.bottom, 10)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(
@@ -165,31 +161,31 @@ private struct SectionCard: View {
         let key = row.indices.contains(0) ? row[0] : ""
         let desc = row.indices.contains(1) ? row[1] : ""
 
-        return HStack(alignment: .top, spacing: 10) {
+        return HStack(alignment: .top, spacing: 8) {
             if key == "—" {
                 // Footnote row: italic muted prose, no badge, no keycap.
                 Text("—")
-                    .font(.system(size: 16, design: .monospaced))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundColor(.white.opacity(0.22))
-                    .frame(width: 78, alignment: .leading)
+                    .frame(width: 60, alignment: .leading)
                 Text(desc)
-                    .font(.system(size: 14))
+                    .font(.system(size: 10))
                     .foregroundColor(.white.opacity(0.50))
                     .italic()
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 ModifierBadge(forChord: key)
-                    .padding(.top, 8)
+                    .padding(.top, 4)
                 KeyCap(text: key)
                     .layoutPriority(1)
                 Text(desc)
-                    .font(.system(size: 18))
+                    .font(.system(size: 11))
                     .foregroundColor(Color(red: 0.866, green: 0.894, blue: 0.933).opacity(0.68))
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 3)
     }
 
     private var accentColor: Color {
@@ -205,15 +201,15 @@ struct KeyCap: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 14, design: .monospaced))
+            .font(.system(size: 10, design: .monospaced))
             .foregroundColor(Color(red: 0.866, green: 0.894, blue: 0.933))
-            .padding(.horizontal, 9)
-            .padding(.vertical, 3)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
             .background(
-                RoundedRectangle(cornerRadius: 5)
+                RoundedRectangle(cornerRadius: 4)
                     .fill(Color.white.opacity(0.05))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 5)
+                        RoundedRectangle(cornerRadius: 4)
                             .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
                     )
             )
