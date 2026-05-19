@@ -94,55 +94,83 @@ let view = CheatsheetView(document: document, timestamp: timestamp)
 let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
 let frame = screen.frame
 
+// Use .nonactivatingPanel to stay out of Dock but still become key
 let window = CheatsheetWindow(
     contentRect: frame,
     styleMask: [.borderless, .nonactivatingPanel],
     backing: .buffered,
     defer: false
 )
+
 window.isOpaque = false
-window.backgroundColor = .clear
+window.backgroundColor = NSColor.clear
 window.hasShadow = false
-window.level = .modalPanel
-window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
+window.level = NSWindow.Level.modalPanel
+window.collectionBehavior = [.canJoinAllSpaces, NSWindow.CollectionBehavior.fullScreenAuxiliary]
 window.isReleasedWhenClosed = false
-window.contentView = NSHostingView(rootView: view)
+window.hidesOnDeactivate = false
 
-// Activate app first, then show window (prevents focus-loss race)
+// CRITICAL: NSHostingView reports the SwiftUI view's `fittingSize` as its
+// intrinsic content size, and the host window auto-resizes to fit. With
+// CheatsheetView using `.frame(maxHeight: .infinity)` and stacks of cards,
+// the propagated fitting height is ~14636 px — the window grows off-screen
+// within one runloop tick of being shown, which is what the user sees as
+// "disappeared after 1-2 seconds". Wrap the hosting view in a plain
+// NSView with a fixed frame to absorb the resize signal.
+let container = NSView(frame: NSRect(origin: .zero, size: frame.size))
+container.autoresizesSubviews = true
+let hosting = NSHostingView(rootView: view)
+hosting.frame = container.bounds
+hosting.autoresizingMask = [.width, .height]
+container.addSubview(hosting)
+window.contentView = container
+
+// Lock the window's frame: even if something else tries to resize us
+// (yabai, AppKit auto-layout, errant SwiftUI passes), `setFrame` snaps
+// back to the screen rect. See CheatsheetWindow.lockedFrame below.
+let screenFrame = frame
+window.setFrame(screenFrame, display: true)
+window.contentMinSize = screenFrame.size
+window.contentMaxSize = screenFrame.size
+
+// Arm the frame lock — from now on, every setFrame call is clamped to
+// the screen frame.
+window.lockedFrame = screenFrame
+
+// Show window and activate
+window.makeKeyAndOrderFront(nil as NSResponder?)
 NSApp.activate(ignoringOtherApps: true)
-window.makeKeyAndOrderFront(nil)
+window.makeKeyAndOrderFront(nil as NSResponder?)
 
-// MARK: - Dismissal: Esc, focus loss, SIGTERM
+// MARK: - Dismissal: SIGTERM only (via Hyper key toggle)
+//
+// The ONLY way to close the cheatsheet is pressing Caps+; (Hyper key),
+// which runs `ws-cheatsheet --toggle` and sends SIGTERM to this process.
+// No Esc, no focus loss dismissal, no clicking elsewhere.
 
-class AppController: NSObject, NSWindowDelegate {
-    private let openTime = Date()
-    
-    func windowDidResignKey(_ notification: Notification) {
-        // Only close if we've been visible for > 1 second.
-        // Prevents immediate dismissal during initial activation transition.
-        let visibleDuration = Date().timeIntervalSince(openTime)
-        if visibleDuration > 1.0 {
-            terminate()
-        }
+class AppController: NSObject, NSWindowDelegate, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return false
     }
 }
 let controller = AppController()
 window.delegate = controller
+NSApp.delegate = controller
 
-// Esc dismiss via a local key monitor (scoped to our app's first responder).
-NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-    // 53 = kVK_Escape
-    if event.keyCode == 53 {
-        terminate()
-    }
-    return event
+// SIGTERM closes us cleanly (sent by toggle).
+func installSignalHandler(_ sig: Int32, action: @escaping () -> Void) -> DispatchSourceSignal {
+    let src = DispatchSource.makeSignalSource(signal: sig, queue: .main)
+    src.setEventHandler(handler: action)
+    src.resume()
+    signal(sig, SIG_IGN)
+    return src
 }
 
-// SIGTERM from a second `--toggle` invocation: close cleanly.
-let sigSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
-sigSource.setEventHandler { terminate() }
-sigSource.resume()
-signal(SIGTERM, SIG_IGN)   // libdispatch handles it; ignore default action
+let termSource = installSignalHandler(SIGTERM) {
+    terminate()
+}
+// Keep the dispatch source alive for the lifetime of the process.
+_ = termSource
 
 func terminate() -> Never {
     removePID()
@@ -162,8 +190,30 @@ atexit {
 app.run()
 
 // MARK: - NSWindow subclass that can become key (required for keyDown delivery
-// to a borderless window).
+// to a borderless window) and refuses external resize attempts.
 final class CheatsheetWindow: NSWindow {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
+
+    /// When non-nil, all `setFrame` calls are clamped to this rect. We arm
+    /// it after the window is shown so the initial layout still works but
+    /// later resize requests (from NSHostingView auto-sizing, yabai, etc.)
+    /// can't push the content off-screen.
+    var lockedFrame: NSRect?
+
+    override func setFrame(_ frameRect: NSRect, display flag: Bool) {
+        if let locked = lockedFrame {
+            super.setFrame(locked, display: flag)
+        } else {
+            super.setFrame(frameRect, display: flag)
+        }
+    }
+
+    override func setFrame(_ frameRect: NSRect, display displayFlag: Bool, animate animateFlag: Bool) {
+        if let locked = lockedFrame {
+            super.setFrame(locked, display: displayFlag, animate: false)
+        } else {
+            super.setFrame(frameRect, display: displayFlag, animate: animateFlag)
+        }
+    }
 }
