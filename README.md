@@ -1,14 +1,37 @@
-# Workspace Topology
+# Sigil
 
 A native Swift package providing workspace identity, display topology,
 and menu bar / SketchyBar integration for macOS. Uses SF Symbols for
 native Apple surfaces with Nerd Font available for cross-platform use.
 No private APIs, model tables, or fragile raw glyph bytes in JSON.
 
-This is the macOS end of the larger `workspace` identity system. It
-publishes one normalized cache file (`~/.cache/workspace/layout.env`)
+**Repository:** `github.com/adames/sigil`  
+**Install location:** `~/.config/workspace/` (cloned as git repo)
+
+This is the standalone, open-source workspace management system for macOS.
+It publishes one normalized cache file (`~/.cache/workspace/layout.env`)
 that every shell adapter (SketchyBar plugins, the cascade, the workspace
 CLI) reads to drive layout, max-visible counts, and notch geometry.
+
+## Development Workflow
+
+```
+~/projects/sigil          ← Your working copy (develop here)
+    git@github.com:adames/sigil.git
+    
+~/.config/workspace/      ← Deployed runtime copy (cloned by bootstrap)
+    git@github.com:adames/sigil.git
+    
+~/dotfiles/               ← Your dotfiles (separate repo)
+    git@github.com:adames/dotfiles.git
+    installs yabai, skhd, karabiner configs
+    clones sigil → ~/.config/workspace/
+```
+
+**Day-to-day development:**
+1. Work in `~/projects/sigil` (or `~/.config/workspace` directly)
+2. Push to `github.com/adames/sigil`
+3. On new machines, `~/dotfiles/bootstrap.sh` clones sigil automatically
 
 ## What it owns
 
@@ -26,41 +49,36 @@ CLI) reads to drive layout, max-visible counts, and notch geometry.
 ## File layout
 
 ```
-.config/workspace/topology/                   ← Swift package home (this dir)
-├── Package.swift                             swift-tools 5.10, deployment .macOS(.v14)
+~/.config/workspace/                         ← Runtime install (this directory)
+├── Package.swift                             swift-tools 6.0, deployment .macOS(.v14)
 ├── Sources/
 │   ├── DisplayTopology/                      NSScreen + CGDisplay enumeration; debounce coalescer
 │   ├── LayoutPolicy/                         pure [DisplaySnapshot] → [LayoutPolicy]
-│   ├── WorkspaceState/                       IconSpec + WorkspaceStateStore + v1→v2 Migration
+│   ├── WorkspaceState/                       IconSpec + WorkspaceStateStore + v1→v2 Migration + WindowManager abstraction
 │   ├── AdaptersAppKit/                       window-delegate sample, accessibility probe (+ ObjC bridge)
 │   ├── ws-topology/                          one-shot CLI
 │   ├── ws-topologyd/                         launchd agent (CGDisplayRegisterReconfigurationCallback)
 │   ├── ws-cheatsheet/                        SwiftUI HUD (Caps+; via skhd)
 │   ├── ws-autohide/                          launchd agent — SketchyBar per-display autohide poller
-│   ├── ws-statusbar/                       NSStatusItem menu bar app with elevation design
-│   └── ws-snap/                              one-shot AX CLI — manual absolute snap (no chord bound today)
+│   ├── ws-statusbar/                         NSStatusItem menu bar app with elevation design
+│   ├── ws-prompt/                            SwiftUI overlay (focus/send/manage workspaces)
+│   ├── ws-picker/                            SwiftUI overlay (change workspace with fuzzy search)
+│   └── ws-snap/                              one-shot AX CLI — manual absolute snap
 ├── Tests/                                    XCTest suites (require full Xcode; see "Testing")
 ├── launchd/
-│   ├── com.adames.workspace.topologyd.plist
-│   └── com.adames.workspace.autohide.plist
+│   ├── com.template.workspace.topologyd.plist    ← template for LaunchAgent
+│   ├── com.template.workspace.autohide.plist       ← template
+│   └── com.template.workspace.statusbar.plist      ← template
 ├── install.sh                                build + symlink + load
+├── cli/ws                                    ← bash workspace CLI
+├── lib/                                      ← shell libraries (config.sh, window-manager.sh)
 ├── MIGRATION.md                              v1 → v2 spaces.json
 └── MANUAL_TEST_MATRIX.md                     hardware scenarios
-
-.config/sketchybar/plugins/
-├── notch-detect.sh                           cache-first; sysctl fallback
-├── per-display-pills.sh                      bulk display-assignment + drawing in one sketchybar call
-                                              (recenter.sh retired with the left-aligned navbar refactor)
-├── paint-all.sh                              batched all-pill repaint; sentinel-item subscriber
-                                              (ssh-chip.sh retired — complexity cleanup)
-
-.config/workspace/
-├── spaces.json                               v2 — single source of truth
-├── spaces.<hostname>.json                    optional per-host overlay
-├── on-space-changed.sh                       cascade entry point
-├── lib/resolve-config.sh                     sources WS_CONFIG = host overlay if present
-└── hooks/post-mutate.sh                      regenerate skhd fragment, ping sketchybar
 ```
+
+**Note:** The sketchybar plugins live in the dotfiles repo (`~/dotfiles/configs/sketchybar/`).
+They consume the cache files that sigil produces.
+
 
 ## Cache surfaces (the render hot-path)
 
@@ -90,13 +108,36 @@ for diagnostic completeness, but no shell adapter reads it.
 
 ## Build / install
 
+### Fresh install (via dotfiles bootstrap)
 ```bash
-~/.config/workspace/topology/install.sh
+git clone git@github.com:adames/dotfiles.git ~/dotfiles
+~/dotfiles/bootstrap.sh        # clones sigil → ~/.config/workspace, builds everything
 ```
 
-Builds with `swift build -c release`, symlinks `ws-topology` and
-`ws-topologyd` into `~/.local/bin/`, copies the LaunchAgent plist into
-`~/Library/LaunchAgents/`, and `launchctl bootstrap`s the agent.
+### Manual install (if you already have the repo)
+```bash
+cd ~/.config/workspace
+./install.sh                   # builds + symlinks + loads LaunchAgents
+```
+
+This builds with `swift build -c release`, symlinks all binaries
+(`ws-topology`, `ws-prompt`, `ws-picker`, `ws-statusbar`, etc.) into
+`~/.local/bin/`, generates LaunchAgent plists from templates, and
+`launchctl bootstrap`s them.
+
+## Integration with dotfiles
+
+Sigil is designed to work with (but separate from) your dotfiles:
+
+| Sigil provides | Dotfiles provides |
+|----------------|-------------------|
+| Workspace overlays (`ws-prompt`, `ws-picker`) | `skhdrc` hotkey bindings |
+| Topology daemon (`ws-topologyd`) | `yabairc` window tiling |
+| Menu bar (`ws-statusbar`) OR SketchyBar integration | SketchyBar plugins (consumes sigil's cache) |
+| Swift binaries | Shell CLI (`cli/ws`), shell libraries (`lib/`) |
+| LaunchAgent templates | Karabiner Elements config |
+
+See: `github.com/adames/dotfiles`
 
 Requires Swift 5.10+ (ships with Command Line Tools 15) and macOS 14+.
 Tested on macOS 26.3.1 / Mac15,10 (M3 Max 14") and MacBookPro17,1 (M1 13").
