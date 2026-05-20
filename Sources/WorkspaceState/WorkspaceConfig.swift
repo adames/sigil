@@ -28,7 +28,7 @@ import Foundation
 //    signal. Missing fences ⇒ first-run appends both fence and content at EOF.
 //    Hand-edits inside the fence are clobbered on next `ws-topology emit-aerospace`.
 //
-// 3. `spaces.json` v3 schema (composite-key, post-yabai):
+// 3. `spaces.json` v3 schema (composite-key, AeroSpace-native):
 //
 //    {
 //      "version": 3,
@@ -38,16 +38,15 @@ import Foundation
 //          "workspaceName": "<aerospace name>",
 //          "color": "#rrggbb",
 //          "iconSpec": { ... }
-//        },
-//        "_unassigned:slot_<N>": { ... }   // transitional bucket post-migration
+//        }
 //      }
 //    }
 //
 //    `displayUUID` is `CGDisplayCreateUUIDFromDisplayID(...)` — the same
-//    identifier `DisplayTopology.stableUUID(for:)` already produces. AeroSpace's
-//    monitor ordinal is NOT stable across hot-plug; never key on it.
-//    v2-slot entries that survive migration land in `_unassigned:*` until
-//    `ws-topology` reconciles them against live `aerospace list-workspaces`.
+//    identifier `DisplayTopology.stableUUID(for:)` already produces.
+//    AeroSpace's monitor ordinal is NOT stable across hot-plug; never key
+//    on it. Inputs at version != 3 (v1, v2, or anything higher) raise
+//    `MigrationError.unsupportedVersion` — there's no upgrade path.
 
 /// Central configuration for workspace system.
 /// These values are read from environment variables at build time,

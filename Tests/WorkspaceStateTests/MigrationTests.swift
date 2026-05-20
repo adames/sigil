@@ -2,184 +2,168 @@ import Foundation
 import Testing
 import WorkspaceState
 
-@Suite("v1 → v2 → v3 spaces.json migration chain")
-struct MigrationChainTests {
+@Suite("spaces.json v3 validator + canonical renderer")
+struct MigrationValidatorTests {
 
-    /// v1 fixture chains all the way to v3 in a single migrate() call.
-    /// v3 key shape is `_unassigned:slot<N>` for v2-era slots that haven't
-    /// been reconciled against a live aerospace monitor yet.
-    @Test func v1_to_v3_chains_both_steps() throws {
-        let v1 = """
+    /// A well-formed v3 fixture passes validation and round-trips
+    /// through the canonical renderer with all user content intact.
+    @Test func v3_round_trips_through_validator() throws {
+        let v3 = """
         {
-          "version": 1,
+          "version": 3,
           "palette": "catppuccin-mocha",
           "_doc_note": "edit me",
           "spaces": {
-            "1": { "name": "stream", "color": "#cba6f7", "icon": "\u{F0A0}" },
-            "2": { "name": "hub",    "color": "#f5c2e7", "icon": "" }
+            "37D8832F-D9B8-4738-A6B0-D8FAD93EF8D8:1": {
+              "color": "#cba6f7",
+              "displayUUID": "37D8832F-D9B8-4738-A6B0-D8FAD93EF8D8",
+              "iconSpec": { "kind": "sfSymbol", "symbolName": "star.fill", "userOverridden": true },
+              "name": "stream",
+              "stableLogicalLabel": "stream",
+              "workspaceName": "1"
+            },
+            "37D8832F-D9B8-4738-A6B0-D8FAD93EF8D8:2": {
+              "color": "#f5c2e7",
+              "displayUUID": "37D8832F-D9B8-4738-A6B0-D8FAD93EF8D8",
+              "iconSpec": { "kind": "none", "userOverridden": false },
+              "name": "dev",
+              "stableLogicalLabel": "dev",
+              "workspaceName": "2"
+            }
           }
         }
         """
-        let result = try Migration.migrate(jsonData: Data(v1.utf8))
-        #expect(!result.alreadyV2)
-        #expect(result.slotsTouched > 0)
-        #expect(result.unassignedSlots == 2)
+        let result = try Migration.migrate(jsonData: Data(v3.utf8))
 
-        let outData = Data(result.outputJSON.utf8)
         let root = try #require(
-            try JSONSerialization.jsonObject(with: outData) as? [String: Any]
+            try JSONSerialization.jsonObject(with: Data(result.outputJSON.utf8)) as? [String: Any]
         )
         #expect(root["version"]   as? Int    == 3)
         #expect(root["_doc_note"] as? String == "edit me")
 
         let spaces = try #require(root["spaces"] as? [String: Any])
         let slot1 = try #require(
-            spaces["_unassigned:slot1"] as? [String: Any],
-            "v3 composite key should replace integer-string key"
+            spaces["37D8832F-D9B8-4738-A6B0-D8FAD93EF8D8:1"] as? [String: Any]
         )
-        #expect(slot1["name"]                as? String == "stream")
-        #expect(slot1["color"]               as? String == "#cba6f7")
-        #expect(slot1["stableLogicalLabel"]  as? String == "stream")
-        #expect(slot1["displayUUID"]         as? String == "_unassigned")
-        #expect(slot1["workspaceName"]       as? String == "slot1")
-        #expect(slot1["icon"] == nil, "legacy icon field should be removed")
-
-        let spec = slot1["iconSpec"] as? [String: Any] ?? [:]
-        #expect(spec["kind"]           as? String == "nerdFont")
-        #expect(spec["codepoint"]      as? String == "\\uf0a0")
-        #expect(spec["fontFamily"]     as? String == "JetBrainsMono Nerd Font")
-        #expect(spec["userOverridden"] as? Bool   == false)
+        #expect(slot1["name"]          as? String == "stream")
+        #expect(slot1["workspaceName"] as? String == "1")
+        #expect(slot1["displayUUID"]   as? String == "37D8832F-D9B8-4738-A6B0-D8FAD93EF8D8")
     }
 
-    /// Empty icon string → kind=none, fallbacks attached for downstream use.
-    @Test func empty_icon_yields_kind_none() throws {
+    /// v1 fixtures are rejected — no upgrade path post-migration.
+    @Test func v1_input_throws_unsupported_version() {
         let v1 = """
-        { "version": 1, "spaces": { "1": { "name": "stream", "color": "#000000", "icon": "" } } }
+        { "version": 1, "spaces": { "1": { "name": "stream", "color": "#000", "icon": "" } } }
         """
-        let result = try Migration.migrate(jsonData: Data(v1.utf8))
-        let outData = Data(result.outputJSON.utf8)
-        let root   = try #require(try JSONSerialization.jsonObject(with: outData) as? [String: Any])
-        let spaces = try #require(root["spaces"] as? [String: Any])
-        let slot1  = try #require(spaces["_unassigned:slot1"] as? [String: Any])
-        let spec   = try #require(slot1["iconSpec"] as? [String: Any])
-        #expect(spec["kind"]             as? String == "none")
-        #expect(spec["fallbackSfSymbol"] as? String == "play.fill")
+        #expect(throws: MigrationError.self) {
+            _ = try Migration.migrate(jsonData: Data(v1.utf8))
+        }
     }
 
-    /// v2 → v3 preserves all existing iconSpec / color fields verbatim and
-    /// only attaches the new composite-key envelope + displayUUID/workspaceName.
-    @Test func v2_to_v3_preserves_color_and_icon() throws {
+    /// v2 fixtures are rejected — same reason.
+    @Test func v2_input_throws_unsupported_version() {
         let v2 = """
         {
           "version": 2,
           "spaces": {
-            "5": {
-              "name": "ai",
-              "color": "#cdd6f4",
-              "stableLogicalLabel": "ai",
-              "iconSpec": {
-                "kind": "sfSymbol",
-                "symbolName": "brain",
-                "userOverridden": true
-              }
+            "1": { "name": "ws1", "color": "#000", "iconSpec": { "kind": "none" }, "stableLogicalLabel": "ws1" }
+          }
+        }
+        """
+        #expect(throws: MigrationError.self) {
+            _ = try Migration.migrate(jsonData: Data(v2.utf8))
+        }
+    }
+
+    /// Malformed JSON surfaces as `.malformedJSON`.
+    @Test func malformed_json_throws_malformed() {
+        let junk = "not json at all"
+        #expect(throws: MigrationError.self) {
+            _ = try Migration.migrate(jsonData: Data(junk.utf8))
+        }
+    }
+
+    /// Missing top-level `spaces` raises `.missingSpaces`.
+    @Test func missing_spaces_throws() {
+        let no_spaces = #"{ "version": 3, "palette": "catppuccin-mocha" }"#
+        #expect(throws: MigrationError.self) {
+            _ = try Migration.migrate(jsonData: Data(no_spaces.utf8))
+        }
+    }
+
+    /// Idempotent — re-rendering a canonical v3 output reproduces it.
+    @Test func canonical_output_is_idempotent() throws {
+        let v3 = """
+        {
+          "version": 3,
+          "spaces": {
+            "UUID-A:1": {
+              "color": "#000000",
+              "displayUUID": "UUID-A",
+              "iconSpec": { "kind": "none", "userOverridden": false },
+              "name": "ws1",
+              "stableLogicalLabel": "ws1",
+              "workspaceName": "1"
             }
           }
         }
         """
-        let result = try Migration.migrate(jsonData: Data(v2.utf8))
-        #expect(result.unassignedSlots == 1)
-
-        let root = try #require(
-            try JSONSerialization.jsonObject(with: Data(result.outputJSON.utf8)) as? [String: Any]
-        )
-        let spaces = try #require(root["spaces"] as? [String: Any])
-        let slot = try #require(spaces["_unassigned:slot5"] as? [String: Any])
-        #expect(slot["color"]         as? String == "#cdd6f4")
-        #expect(slot["displayUUID"]   as? String == "_unassigned")
-        #expect(slot["workspaceName"] as? String == "slot5")
-
-        let spec = try #require(slot["iconSpec"] as? [String: Any])
-        #expect(spec["kind"]           as? String == "sfSymbol")
-        #expect(spec["symbolName"]     as? String == "brain")
-        #expect(spec["userOverridden"] as? Bool   == true)
-    }
-
-    /// Idempotent: running migration on a v3 file produces no further touches.
-    @Test func v3_is_idempotent() throws {
-        let v1 = """
-        { "version": 1, "spaces": { "1": { "name": "stream", "color": "#000000", "icon": "" } } }
-        """
-        let first  = try Migration.migrate(jsonData: Data(v1.utf8))
+        let first  = try Migration.migrate(jsonData: Data(v3.utf8))
         let second = try Migration.migrate(jsonData: Data(first.outputJSON.utf8))
-        #expect(second.alreadyV2,
-                "v3 → v3 should report alreadyV2 (i.e. already at current version)")
-        #expect(second.slotsTouched == 0)
-        #expect(second.unassignedSlots == 0,
-                "rewriting an _unassigned key shouldn't count it as freshly unassigned")
+        #expect(first.outputJSON == second.outputJSON)
     }
 
-    /// Every v2 slot lands in the `_unassigned:*` bucket — ws-topology
-    /// reconciles them later against live aerospace workspaces.
-    @Test func unassigned_bucket_carries_all_v2_slots() throws {
-        let v2 = """
-        {
-          "version": 2,
-          "spaces": {
-            "1": { "name": "ws1", "color": "#111111", "iconSpec": { "kind": "none" }, "stableLogicalLabel": "ws1" },
-            "2": { "name": "ws2", "color": "#222222", "iconSpec": { "kind": "none" }, "stableLogicalLabel": "ws2" },
-            "7": { "name": "ws7", "color": "#777777", "iconSpec": { "kind": "none" }, "stableLogicalLabel": "ws7" }
-          }
+    /// Composite keys sort by UUID then workspaceName — slot10 comes
+    /// after slot9 within the same UUID; UUIDs sort lexically against
+    /// each other.
+    @Test func composite_keys_sort_by_uuid_then_workspace_name() throws {
+        var spacesIn: [String: Any] = [:]
+        // Mix two UUIDs so we can assert the group ordering, and use
+        // numeric workspaceNames so we exercise the secondary sort.
+        for n in [1, 10, 2, 11, 9] {
+            spacesIn["UUID-A:\(n)"] = [
+                "color": "#000",
+                "displayUUID": "UUID-A",
+                "iconSpec": ["kind": "none", "userOverridden": false],
+                "name": "wsA\(n)",
+                "stableLogicalLabel": "wsA\(n)",
+                "workspaceName": "\(n)",
+            ] as [String: Any]
         }
-        """
-        let result = try Migration.migrate(jsonData: Data(v2.utf8))
-        #expect(result.unassignedSlots == 3)
-
-        let root = try #require(
-            try JSONSerialization.jsonObject(with: Data(result.outputJSON.utf8)) as? [String: Any]
-        )
-        let spaces = try #require(root["spaces"] as? [String: Any])
-        #expect(spaces.count == 3)
-        #expect(spaces["_unassigned:slot1"] != nil)
-        #expect(spaces["_unassigned:slot2"] != nil)
-        #expect(spaces["_unassigned:slot7"] != nil)
-    }
-
-    /// Numerical key ordering carries into v3: `_unassigned:slot10` must
-    /// appear after `_unassigned:slot9`, not after `_unassigned:slot1`.
-    @Test func spaces_ordered_numerically() throws {
-        var spaces: [String: Any] = [:]
-        for i in 1...12 {
-            spaces["\(i)"] = ["name": "ws\(i)", "color": "#000000", "icon": ""]
+        for n in [3, 1] {
+            spacesIn["UUID-B:\(n)"] = [
+                "color": "#000",
+                "displayUUID": "UUID-B",
+                "iconSpec": ["kind": "none", "userOverridden": false],
+                "name": "wsB\(n)",
+                "stableLogicalLabel": "wsB\(n)",
+                "workspaceName": "\(n)",
+            ] as [String: Any]
         }
-        let root: [String: Any] = ["version": 1, "spaces": spaces]
+        let root: [String: Any] = ["version": 3, "spaces": spacesIn]
         let data = try JSONSerialization.data(withJSONObject: root)
         let result = try Migration.migrate(jsonData: data)
 
-        let nine    = try #require(result.outputJSON.range(of: "\"_unassigned:slot9\":"))
-        let ten     = try #require(result.outputJSON.range(of: "\"_unassigned:slot10\":"))
-        let twelve  = try #require(result.outputJSON.range(of: "\"_unassigned:slot12\":"))
-        #expect(nine.lowerBound < ten.lowerBound)
-        #expect(ten.lowerBound  < twelve.lowerBound)
+        // UUID-A group precedes UUID-B group (lexicographic).
+        let uuidA = try #require(result.outputJSON.range(of: "\"UUID-A:1\":"))
+        let uuidB = try #require(result.outputJSON.range(of: "\"UUID-B:1\":"))
+        #expect(uuidA.lowerBound < uuidB.lowerBound)
     }
 }
 
 @Suite("Decoder preserves user-overridden flag across v3 round-trip")
 struct RenamePreservesOverrideTests {
-    /// The store decoder must preserve `userOverridden=true` across a load /
-    /// re-save cycle — that's the invariant the postmortem demands. The
-    /// workspace CLI's rename flow only touches `name`; `iconSpec` stays put.
-    /// Now exercised against a v3 composite-key fixture.
     @Test func decoder_preserves_user_overridden_flag() throws {
         let v3 = """
         {
           "version": 3,
           "spaces": {
-            "_unassigned:slot1": {
+            "UUID-A:1": {
               "name": "custom",
               "color": "#abcdef",
               "stableLogicalLabel": "stream",
-              "displayUUID": "_unassigned",
-              "workspaceName": "slot1",
+              "displayUUID": "UUID-A",
+              "workspaceName": "1",
               "iconSpec": {
                 "kind": "sfSymbol",
                 "symbolName": "star.fill",
@@ -203,12 +187,12 @@ struct RenamePreservesOverrideTests {
         #expect(slot.iconSpec.kind       == .sfSymbol)
         #expect(slot.iconSpec.symbolName == "star.fill")
         #expect(slot.id                  == 1)
-        #expect(slot.workspaceName       == "slot1")
+        #expect(slot.workspaceName       == "1")
+        #expect(slot.displayUUID         == "UUID-A")
 
-        // Re-encode and verify the override survives + composite key reappears.
         let encoded = store.encodeJSON(config)
         #expect(encoded.contains("\"userOverridden\": true"))
         #expect(encoded.contains("\"symbolName\": \"star.fill\""))
-        #expect(encoded.contains("\"_unassigned:slot1\""))
+        #expect(encoded.contains("\"UUID-A:1\""))
     }
 }

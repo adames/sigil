@@ -43,8 +43,8 @@ func printUsage() {
 
       dump                        print the current display topology as JSON
       layout                      print the per-display layout policy as JSON
-      migrate [--apply]           migrate spaces.json schema (dry-run by default).
-                                  Idempotent on current-version files; chains v1→v2→v3.
+      migrate [--apply]           validate + canonically re-render spaces.json
+                                  (dry-run by default). v3 only; v1/v2 inputs error.
       resolve-icon <slot>         resolve the icon for a slot index or name; --surface=font|native
       emit-skhd [--write]         (legacy/yabai) emit the dynamic skhd fragment
       emit-aerospace [--write]    emit the sigil-fenced aerospace.toml block.
@@ -130,6 +130,12 @@ func cmdLayout(args: [String]) -> Int32 {
 }
 
 // MARK: - migrate
+//
+// The v1 → v2 → v3 transformation chain retired with the AeroSpace
+// migration. This subcommand is now a validator + canonical re-renderer:
+// it rejects anything other than v3 and re-writes the file with
+// deterministic key ordering. Mostly useful for jq-friendlying a
+// hand-edited spaces.json after manual repairs.
 
 func cmdMigrate(args: [String]) -> Int32 {
     let opts = parseCommonOptions(args)
@@ -152,13 +158,8 @@ func cmdMigrate(args: [String]) -> Int32 {
     }
 
     if !apply {
-        FileHandle.standardError.write(Data("# DRY RUN — pass --apply to write. slotsTouched=\(result.slotsTouched) alreadyV2=\(result.alreadyV2)\n".utf8))
+        FileHandle.standardError.write(Data("# DRY RUN — pass --apply to write the canonicalized JSON back.\n".utf8))
         print(result.outputJSON, terminator: "")
-        return 0
-    }
-
-    if result.alreadyV2 && result.slotsTouched == 0 {
-        FileHandle.standardError.write(Data("migrate: already v2, no changes\n".utf8))
         return 0
     }
 
@@ -168,7 +169,7 @@ func cmdMigrate(args: [String]) -> Int32 {
         FileHandle.standardError.write(Data("migrate: write failed: \(error)\n".utf8))
         return 1
     }
-    FileHandle.standardError.write(Data("migrate: wrote v2 (slotsTouched=\(result.slotsTouched))\n".utf8))
+    FileHandle.standardError.write(Data("migrate: re-rendered spaces.json (v\(Migration.currentVersion))\n".utf8))
     return 0
 }
 

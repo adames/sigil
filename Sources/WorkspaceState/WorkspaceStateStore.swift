@@ -20,13 +20,14 @@ public enum WorkspaceStateError: Error, CustomStringConvertible {
     }
 }
 
-/// Reads and writes the user's `spaces.json`. The store understands both v1 and
-/// v2 on read (v1 is auto-promoted in memory via the same logic the Migration
-/// uses). Writes always produce v2.
+/// Reads and writes the user's `spaces.json`. v3-only (composite-key) since
+/// the AeroSpace migration shipped — v1/v2 inputs raise
+/// `MigrationError.unsupportedVersion(_)` via `Migration.migrate(jsonData:)`,
+/// which the caller is expected to surface as a doctor message.
 ///
-/// Atomic-mv contract matches `on-space-changed.sh:84-93`: write to a sibling
-/// temp file in the same directory, then `rename` over the target so readers
-/// never observe a half-written file.
+/// Atomic-mv contract matches `on-space-changed.sh`'s write idiom: write to
+/// a sibling temp file in the same directory, then `rename` over the target
+/// so readers never observe a half-written file.
 public final class WorkspaceStateStore {
     public let configURL: URL
 
@@ -71,69 +72,33 @@ public final class WorkspaceStateStore {
         }
 
         let version = (raw["version"] as? Int) ?? 1
+        guard version == Migration.currentVersion else {
+            throw WorkspaceStateError.decodeFailed(
+                configURL,
+                underlying: MigrationError.unsupportedVersion(version)
+            )
+        }
+
         let palette = raw["palette"] as? String
         let theme   = raw["theme"] as? String
         let spaces  = (raw["spaces"] as? [String: Any]) ?? [:]
 
-        // Extract a deterministic slot id from any of: v2 integer-string keys
-        // ("1", "2", …), v3 `_unassigned:slot_<N>` keys, or v3 composite
-        // `<uuid>:slot<N>` keys (where the workspaceName follows the
-        // "slot<N>" convention). Fall back to sequential assignment for
-        // user-renamed v3 workspaces whose names don't carry an ordinal.
-        func extractSlotId(key: String, dict: [String: Any]) -> Int? {
-            if let n = Int(key) { return n }
-            // v3 key shapes: `<uuid>:slot<N>` and `_unassigned:slot<N>`.
-            // Prefer workspaceName because it survives display-UUID changes
-            // (key is rewritten by the encoder using workspaceName + uuid).
-            if let workspaceName = dict["workspaceName"] as? String,
-               workspaceName.hasPrefix("slot"),
-               let n = Int(workspaceName.dropFirst("slot".count)) {
-                return n
-            }
-            if let colon = key.firstIndex(of: ":") {
-                let name = key[key.index(after: colon)...]
-                if name.hasPrefix("slot"),
-                   let n = Int(name.dropFirst("slot".count)) {
-                    return n
-                }
-            }
-            return nil
-        }
-
-        let orderedKeys = spaces.keys.sorted { (lhs, rhs) -> Bool in
-            let lDict = (spaces[lhs] as? [String: Any]) ?? [:]
-            let rDict = (spaces[rhs] as? [String: Any]) ?? [:]
-            let l = extractSlotId(key: lhs, dict: lDict) ?? .max
-            let r = extractSlotId(key: rhs, dict: rDict) ?? .max
-            return l < r
-        }
+        // v3 keys are composite `<displayUUID>:<workspaceName>`. Sort by
+        // the same tuple the renderer uses so decode order matches what
+        // the user sees on disk + in the pill strip.
+        let orderedKeys = spaces.keys.sorted(by: Migration.spacesKeyOrder)
 
         var slots: [WorkspaceSlot] = []
-        var nextSyntheticId = 1
-        for key in orderedKeys {
+        for (position, key) in orderedKeys.enumerated() {
             guard let dict = spaces[key] as? [String: Any] else { continue }
-            let id: Int
-            if let extracted = extractSlotId(key: key, dict: dict) {
-                id = extracted
-                nextSyntheticId = max(nextSyntheticId, extracted + 1)
-            } else {
-                id = nextSyntheticId
-                nextSyntheticId += 1
-            }
+            let id = position + 1  // 1-based ordinal; legacy field, due to retire
             let name  = (dict["name"] as? String) ?? "ws\(id)"
             let color = (dict["color"] as? String) ?? "#cdd6f4"
             let stableLabel = (dict["stableLogicalLabel"] as? String) ?? name
-
-            let iconSpec: IconSpec
-            if let iconDict = dict["iconSpec"] as? [String: Any] {
-                iconSpec = WorkspaceStateStore.decodeSpec(from: iconDict)
-            } else {
-                let legacy = (dict["icon"] as? String) ?? ""
-                iconSpec = Migration.deriveIconSpec(fromLegacy: legacy, name: name)
-            }
-
+            let iconSpec = (dict["iconSpec"] as? [String: Any]).map(Self.decodeSpec)
+                ?? IconSpec(kind: .none, userOverridden: false)
             let displayUUID = (dict["displayUUID"] as? String) ?? ""
-            let workspaceName = (dict["workspaceName"] as? String) ?? "slot\(id)"
+            let workspaceName = (dict["workspaceName"] as? String) ?? ""
 
             slots.append(WorkspaceSlot(
                 id: id,
@@ -187,22 +152,19 @@ public final class WorkspaceStateStore {
 
         var spacesObj: [String: Any] = [:]
         for slot in config.slots {
-            // v3 composite key. Empty displayUUID means the slot hasn't
-            // been reconciled against a live aerospace monitor yet — those
-            // land in the `_unassigned:*` bucket so ws-topology can find
-            // and resolve them on the next reconcile pass.
-            let uuid = slot.displayUUID.isEmpty ? "_unassigned" : slot.displayUUID
-            let workspaceName = slot.workspaceName.isEmpty
-                ? "slot\(slot.id)"
-                : slot.workspaceName
-            let key = "\(uuid):\(workspaceName)"
+            // v3 composite key from (displayUUID, workspaceName). Both
+            // fields are required under v3; an empty value indicates a
+            // construction bug and surfaces as an invalid `:name` /
+            // `uuid:` key the renderer will faithfully output (and the
+            // loader will reject on read).
+            let key = "\(slot.displayUUID):\(slot.workspaceName)"
             spacesObj[key] = [
                 "name":               slot.name,
                 "color":              slot.color,
                 "iconSpec":           Migration.encode(spec: slot.iconSpec),
                 "stableLogicalLabel": slot.stableLogicalLabel,
-                "displayUUID":        uuid,
-                "workspaceName":      workspaceName,
+                "displayUUID":        slot.displayUUID,
+                "workspaceName":      slot.workspaceName,
             ] as [String: Any]
         }
         root["spaces"] = spacesObj
