@@ -15,6 +15,7 @@ DerivedData/
 # IDE
 .vscode/
 .idea/
+.claude/
 
 # Cache
 *.tmp
