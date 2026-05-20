@@ -101,44 +101,25 @@ public enum WorkspaceSystem {
     public static let currentEnvFileName: String = "current.env"
 }
 
-/// Window manager integration configuration. Post-Phase-6 there's only
-/// one supported backend (AeroSpace); the env var still exists for
-/// rare test setups that want to force `none`.
+/// AeroSpace binary discovery. `AEROSPACE_BIN` env var wins when set
+/// (test harnesses use this to point at a stub); otherwise the first
+/// installed Homebrew path. AeroSpace is the only backend post-migration —
+/// `WORKSPACE_WINDOW_MANAGER` is no longer consulted.
 public enum WindowManagerConfig {
-    /// The window manager to use. Override with WORKSPACE_WINDOW_MANAGER
-    /// env var. Supported values: `"aerospace"` (default), `"none"`.
-    /// Legacy values `"yabai"` and `"rectangle"` decode to a no-op
-    /// backend during transition; logging surfaces remain quiet.
-    public static let `default`: String = {
-        ProcessInfo.processInfo.environment["WORKSPACE_WINDOW_MANAGER"]
-            ?? "aerospace"
-    }()
-
-    /// Path to the aerospace binary. `AEROSPACE_BIN` env var wins when
-    /// set (test harnesses use this to point at a stub).
     public static let binaryPath: String = {
         let env = ProcessInfo.processInfo.environment
-        return resolveBinary(
-            envVar: "AEROSPACE_BIN",
-            candidates: [
-                "/opt/homebrew/bin/aerospace",
-                "/usr/local/bin/aerospace",
-            ],
-            env: env
-        )
-    }()
-
-    private static func resolveBinary(
-        envVar: String, candidates: [String], env: [String: String]
-    ) -> String {
-        if let override = env[envVar], !override.isEmpty,
+        if let override = env["AEROSPACE_BIN"], !override.isEmpty,
            FileManager.default.isExecutableFile(atPath: override) {
             return override
         }
+        let candidates = [
+            "/opt/homebrew/bin/aerospace",
+            "/usr/local/bin/aerospace",
+        ]
         for path in candidates
         where FileManager.default.isExecutableFile(atPath: path) {
             return path
         }
         return candidates.first ?? ""
-    }
+    }()
 }

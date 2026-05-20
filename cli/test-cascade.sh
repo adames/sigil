@@ -32,20 +32,18 @@ if [[ -z "$WS_BIN" ]]; then
 fi
 
 # Don't grow the WM during tests — we're only exercising the JSON layer.
-# WS_GROW_WM_ON_ADD (alias: WS_GROW_YABAI_ON_ADD) controls whether
-# `ws add` attempts a runtime workspace create. Under aerospace, that's
-# a config-time operation and always fails — but setting this to 0
-# keeps the test harness explicit about its identity-only intent.
+# WS_GROW_WM_ON_ADD controls whether `ws add` attempts a runtime
+# workspace create. Under aerospace, that's a config-time operation
+# and always fails — but setting this to 0 keeps the test harness
+# explicit about its identity-only intent.
 export WS_GROW_WM_ON_ADD=0
-export WS_GROW_YABAI_ON_ADD=0  # back-compat alias
 # The harness intentionally grows the JSON past the WM's workspace count
-# to give positional tests headroom. WS_SKIP_WM_SLOT_CHECK=1 (alias:
-# WS_SKIP_YABAI_SLOT_CHECK) tells the `ws` CLI to skip every WM-derived
-# slot-count check (the validator, the doctor's drift check, and the
-# count subcommand) so the JSON-side tests can exercise slots that
-# don't correspond to real aerospace workspaces.
+# to give positional tests headroom. WS_SKIP_WM_SLOT_CHECK=1 tells the
+# `ws` CLI to skip every WM-derived slot-count check (the validator,
+# the doctor's drift check, and the count subcommand) so the JSON-side
+# tests can exercise slots that don't correspond to real aerospace
+# workspaces.
 export WS_SKIP_WM_SLOT_CHECK=1
-export WS_SKIP_YABAI_SLOT_CHECK=1  # back-compat alias
 
 red()   { printf '\033[31m%s\033[0m\n' "$*" >&2; }
 green() { printf '\033[32m%s\033[0m\n' "$*"; }

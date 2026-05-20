@@ -1,9 +1,12 @@
 import Foundation
 
-/// Abstraction over window managers (yabai, aerospace, rectangle, etc.)
-/// Provides workspace/space operations without vendor-specific assumptions.
+/// Abstraction over the window manager. AeroSpace is the only real
+/// backend post-migration; `WindowManagerKind` keeps `.none` as the
+/// degenerate case for tests and for explicit-disable setups, and stays
+/// declared as an enum so a third implementation could slot in without
+/// touching call sites.
 public protocol WindowManager {
-    /// The type of window manager (yabai, aerospace, rectangle, none)
+    /// The type of window manager (aerospace, none)
     static var kind: WindowManagerKind { get }
 
     /// Path to the window manager binary
@@ -71,9 +74,7 @@ public protocol WindowManager {
 }
 
 public enum WindowManagerKind: String, Sendable {
-    case yabai
     case aerospace
-    case rectangle
     case none
 }
 

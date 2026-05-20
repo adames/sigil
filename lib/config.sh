@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Workspace system configuration loader
-# Sources user configuration from ~/.config/workspace/config.env or uses defaults
+# Workspace system configuration loader.
+# Sources user configuration from ~/.config/workspace/config.env or uses defaults.
+# AeroSpace is the only supported backend post-migration; WORKSPACE_WM_BIN
+# always points at it (or stays empty when aerospace isn't installed).
 
 # Default configuration - can be overridden by user
 : "${WORKSPACE_BUNDLE_PREFIX:=com.user.workspace}"
-: "${WORKSPACE_WINDOW_MANAGER:=aerospace}"
 : "${WORKSPACE_BAR:=ws-statusbar}"
 
 # XDG-compliant paths
@@ -22,13 +23,11 @@ WORKSPACE_TOPOLOGY_FILE="topology.json"
 WORKSPACE_LAYOUT_ENV="layout.env"
 WORKSPACE_CURRENT_ENV="current.env"
 
-# Window manager binary path. AeroSpace is the only supported backend
-# post-yabai burn; leave WORKSPACE_WM_BIN empty for explicit-none setups.
-if [[ "$WORKSPACE_WINDOW_MANAGER" == "aerospace" ]]; then
-    WORKSPACE_WM_BIN="/opt/homebrew/bin/aerospace"
-else
-    WORKSPACE_WM_BIN=""
-fi
+# AeroSpace binary path. Empty if the cask isn't installed — callers
+# (lib/window-manager.sh) check `[[ -x "$WORKSPACE_WM_BIN" ]]` and
+# fail-soft when absent.
+WORKSPACE_WM_BIN="/opt/homebrew/bin/aerospace"
+[[ -x "$WORKSPACE_WM_BIN" ]] || WORKSPACE_WM_BIN=""
 
 # Derived values
 WORKSPACE_LOG_SUBSYSTEM="${WORKSPACE_BUNDLE_PREFIX}.topology"
@@ -46,7 +45,6 @@ fi
 
 # Export all variables for child processes
 export WORKSPACE_BUNDLE_PREFIX
-export WORKSPACE_WINDOW_MANAGER
 export WORKSPACE_BAR
 export WORKSPACE_CONFIG_DIR
 export WORKSPACE_CACHE_DIR

@@ -30,8 +30,7 @@
 #     `ws <subcommand>`). _<name>()  → file-private helper.
 #   • boolean knobs phrase the toggle as English. Current set:
 #     WS_SKIP_WM_SLOT_CHECK (test harness disables WM-derived bounds so
-#     it can exercise JSON-only state). Default = 0. Legacy
-#     WS_SKIP_YABAI_SLOT_CHECK is honored as an alias for back-compat.
+#     it can exercise JSON-only state). Default = 0.
 
 set -u
 
@@ -108,7 +107,7 @@ _count() { jq '.spaces | keys | map(tonumber) | length' "$WS_CONFIG"; }
 # absent / daemon down / when WS_SKIP_WM_SLOT_CHECK=1 (the verify harness
 # disables WM-derived bounds so it can exercise JSON-only state).
 _wm_count() {
-  [[ "${WS_SKIP_WM_SLOT_CHECK:-${WS_SKIP_YABAI_SLOT_CHECK:-0}}" == "1" ]] && { printf '0\n'; return; }
+  [[ "${WS_SKIP_WM_SLOT_CHECK:-0}" == "1" ]] && { printf '0\n'; return; }
   if [[ -n "${WORKSPACE_WM_BIN:-}" ]]; then
     wm_space_count 2>/dev/null || printf '0\n'
   else
@@ -894,7 +893,7 @@ cmd_add() {
   # Skipped on explicit identity-only deployments (Linux harness, etc.)
   # via WS_GROW_WM_ON_ADD=0; in that case `ws add` writes the JSON only,
   # which has always been valid for non-macOS / no-WM setups.
-  if [[ "${WS_GROW_WM_ON_ADD:-${WS_GROW_YABAI_ON_ADD:-1}}" == 1 ]] && _wm_available; then
+  if [[ "${WS_GROW_WM_ON_ADD:-1}" == 1 ]] && _wm_available; then
     local wm_err
     if ! wm_err=$(wm_create_space 2>&1); then
       err "cannot create workspace at runtime under aerospace."
@@ -1443,12 +1442,12 @@ cmd_doctor() {
   # config-time (aerospace.toml), so drift means the user added a
   # spaces.json entry without declaring the corresponding workspace —
   # orphans accumulate and block `ws name` uniqueness checks against
-  # ghost slots. WS_SKIP_WM_SLOT_CHECK=1 (alias: WS_SKIP_YABAI_SLOT_CHECK)
-  # disables every WM-derived bound (this drift check +
+  # ghost slots. WS_SKIP_WM_SLOT_CHECK=1 disables every WM-derived
+  # bound (this drift check +
   # _resolve_slot's addressable bound + cmd_count's view). Set by the
   # verify harness, which intentionally grows the JSON beyond aerospace's
   # real workspace count to give positional tests headroom.
-  if [[ "${WS_SKIP_WM_SLOT_CHECK:-${WS_SKIP_YABAI_SLOT_CHECK:-0}}" != "1" ]] \
+  if [[ "${WS_SKIP_WM_SLOT_CHECK:-0}" != "1" ]] \
        && _wm_available; then
     local wm_n json_n
     wm_n=$(wm_space_count 2>/dev/null || echo 0)

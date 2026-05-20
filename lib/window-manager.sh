@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # Window Manager abstraction layer (shell side).
 # Wraps the `aerospace` CLI with the same function surface the Swift
-# `WindowManager` protocol exposes. Post-Phase-6: aerospace is the only
-# backend; yabai branches are gone. Functions return non-zero + log to
-# stderr when the daemon isn't reachable so callers can fail soft.
+# `WindowManager` protocol exposes. AeroSpace is the only backend.
+# Functions return non-zero + log to stderr when the daemon isn't
+# reachable so callers can fail soft.
 
-# Ensure config is loaded
-if [[ -z "${WORKSPACE_WINDOW_MANAGER:-}" ]]; then
+# Ensure config is loaded so WORKSPACE_WM_BIN is set.
+if [[ -z "${WORKSPACE_WM_BIN:-}" ]]; then
     if [[ -r "$HOME/.config/workspace/lib/config.sh" ]]; then
         # shellcheck source=/dev/null
         source "$HOME/.config/workspace/lib/config.sh"
     else
-        WORKSPACE_WINDOW_MANAGER="${WORKSPACE_WINDOW_MANAGER:-aerospace}"
-        WORKSPACE_WM_BIN="${WORKSPACE_WM_BIN:-/opt/homebrew/bin/aerospace}"
+        WORKSPACE_WM_BIN="/opt/homebrew/bin/aerospace"
+        [[ -x "$WORKSPACE_WM_BIN" ]] || WORKSPACE_WM_BIN=""
     fi
 fi
 
