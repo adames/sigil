@@ -308,11 +308,23 @@ final class StatusBarController: NSObject, NSMenuDelegate {
 
         var newWorkspaces: [WorkspaceInfo] = []
         for (position, space) in liveSpaces.enumerated() {
-            let target = WorkspaceTarget(
+            // Two-pass join: prefer a slot pinned to this exact display
+            // UUID; fall back to an `_unassigned` slot with the same
+            // workspaceName. `_unassigned` is spaces.json's documented
+            // wildcard — it means "this slot applies to whatever
+            // display the workspace happens to live on". Without this
+            // fallback, fresh setups (where every slot is _unassigned
+            // by default) silently lose their `name` / `icon` / `color`
+            // overlay and the menu falls back to `ws<N>`.
+            let specificTarget = WorkspaceTarget(
                 displayUUID: space.displayUUID,
                 workspaceName: space.workspaceName
             )
-            let id = identities[target]
+            let wildcardTarget = WorkspaceTarget(
+                displayUUID: "_unassigned",
+                workspaceName: space.workspaceName
+            )
+            let id = identities[specificTarget] ?? identities[wildcardTarget]
             let ordinal = position + 1
             newWorkspaces.append(WorkspaceInfo(
                 index: ordinal,
