@@ -81,22 +81,26 @@ public final class NoOpWindowManager: WindowManager {
     
     public init() {}
     
-    public func focusSpace(index: Int) throws {
+    public func focusSpace(target: WorkspaceTarget) throws {
         throw WindowManagerError.unavailable
     }
-    
-    public func sendWindowToSpace(index: Int, follow: Bool) throws {
+
+    public func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws {
         throw WindowManagerError.unavailable
     }
-    
-    public func createSpace() throws -> Int {
+
+    public func createSpace() throws -> WorkspaceTarget {
         throw WindowManagerError.unavailable
     }
-    
-    public func destroySpace(index: Int) throws {
+
+    public func destroySpace(target: WorkspaceTarget) throws {
         throw WindowManagerError.unavailable
     }
-    
+
+    public func focusedSpace() throws -> WorkspaceTarget? {
+        return nil
+    }
+
     public func focusedSpaceIndex() throws -> Int? {
         return nil
     }

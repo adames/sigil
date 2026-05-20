@@ -11,22 +11,37 @@ public protocol WindowManager {
 
     // MARK: - Space Operations
 
-    /// Focus the space with the given index (1-based)
-    func focusSpace(index: Int) throws
+    /// Focus the workspace identified by `target`. Under aerospace this is
+    /// `aerospace workspace <name>`; under yabai it resolves the target's
+    /// workspaceName/displayUUID back to a yabai global slot via the
+    /// `(displayUUID, workspaceName) → slot` lookup that
+    /// `WorkspaceTarget` carries.
+    func focusSpace(target: WorkspaceTarget) throws
 
-    /// Send the focused window to the space with the given index, optionally following it
-    func sendWindowToSpace(index: Int, follow: Bool) throws
+    /// Send the focused window to the workspace identified by `target`,
+    /// optionally following it.
+    func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws
 
-    /// Create a new space, returning its index
-    func createSpace() throws -> Int
+    /// Create a new workspace. Throws `.notImplemented` under aerospace
+    /// (workspaces are declared statically in aerospace.toml). Yabai
+    /// synthesizes a `WorkspaceTarget` for the newly-created slot.
+    func createSpace() throws -> WorkspaceTarget
 
-    /// Destroy the space with the given index
-    func destroySpace(index: Int) throws
+    /// Destroy the workspace identified by `target`. Throws
+    /// `.notImplemented` under aerospace (same reason as `createSpace()`).
+    func destroySpace(target: WorkspaceTarget) throws
 
-    /// Get the currently focused space index (1-based)
+    /// Get the currently focused workspace, or nil if no window manager.
+    func focusedSpace() throws -> WorkspaceTarget?
+
+    /// Get the currently focused space's legacy global slot index (1-based).
+    /// Retained as a transitional convenience for consumers (statusbar
+    /// cache fallback, ws-prompt index renderers) that still think in
+    /// slots. Aerospace synthesizes the per-display ordinal here. Will be
+    /// retired in a follow-up once all consumers move to `focusedSpace()`.
     func focusedSpaceIndex() throws -> Int?
 
-    /// Get the total number of spaces
+    /// Get the total number of spaces / workspaces.
     func spaceCount() throws -> Int
 
     // MARK: - Window Operations
@@ -113,11 +128,80 @@ public struct WindowInfo: Decodable, Sendable {
     }
 }
 
-/// One space, with the slot index and the index of the display that
-/// hosts it. The manage overlay uses the `(index, display)` pairing
-/// for optimistic pre-paint; statusbar uses it for the per-display
-/// pill strip.
+/// One space / workspace. Post-fork-B, the source of truth for
+/// "which workspace lives on which display" is the
+/// `(displayUUID, workspaceName)` pair carried here, not the slot
+/// `index`. `index` and `display` remain as derived/legacy convenience
+/// fields for the statusbar pill renderer and any consumers that still
+/// think in global slots; aerospace synthesizes them as a per-display
+/// ordinal + monitor index.
+///
+/// Custom `Decodable` because yabai's `--query --spaces` JSON has
+/// `index` and `display` but no `workspaceName`/`displayUUID` — those
+/// are synthesized post-decode by the YabaiWindowManager. Aerospace's
+/// implementation constructs `SpaceInfo` directly (not via decode) and
+/// supplies real values for all four fields.
 public struct SpaceInfo: Decodable, Sendable {
     public let index: Int
     public let display: Int
+    public let displayUUID: String
+    public let workspaceName: String
+
+    public init(
+        index: Int,
+        display: Int,
+        displayUUID: String,
+        workspaceName: String
+    ) {
+        self.index = index
+        self.display = display
+        self.displayUUID = displayUUID
+        self.workspaceName = workspaceName
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case index, display, displayUUID, workspaceName, label
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let index = try c.decode(Int.self, forKey: .index)
+        let display = try c.decode(Int.self, forKey: .display)
+        // Aerospace path may emit these directly. Yabai path leaves them
+        // absent; we synthesize. `label` is yabai's space label and is
+        // preferred as workspaceName when present.
+        let uuid = try c.decodeIfPresent(String.self, forKey: .displayUUID)
+        let nameField = try c.decodeIfPresent(String.self, forKey: .workspaceName)
+        let label = try c.decodeIfPresent(String.self, forKey: .label)
+        self.index = index
+        self.display = display
+        self.displayUUID = uuid ?? ""
+        let resolvedName = nameField
+            ?? (label?.isEmpty == false ? label : nil)
+            ?? "slot\(index)"
+        self.workspaceName = resolvedName
+    }
+}
+
+/// Composite key identifying a workspace under fork B's per-display
+/// data model: `(displayUUID, workspaceName)`. `displayUUID` is the
+/// CoreGraphics-derived UUID from `CGDisplayCreateUUIDFromDisplayID` —
+/// stable across reboots and hot-plug. `workspaceName` is the aerospace
+/// workspace name (or the synthesized "slot<N>" name for yabai-era
+/// slots that haven't been reconciled yet).
+public struct WorkspaceTarget: Hashable, Sendable {
+    public let displayUUID: String
+    public let workspaceName: String
+
+    public init(displayUUID: String, workspaceName: String) {
+        self.displayUUID = displayUUID
+        self.workspaceName = workspaceName
+    }
+
+    /// Convenience constructor for transitional callers that still hold
+    /// a `SpaceInfo`. Equivalent to copying the two key fields.
+    public init(_ space: SpaceInfo) {
+        self.displayUUID = space.displayUUID
+        self.workspaceName = space.workspaceName
+    }
 }

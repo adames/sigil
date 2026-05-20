@@ -11,29 +11,46 @@ public final class YabaiWindowManager: WindowManager {
     }
     
     // MARK: - Space Operations
-    
-    public func focusSpace(index: Int) throws {
-        try runYabai(args: ["-m", "space", "--focus", "\(index)"])
+
+    public func focusSpace(target: WorkspaceTarget) throws {
+        let slot = try resolveSlot(for: target)
+        try runYabai(args: ["-m", "space", "--focus", "\(slot)"])
     }
-    
-    public func sendWindowToSpace(index: Int, follow: Bool) throws {
+
+    public func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws {
+        let slot = try resolveSlot(for: target)
         let windowID = try focusedWindowID()
-        try runYabai(args: ["-m", "window", "--space", "\(index)"])
+        try runYabai(args: ["-m", "window", "--space", "\(slot)"])
         if follow, let wid = windowID {
             try focusWindow(id: wid)
         }
     }
-    
-    public func createSpace() throws -> Int {
+
+    public func createSpace() throws -> WorkspaceTarget {
         try runYabai(args: ["-m", "space", "--create"])
-        // Return the new space count (the new space is the last one)
-        return try spaceCount()
+        // The new space is the last one. Synthesize a target for it.
+        let newSlot = try spaceCount()
+        return WorkspaceTarget(
+            displayUUID: "yabai-display-unknown",
+            workspaceName: "slot\(newSlot)"
+        )
     }
-    
-    public func destroySpace(index: Int) throws {
-        try runYabai(args: ["-m", "space", "\(index)", "--destroy"])
+
+    public func destroySpace(target: WorkspaceTarget) throws {
+        let slot = try resolveSlot(for: target)
+        try runYabai(args: ["-m", "space", "\(slot)", "--destroy"])
     }
-    
+
+    public func focusedSpace() throws -> WorkspaceTarget? {
+        guard let idx = try focusedSpaceIndex() else { return nil }
+        // Yabai-era target identity is positional: same name-synthesis rule
+        // as SpaceInfo's decoder.
+        return WorkspaceTarget(
+            displayUUID: "yabai-display-unknown",
+            workspaceName: "slot\(idx)"
+        )
+    }
+
     public func focusedSpaceIndex() throws -> Int? {
         guard let output = try runYabaiWithOutput(args: ["-m", "query", "--spaces", "--space"]) else {
             return nil
@@ -42,7 +59,7 @@ public final class YabaiWindowManager: WindowManager {
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         return json?["index"] as? Int
     }
-    
+
     public func spaceCount() throws -> Int {
         guard let output = try runYabaiWithOutput(args: ["-m", "query", "--spaces"]) else {
             return 0
@@ -50,6 +67,25 @@ public final class YabaiWindowManager: WindowManager {
         guard let data = output.data(using: .utf8) else { return 0 }
         let json = try JSONSerialization.jsonObject(with: data) as? [[String: Any]]
         return json?.count ?? 0
+    }
+
+    /// Translate a `WorkspaceTarget` back to a yabai global slot index.
+    /// Yabai's space identity is positional, so `workspaceName` follows
+    /// the "slot<N>" synthesis convention SpaceInfo's decoder uses.
+    /// Targets carrying a custom name (set by ws-prompt rename) are
+    /// resolved by walking `querySpaces()` and matching `label`.
+    private func resolveSlot(for target: WorkspaceTarget) throws -> Int {
+        if target.workspaceName.hasPrefix("slot"),
+           let n = Int(target.workspaceName.dropFirst("slot".count)) {
+            return n
+        }
+        let spaces = try querySpaces()
+        if let match = spaces.first(where: { $0.workspaceName == target.workspaceName }) {
+            return match.index
+        }
+        throw WindowManagerError.parseError(
+            "yabai: no slot matches workspaceName=\(target.workspaceName)"
+        )
     }
     
     // MARK: - Window Operations

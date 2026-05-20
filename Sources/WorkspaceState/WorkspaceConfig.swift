@@ -1,5 +1,54 @@
 import Foundation
 
+// MARK: - Migration contracts (frozen 2026-05-20)
+//
+// These three contracts are intentionally documented in source so anyone
+// editing the workspace stack sees them before changing related code.
+//
+// 1. `current.env` schema (read by tmux + starship out of repo):
+//    - export MACOS_WORKSPACE_NAME='<aerospace workspace name>'   (was MACOS_SPACE_INDEX)
+//    - export MACOS_SPACE_NAME='<spaces.json identity name>'
+//    - export MACOS_SPACE_COLOR='#rrggbb'
+//    - export MACOS_SPACE_ICON='<glyph>'
+//    - export MACOS_SPACE_DISPLAY=<aerospace monitor ordinal, 1..N>
+//    - export MACOS_SPACE_ANSI='<pre-rendered truecolor sequence>'
+//    Out-of-repo consumers (tmux.conf, starship.toml) only read NAME / COLOR
+//    / ICON / ANSI today, so the INDEX→WORKSPACE_NAME rename has no external
+//    fallout. Update any in-repo readers of MACOS_SPACE_INDEX in lockstep.
+//
+// 2. `~/.config/aerospace/aerospace.toml` ownership: hybrid sentinel-fenced.
+//    User owns gaps, modes, on-window-detected, and all bindings *outside*
+//    the fence. Sigil (`ws-topology emit-aerospace`) owns everything between:
+//
+//        # >>> sigil generated >>>
+//        # <<< sigil generated <<<
+//
+//    Inside the fence: per-workspace `[mode.main.binding]` digit chords + the
+//    `exec-on-workspace-change` cascade that replaces yabai's space_changed
+//    signal. Missing fences ⇒ first-run appends both fence and content at EOF.
+//    Hand-edits inside the fence are clobbered on next `ws-topology emit-aerospace`.
+//
+// 3. `spaces.json` v3 schema (composite-key, post-yabai):
+//
+//    {
+//      "version": 3,
+//      "spaces": {
+//        "<displayUUID>:<workspaceName>": {
+//          "displayUUID": "<CG-stable UUID>",
+//          "workspaceName": "<aerospace name>",
+//          "color": "#rrggbb",
+//          "iconSpec": { ... }
+//        },
+//        "_unassigned:slot_<N>": { ... }   // transitional bucket post-migration
+//      }
+//    }
+//
+//    `displayUUID` is `CGDisplayCreateUUIDFromDisplayID(...)` — the same
+//    identifier `DisplayTopology.stableUUID(for:)` already produces. AeroSpace's
+//    monitor ordinal is NOT stable across hot-plug; never key on it.
+//    v2-slot entries that survive migration land in `_unassigned:*` until
+//    `ws-topology` reconciles them against live `aerospace list-workspaces`.
+
 /// Central configuration for workspace system.
 /// These values are read from environment variables at build time,
 /// allowing customization without code changes.

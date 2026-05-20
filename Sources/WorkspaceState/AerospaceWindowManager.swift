@@ -19,20 +19,29 @@ public final class AerospaceWindowManager: WindowManager {
 
     // MARK: - Space Operations
 
-    public func focusSpace(index: Int) throws {
+    public func focusSpace(target: WorkspaceTarget) throws {
         throw WindowManagerError.notImplemented("aerospace: focusSpace")
     }
 
-    public func sendWindowToSpace(index: Int, follow: Bool) throws {
+    public func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws {
         throw WindowManagerError.notImplemented("aerospace: sendWindowToSpace")
     }
 
-    public func createSpace() throws -> Int {
+    public func createSpace() throws -> WorkspaceTarget {
+        // AeroSpace can't create workspaces at runtime — they're declared
+        // statically in aerospace.toml. This stays as a hard error after
+        // Phase 2 fills in the rest; ws-prompt is rewired in Phase 5 to
+        // not call this under aerospace.
         throw WindowManagerError.notImplemented("aerospace: createSpace")
     }
 
-    public func destroySpace(index: Int) throws {
+    public func destroySpace(target: WorkspaceTarget) throws {
+        // Same as createSpace — aerospace.toml owns workspace existence.
         throw WindowManagerError.notImplemented("aerospace: destroySpace")
+    }
+
+    public func focusedSpace() throws -> WorkspaceTarget? {
+        throw WindowManagerError.notImplemented("aerospace: focusedSpace")
     }
 
     public func focusedSpaceIndex() throws -> Int? {

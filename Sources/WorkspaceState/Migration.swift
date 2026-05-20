@@ -15,22 +15,36 @@ public enum MigrationError: Error, CustomStringConvertible {
 }
 
 public struct MigrationResult: Equatable {
+    /// True only when input was already at the latest schema (v3) and
+    /// nothing changed. Kept as `alreadyV2` for source-compat with prior
+    /// consumers; semantics now mean "already at current version".
     public let alreadyV2: Bool
     public let slotsTouched: Int
+    /// Number of v2 slots that landed in the `_unassigned:*` bucket
+    /// during v2 → v3 migration. Informational — ws-topology reconciles
+    /// these on next startup by matching against live aerospace
+    /// workspaces. Zero on a no-op migration.
+    public let unassignedSlots: Int
     public let outputJSON: String
 
-    public init(alreadyV2: Bool, slotsTouched: Int, outputJSON: String) {
+    public init(
+        alreadyV2: Bool,
+        slotsTouched: Int,
+        unassignedSlots: Int = 0,
+        outputJSON: String
+    ) {
         self.alreadyV2 = alreadyV2
         self.slotsTouched = slotsTouched
+        self.unassignedSlots = unassignedSlots
         self.outputJSON = outputJSON
     }
 }
 
-/// v1 → v2 migration. Preserves all unknown top-level keys (e.g. `_doc_*`
-/// comments) and all unknown slot-level fields. Idempotent: running on a v2
-/// file with no missing pieces produces an unchanged result.
+/// spaces.json schema migration. Chains v1 → v2 → v3 in a single call.
+/// Preserves all unknown top-level keys (e.g. `_doc_*` comments) and all
+/// unknown slot-level fields. Idempotent at every level.
 public enum Migration {
-    public static let currentVersion = 2
+    public static let currentVersion = 3
     public static let defaultNerdFontFamily = "JetBrainsMono Nerd Font"
 
     public static func migrate(jsonData: Data) throws -> MigrationResult {
@@ -43,12 +57,56 @@ public enum Migration {
 
         var root = raw
         let version = (root["version"] as? Int) ?? 1
-        guard version == 1 || version == 2 else {
+        guard version >= 1 && version <= currentVersion else {
             throw MigrationError.unsupportedVersion(version)
         }
 
-        guard let spaces = root["spaces"] as? [String: Any] else {
+        guard root["spaces"] is [String: Any] else {
             throw MigrationError.missingSpaces
+        }
+
+        // Step 1: v1 → v2 — add iconSpec, stableLogicalLabel, name/color
+        // defaults. Operates on slots whose keys are still integer strings.
+        var touched = 0
+        if version <= 2 {
+            let v2 = migrateV1ToV2(root: root, alreadyV2: version == 2)
+            root = v2.root
+            touched = v2.touched
+        }
+
+        // Step 2: v2 → v3 — rewrite integer-string slot keys to
+        // `_unassigned:slot_<N>` composites and add displayUUID +
+        // workspaceName fields. ws-topology reconciles _unassigned
+        // entries against live aerospace workspaces on next startup.
+        var unassigned = 0
+        if version <= 3 {
+            let v3 = migrateV2ToV3(root: root)
+            root = v3.root
+            unassigned = v3.unassigned
+        }
+
+        root["version"] = currentVersion
+
+        let outputJSON = render(root: root)
+        return MigrationResult(
+            alreadyV2: version == currentVersion && touched == 0 && unassigned == 0,
+            slotsTouched: touched,
+            unassignedSlots: unassigned,
+            outputJSON: outputJSON
+        )
+    }
+
+    // MARK: - Per-version stages
+
+    struct V1ToV2 {
+        var root: [String: Any]
+        var touched: Int
+    }
+
+    static func migrateV1ToV2(root: [String: Any], alreadyV2: Bool) -> V1ToV2 {
+        var root = root
+        guard let spaces = root["spaces"] as? [String: Any] else {
+            return V1ToV2(root: root, touched: 0)
         }
 
         var migratedSpaces: [String: Any] = [:]
@@ -59,20 +117,69 @@ public enum Migration {
 
         for key in orderedKeys {
             guard let slot = spaces[key] as? [String: Any] else { continue }
-            let result = migrateSlot(key: key, slot: slot, alreadyV2: version == 2)
+            let result = migrateSlot(key: key, slot: slot, alreadyV2: alreadyV2)
             migratedSpaces[key] = result.slot
             if result.touched { touched += 1 }
         }
 
         root["spaces"] = migratedSpaces
-        root["version"] = currentVersion
+        return V1ToV2(root: root, touched: touched)
+    }
 
-        let outputJSON = render(root: root)
-        return MigrationResult(
-            alreadyV2: version == 2 && touched == 0,
-            slotsTouched: touched,
-            outputJSON: outputJSON
-        )
+    struct V2ToV3 {
+        var root: [String: Any]
+        var unassigned: Int
+    }
+
+    /// v2 → v3: composite-key migration. Integer-string keys ("1", "2", …)
+    /// rewrite to `_unassigned:slot_<N>` so ws-topology can reconcile them
+    /// against live aerospace workspaces. Keys that already look like v3
+    /// composites are passed through. Each slot gains `displayUUID` and
+    /// `workspaceName` fields (empty + synthesized name for unassigned
+    /// entries; preserved verbatim for already-v3 entries).
+    static func migrateV2ToV3(root: [String: Any]) -> V2ToV3 {
+        var root = root
+        guard let spaces = root["spaces"] as? [String: Any] else {
+            return V2ToV3(root: root, unassigned: 0)
+        }
+
+        var migratedSpaces: [String: Any] = [:]
+        var unassigned = 0
+        for (key, value) in spaces {
+            guard var slot = value as? [String: Any] else { continue }
+
+            // Already-v3 composite key: pass through. Backfill missing
+            // displayUUID/workspaceName fields against the key but do NOT
+            // recount existing _unassigned entries — the counter measures
+            // freshly-migrated v2 slots, so idempotent v3→v3 passes report
+            // zero.
+            if key.contains(":") {
+                let parts = key.split(separator: ":", maxSplits: 1)
+                let uuidPart = String(parts.first ?? "")
+                let namePart = parts.count > 1 ? String(parts[1]) : ""
+                if slot["displayUUID"] == nil { slot["displayUUID"] = uuidPart }
+                if slot["workspaceName"] == nil { slot["workspaceName"] = namePart }
+                migratedSpaces[key] = slot
+                continue
+            }
+
+            // v2 integer-string key → `_unassigned:slot<N>` composite. The
+            // `_unassigned` prefix is a sentinel; ws-topology reconciles
+            // these on next startup against live aerospace workspaces.
+            // No extra underscore — keeps the key shape aligned with the
+            // workspaceName convention (`slot<N>`), so encoder + migrator
+            // agree on `"<uuid>:<workspaceName>"`.
+            guard let n = Int(key) else { continue }
+            let synthesizedName = "slot\(n)"
+            let newKey = "_unassigned:\(synthesizedName)"
+            slot["displayUUID"] = "_unassigned"
+            slot["workspaceName"] = synthesizedName
+            migratedSpaces[newKey] = slot
+            unassigned += 1
+        }
+
+        root["spaces"] = migratedSpaces
+        return V2ToV3(root: root, unassigned: unassigned)
     }
 
     struct SlotMigration {
@@ -163,6 +270,38 @@ public enum Migration {
         renderObject(root, indent: 0, isSpacesMap: false) + "\n"
     }
 
+    /// Deterministic sort for the `spaces` map. v2 (integer-string) keys
+    /// sort numerically; v3 (composite `<uuid>:<name>`) keys group by
+    /// displayUUID then by workspaceName. v3 `_unassigned:*` entries sort
+    /// before real-UUID entries by virtue of `_` < ASCII digits. Within
+    /// `_unassigned:slot_<N>`, sort by N (not by string, so slot_10 lands
+    /// after slot_9). Stable, jq-friendly.
+    static func spacesKeyOrder(_ lhs: String, _ rhs: String) -> Bool {
+        let l = spacesSortKey(lhs)
+        let r = spacesSortKey(rhs)
+        return l < r
+    }
+
+    /// Tuple sort key: (group, primaryString, slotSuffix, originalKey).
+    /// - group 0: legacy integer-string keys (sorted by Int value)
+    /// - group 1: `_unassigned:slot<N>` (sorted by N)
+    /// - group 2: composite `<uuid>:<name>` (sorted lex by uuid then name)
+    static func spacesSortKey(_ key: String) -> (Int, String, Int, String) {
+        if let n = Int(key) {
+            return (0, "", n, key)
+        }
+        if key.hasPrefix("_unassigned:slot"),
+           let n = Int(key.dropFirst("_unassigned:slot".count)) {
+            return (1, "_unassigned", n, key)
+        }
+        if let colon = key.firstIndex(of: ":") {
+            let uuid = String(key[..<colon])
+            let name = String(key[key.index(after: colon)...])
+            return (2, uuid + "\u{1F}" + name, 0, key)
+        }
+        return (3, key, 0, key)
+    }
+
     static func renderObject(
         _ obj: [String: Any],
         indent: Int,
@@ -170,7 +309,7 @@ public enum Migration {
     ) -> String {
         if obj.isEmpty { return "{}" }
         let keys = isSpacesMap
-            ? obj.keys.sorted { (Int($0) ?? .max) < (Int($1) ?? .max) }
+            ? obj.keys.sorted(by: spacesKeyOrder)
             : obj.keys.sorted()
         let pad   = String(repeating: " ", count: indent + 2)
         let close = String(repeating: " ", count: indent)

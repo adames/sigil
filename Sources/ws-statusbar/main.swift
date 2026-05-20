@@ -542,7 +542,20 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
     
     private func focusWorkspace(slot: Int) {
-        try? windowManager.focusSpace(index: slot)
+        // Resolve the slot → WorkspaceTarget via querySpaces; falls back
+        // to the yabai-era positional synthesis if the protocol doesn't
+        // return a matching SpaceInfo (e.g., during cold-boot reconcile).
+        let spaces = (try? windowManager.querySpaces()) ?? []
+        let target: WorkspaceTarget
+        if let match = spaces.first(where: { $0.index == slot }) {
+            target = WorkspaceTarget(match)
+        } else {
+            target = WorkspaceTarget(
+                displayUUID: "",
+                workspaceName: "slot\(slot)"
+            )
+        }
+        try? windowManager.focusSpace(target: target)
     }
     
     /// Decode \uXXXX escape sequences to actual unicode characters
