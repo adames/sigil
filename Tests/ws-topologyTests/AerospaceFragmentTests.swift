@@ -13,28 +13,31 @@ enum FragmentMirror {
     static let closeFence = "# <<< sigil generated <<<"
 
     /// Verbatim copy of `AerospaceFragment.merge` semantics — replaces the
-    /// fenced block in-place, or appends with a separator newline when the
-    /// fence is absent.
+    /// fenced block in-place (line-anchored: fence must be a standalone
+    /// line, not a substring inside a doc comment), or appends with a
+    /// separator newline when the fence is absent.
     static func merge(block: String, into existing: String) -> String {
         let cleanBlock = block.hasSuffix("\n") ? String(block.dropLast()) : block
 
-        guard let openRange = existing.range(of: openFence),
-              let closeRange = existing.range(of: closeFence,
-                                              range: openRange.upperBound..<existing.endIndex)
-        else {
-            let needsSeparator = !existing.isEmpty && !existing.hasSuffix("\n")
-            return existing + (needsSeparator ? "\n" : "") + cleanBlock + "\n"
+        var lines = existing.components(separatedBy: "\n")
+        let hadTrailingNewline = existing.hasSuffix("\n")
+        if hadTrailingNewline, lines.last == "" { lines.removeLast() }
+
+        let openIdx = lines.firstIndex(where: { $0.trimmingCharacters(in: .whitespaces) == openFence })
+        let closeIdx: Int? = openIdx.flatMap { o in
+            lines[(o + 1)...].firstIndex(where: { $0.trimmingCharacters(in: .whitespaces) == closeFence })
         }
 
-        let afterClose = existing.index(closeRange.upperBound, offsetBy: 0)
-        var replaceUpper = closeRange.upperBound
-        if afterClose < existing.endIndex, existing[afterClose] == "\n" {
-            replaceUpper = existing.index(after: afterClose)
+        if let o = openIdx, let c = closeIdx {
+            let blockLines = cleanBlock.components(separatedBy: "\n")
+            lines.replaceSubrange(o...c, with: blockLines)
+            var out = lines.joined(separator: "\n")
+            if hadTrailingNewline || !out.hasSuffix("\n") { out += "\n" }
+            return out
         }
-        return existing.replacingCharacters(
-            in: openRange.lowerBound..<replaceUpper,
-            with: cleanBlock + "\n"
-        )
+
+        let needsSeparator = !existing.isEmpty && !existing.hasSuffix("\n")
+        return existing + (needsSeparator ? "\n" : "") + cleanBlock + "\n"
     }
 }
 
@@ -128,5 +131,52 @@ struct AerospaceFragmentMergeTests {
         let merged = FragmentMirror.merge(block: block, into: existing)
         // Should NOT smush "gaps.outer.top = 26# >>> sigil generated >>>"
         #expect(merged.contains("gaps.outer.top = 26\n# >>> sigil generated >>>"))
+    }
+
+    /// Regression: the merge writer's prior substring-based search would
+    /// snag any line that contained the fence string — including a header
+    /// comment that documented the fence by name (e.g. `# The block
+    /// between \`# >>> sigil generated >>>\` and \`# <<< sigil generated
+    /// <<<\` is owned by sigil`). That misplaced match clobbered the
+    /// entire file between the doc comment and the real bottom fence.
+    /// The fix is line-anchored matching — fence must be a standalone
+    /// line. This test pins that contract.
+    @Test func doc_comment_referencing_fence_by_name_is_ignored() {
+        let existing = """
+        # AeroSpace configuration
+        #
+        # This file replaces yabairc + skhdrc. The block between
+        # `# >>> sigil generated >>>` and `# <<< sigil generated <<<` is
+        # OWNED BY ws-topology. Hand-edits inside are clobbered.
+
+        start-at-login = true
+
+        [gaps]
+        outer.top = 26
+
+        [mode.main.binding]
+        cmd-alt-ctrl-shift-h = 'focus left'
+
+        # >>> sigil generated >>>
+        # placeholder
+        # <<< sigil generated <<<
+        """
+        let block = """
+        # >>> sigil generated >>>
+        NEW
+        # <<< sigil generated <<<
+        """
+        let merged = FragmentMirror.merge(block: block, into: existing)
+        // User content survives. The substring "# >>> sigil generated >>>"
+        // appears TWICE in the doc comment + once at the real fence open;
+        // only the real fence open should be matched.
+        #expect(merged.contains("This file replaces yabairc"),
+                "doc comment must survive — the substring match used to clobber this")
+        #expect(merged.contains("start-at-login = true"))
+        #expect(merged.contains("[gaps]"))
+        #expect(merged.contains("cmd-alt-ctrl-shift-h = 'focus left'"))
+        #expect(merged.contains("NEW"))
+        #expect(!merged.contains("# placeholder"),
+                "real fenced placeholder block should be replaced")
     }
 }

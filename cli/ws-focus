@@ -25,7 +25,7 @@ fi
 # next/prev → delegate to aerospace's built-in cycle. wrap-around keeps
 # parity with the yabai-era modulo semantics.
 if [[ "$target" == "next" || "$target" == "prev" ]]; then
-  if aerospace workspace --wrap-around "$target" 2>/dev/null; then
+  if aerospace workspace --wrap-around --no-stdin "$target" 2>/dev/null; then
     command -v sketchybar >/dev/null 2>&1 \
       && sketchybar --trigger workspace_changed >/dev/null 2>&1 || true
     exit 0

@@ -25,7 +25,10 @@ fi
 # Aerospace's `move-node-to-workspace next|prev` already exists; pass
 # those through directly and let aerospace handle the wraparound + focus.
 if [[ "$target" == "next" || "$target" == "prev" ]]; then
-  if ! aerospace move-node-to-workspace --focus-follows-window --wrap-around "$target" 2>/dev/null; then
+  # AeroSpace v0.20+ requires explicit --no-stdin (or --stdin) when
+  # invoked non-interactively; otherwise it bails with "Implicit stdin
+  # is detected".
+  if ! aerospace move-node-to-workspace --focus-follows-window --wrap-around --no-stdin "$target" 2>/dev/null; then
     osascript -e "display notification \"send $target failed\" with title \"ws\""
     exit 1
   fi
