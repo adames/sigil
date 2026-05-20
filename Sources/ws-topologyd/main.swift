@@ -116,7 +116,6 @@ final class TopologyDaemon: @unchecked Sendable {
             }
         }
 
-        triggerSketchybar()
         firePostMutateHook()
     }
 
@@ -127,10 +126,6 @@ final class TopologyDaemon: @unchecked Sendable {
         for p in policies.policies {
             TopologyLog.policy.debug("policy id=\(p.displayID) class=\(p.layoutClass.rawValue, privacy: .public) barH=\(p.barHeightPoints) maxSlots=\(p.maxVisibleSlots) aux=\(p.shouldUseAuxiliaryTopAreas)")
         }
-    }
-
-    private func triggerSketchybar() {
-        runIfAvailable("/bin/sh", ["-c", "command -v sketchybar >/dev/null 2>&1 && sketchybar --trigger workspace_changed >/dev/null 2>&1"])
     }
 
     private func firePostMutateHook() {

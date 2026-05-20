@@ -32,8 +32,8 @@ LAUNCH_AGENTS="$WORKSPACE_LAUNCH_AGENTS_DIR"
 BINARIES=(ws-topology ws-topologyd ws-cheatsheet ws-prompt ws-picker ws-snap ws-statusbar)
 
 # Template names and their generated plist names
-TEMPLATES=(topologyd autohide statusbar)
-AGENT_LABELS=("$WORKSPACE_BUNDLE_PREFIX.topologyd" "$WORKSPACE_BUNDLE_PREFIX.autohide" "$WORKSPACE_BUNDLE_PREFIX.statusbar")
+TEMPLATES=(topologyd statusbar)
+AGENT_LABELS=("$WORKSPACE_BUNDLE_PREFIX.topologyd" "$WORKSPACE_BUNDLE_PREFIX.statusbar")
 
 step() { printf '\033[36m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m!!\033[0m %s\n' "$*" >&2; }

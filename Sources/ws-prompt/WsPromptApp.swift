@@ -38,10 +38,8 @@ final class WsPromptApp {
             .appendingPathComponent(".cache/workspace/ws-prompt.\(mode.rawValue).pid")
 
         let workspaces = service.loadWorkspaces()
-        // Snapshot the focused slot once at overlay open. Used by
-        // dispatchFocusOrSend to fire sketchybar's optimistic pre-paint
-        // trigger the instant the chord commits — no extra aerospace RPC
-        // at commit time.
+        // Snapshot at overlay open — ManageController uses it for the
+        // current-workspace marker and re-resolves any edited row.
         let focusedIndex = service.focusedSpaceIndex()
         self.workspaces = workspaces
         self.focusedIndex = focusedIndex
@@ -164,28 +162,12 @@ final class WsPromptApp {
         case .idle, .refilter:           return
         case .cancel:                    terminate()
         case .commitFocus(let slot):
-            firePrePaint(targetSlot: slot)
             service.spawnFocus(slot: slot)
             terminate()
         case .commitSend(let slot):
-            firePrePaint(targetSlot: slot)
             service.spawnSend(slot: slot)
             terminate()
         }
-    }
-
-    /// Optimistic pre-paint. Fires the sketchybar trigger with the
-    /// target SID + OLD SID + target display before we even spawn the
-    /// bash helper. Removes the helper's subprocess fork + aerospace-RPC
-    /// cost (~30–40 ms) from the chord-to-pill latency. Helper still
-    /// fires the same trigger as a defensive backstop when invoked
-    /// from the CLI directly.
-    private func firePrePaint(targetSlot: Int) {
-        guard let oldSlot = focusedIndex, oldSlot != targetSlot else { return }
-        guard let target = workspaces.first(where: { $0.index == targetSlot }) else { return }
-        service.fireOptimisticPrePaint(newSlot: targetSlot,
-                                       oldSlot: oldSlot,
-                                       display: target.display)
     }
 
     private func dispatchManage(_ key: PromptKey) {

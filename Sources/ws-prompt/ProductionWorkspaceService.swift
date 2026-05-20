@@ -109,25 +109,6 @@ final class ProductionWorkspaceService: WorkspaceService {
     func spawnFocus(slot: Int) { spawnHelper(name: "ws-focus", arg: String(slot)) }
     func spawnSend(slot: Int)  { spawnHelper(name: "ws-send-follow", arg: String(slot)) }
 
-    func fireOptimisticPrePaint(newSlot: Int, oldSlot: Int, display: Int) {
-        // No-op when target == current. Sketchybar probe is defensive:
-        // when the binary isn't on disk, skip silently — ws-focus fires
-        // the same trigger later as a backstop.
-        guard newSlot != oldSlot else { return }
-        let sketchybar = ["/opt/homebrew/bin/sketchybar", "/usr/local/bin/sketchybar"]
-            .first(where: { FileManager.default.isExecutableFile(atPath: $0) })
-        guard let bin = sketchybar else { return }
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: bin)
-        task.arguments = [
-            "--trigger", "workspace_changed",
-            "WS_OPTIMISTIC_SID=\(newSlot)",
-            "WS_OPTIMISTIC_OLD_SID=\(oldSlot)",
-            "WS_OPTIMISTIC_DISPLAY=\(display)"
-        ]
-        do { try task.run() } catch { /* fall through; bash backstop fires later */ }
-    }
-
     // MARK: - Internals
 
     private func iconMap() -> Set<String> {
