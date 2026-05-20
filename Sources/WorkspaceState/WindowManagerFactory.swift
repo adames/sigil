@@ -26,17 +26,6 @@ public enum WindowManagerFactory {
         }
         return .none
     }
-
-    /// Whether a given kind is installed.
-    public static func isAvailable(_ kind: WindowManagerKind) -> Bool {
-        switch kind {
-        case .aerospace:
-            let paths = ["/opt/homebrew/bin/aerospace", "/usr/local/bin/aerospace"]
-            return paths.contains { FileManager.default.fileExists(atPath: $0) }
-        case .none:
-            return true
-        }
-    }
 }
 
 /// No-op window manager for when no window manager is available.
@@ -54,27 +43,11 @@ public final class NoOpWindowManager: WindowManager {
         throw WindowManagerError.unavailable
     }
 
-    public func createSpace() throws -> WorkspaceTarget {
-        throw WindowManagerError.unavailable
-    }
-
-    public func destroySpace(target: WorkspaceTarget) throws {
-        throw WindowManagerError.unavailable
-    }
-
     public func focusedSpace() throws -> WorkspaceTarget? {
         return nil
     }
 
     public func focusedSpaceIndex() throws -> Int? {
-        return nil
-    }
-
-    public func spaceCount() throws -> Int {
-        return 0
-    }
-
-    public func focusedWindowID() throws -> Int? {
         return nil
     }
 

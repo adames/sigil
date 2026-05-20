@@ -18,10 +18,9 @@ import CoreGraphics
 ///     3. match by frame intersection (AeroSpace's monitor frame ⇔
 ///        CGDisplayBounds), derive stable UUID per match
 ///
-/// Runtime workspace mutation:
-///   AeroSpace declares workspaces statically in `aerospace.toml`. Both
-///   createSpace() and destroySpace(target:) throw `.notImplemented` —
-///   ws-prompt's add/destroy flows route around this in Phase 5.
+/// Workspaces are declared statically in aerospace.toml; runtime
+/// create/destroy isn't supported. ws-prompt surfaces an edit-then-
+/// reload help message for those flows.
 public final class AerospaceWindowManager: WindowManager {
     public static let kind: WindowManagerKind = .aerospace
 
@@ -42,17 +41,6 @@ public final class AerospaceWindowManager: WindowManager {
         if follow { args.append("--focus-follows-window") }
         args.append(target.workspaceName)
         try runAerospace(args: args)
-    }
-
-    public func createSpace() throws -> WorkspaceTarget {
-        // Workspaces declared statically in aerospace.toml. ws-prompt's
-        // add flow surfaces this as a help message in Phase 5 (edit the
-        // TOML, then `aerospace reload-config`).
-        throw WindowManagerError.notImplemented("aerospace: createSpace")
-    }
-
-    public func destroySpace(target: WorkspaceTarget) throws {
-        throw WindowManagerError.notImplemented("aerospace: destroySpace")
     }
 
     public func focusedSpace() throws -> WorkspaceTarget? {
@@ -93,23 +81,7 @@ public final class AerospaceWindowManager: WindowManager {
         }).map { $0 + 1 }
     }
 
-    public func spaceCount() throws -> Int {
-        try querySpaces().count
-    }
-
     // MARK: - Window Operations
-
-    public func focusedWindowID() throws -> Int? {
-        guard let output = try runAerospaceWithOutput(args: [
-            "list-windows", "--focused", "--json"
-        ]) else { return nil }
-        let parsed = try Self.decodeOrThrow(
-            [AerospaceWindow].self,
-            from: output,
-            label: "list-windows --focused"
-        )
-        return parsed.first?.windowId
-    }
 
     public func focusWindow(id: Int) throws {
         try runAerospace(args: ["focus", "--window-id", "\(id)"])

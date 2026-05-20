@@ -110,11 +110,10 @@ final class ProductionWorkspaceService: WorkspaceService {
     func spawnSend(slot: Int)  { spawnHelper(name: "ws-send-follow", arg: String(slot)) }
 
     func fireOptimisticPrePaint(newSlot: Int, oldSlot: Int, display: Int) {
-        // Don't bother if it's a no-op (target == current).
+        // No-op when target == current. Sketchybar probe is defensive:
+        // when the binary isn't on disk, skip silently — ws-focus fires
+        // the same trigger later as a backstop.
         guard newSlot != oldSlot else { return }
-        // Probe sketchybar via Homebrew paths — same shape as
-        // resolveYabaiBinary. If sketchybar isn't on disk, we silently
-        // skip; ws-focus will fire the same trigger later as a backstop.
         let sketchybar = ["/opt/homebrew/bin/sketchybar", "/usr/local/bin/sketchybar"]
             .first(where: { FileManager.default.isExecutableFile(atPath: $0) })
         guard let bin = sketchybar else { return }

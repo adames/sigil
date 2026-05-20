@@ -22,32 +22,15 @@ public protocol WindowManager {
     /// optionally following it.
     func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws
 
-    /// Create a new workspace. Throws `.notImplemented` under aerospace
-    /// (workspaces are declared statically in aerospace.toml). Yabai
-    /// synthesizes a `WorkspaceTarget` for the newly-created slot.
-    func createSpace() throws -> WorkspaceTarget
-
-    /// Destroy the workspace identified by `target`. Throws
-    /// `.notImplemented` under aerospace (same reason as `createSpace()`).
-    func destroySpace(target: WorkspaceTarget) throws
-
     /// Get the currently focused workspace, or nil if no window manager.
     func focusedSpace() throws -> WorkspaceTarget?
 
-    /// Get the currently focused space's legacy global slot index (1-based).
-    /// Retained as a transitional convenience for consumers (statusbar
-    /// cache fallback, ws-prompt index renderers) that still think in
-    /// slots. Aerospace synthesizes the per-display ordinal here. Will be
-    /// retired in a follow-up once all consumers move to `focusedSpace()`.
+    /// Get the currently focused space's per-display ordinal (1-based).
+    /// Transitional convenience for consumers (statusbar cache fallback,
+    /// ws-prompt index renderers) still wired to ordinals.
     func focusedSpaceIndex() throws -> Int?
 
-    /// Get the total number of spaces / workspaces.
-    func spaceCount() throws -> Int
-
     // MARK: - Window Operations
-
-    /// Get the ID of the currently focused window
-    func focusedWindowID() throws -> Int?
 
     /// Focus the window with the given ID
     func focusWindow(id: Int) throws
