@@ -172,6 +172,17 @@ let package = Package(
             swiftSettings: swiftTestingSettings,
             linkerSettings: swiftTestingLinkerSettings
         ),
+        // ws-topology is an executable target so its `AerospaceFragment`
+        // enum isn't importable. The tests mirror its small pure-function
+        // surface (merge / render) and exercise the mirror — kept here
+        // until / unless the fragment is promoted to a library target.
+        .testTarget(
+            name: "ws-topologyTests",
+            dependencies: [],
+            path: "Tests/ws-topologyTests",
+            swiftSettings: swiftTestingSettings,
+            linkerSettings: swiftTestingLinkerSettings
+        ),
     ],
     swiftLanguageModes: [.v5]
 )
