@@ -94,10 +94,30 @@ public enum WindowManagerError: Error {
 
 /// One display, identified by its window-manager index plus its CG
 /// frame. The frame is what `ws-autohide` needs to match the cursor's
-/// screen to a yabai display index.
+/// screen to a yabai/aerospace display ordinal. Under v3, `displayUUID`
+/// is the CG-stable identifier — present on aerospace returns, empty
+/// string on yabai (filled in by AerospaceWindowManager).
 public struct DisplayInfo: Decodable, Sendable {
     public let index: Int
     public let frame: Frame
+    public let displayUUID: String
+
+    public init(index: Int, frame: Frame, displayUUID: String = "") {
+        self.index = index
+        self.frame = frame
+        self.displayUUID = displayUUID
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case index, frame, displayUUID
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.index = try c.decode(Int.self, forKey: .index)
+        self.frame = try c.decode(Frame.self, forKey: .frame)
+        self.displayUUID = (try? c.decode(String.self, forKey: .displayUUID)) ?? ""
+    }
 
     /// Display frame in CG points. yabai emits this as a nested object
     /// with `x`/`y`/`w`/`h` keys, so we mirror that shape.
