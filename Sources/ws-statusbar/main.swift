@@ -298,28 +298,67 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     }
     
     private func loadWorkspaces() {
+        // Live workspace set comes from aerospace via the WindowManager
+        // protocol. spaces.json layers optional identity (name / icon /
+        // color) on top, joined by WorkspaceTarget. Pill ordinal is the
+        // 1-based position in the live list — matches the digit chord
+        // layout (cmd-alt-ctrl-shift-1 → first pill, etc.).
+        let liveSpaces = (try? windowManager.querySpaces()) ?? []
+        let identities = readIdentitiesByTarget()
+
+        var newWorkspaces: [WorkspaceInfo] = []
+        for (position, space) in liveSpaces.enumerated() {
+            let target = WorkspaceTarget(
+                displayUUID: space.displayUUID,
+                workspaceName: space.workspaceName
+            )
+            let id = identities[target]
+            let ordinal = position + 1
+            newWorkspaces.append(WorkspaceInfo(
+                index: ordinal,
+                name: id?.name ?? "ws\(ordinal)",
+                icon: id?.icon,
+                colorHex: id?.colorHex
+            ))
+        }
+
+        currentSlot = getCurrentSlot()
+        workspaces = newWorkspaces
+    }
+
+    private struct WorkspaceIdentity {
+        let name: String
+        let icon: String?
+        let colorHex: String?
+    }
+
+    /// Parse spaces.json for the identity layer keyed by WorkspaceTarget.
+    /// Empty when the file is missing or malformed — the pill strip then
+    /// falls back to `ws<N>` defaults.
+    private func readIdentitiesByTarget() -> [WorkspaceTarget: WorkspaceIdentity] {
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: configPath)),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let spaces = json["spaces"] as? [String: [String: Any]] else {
-            return
+            return [:]
         }
-        
-        var newWorkspaces: [WorkspaceInfo] = []
-        
-        // Sort by slot number to maintain order
-        let sortedKeys = spaces.keys.compactMap(Int.init).sorted()
-        for slotIndex in sortedKeys {
-            let key = String(slotIndex)
-            guard let slot = spaces[key] else { continue }
-            
-            let name = slot["name"] as? String ?? "\(slotIndex)"
-            
-            // Icon can be from 'icon' field or extracted from iconSpec
+
+        var out: [WorkspaceTarget: WorkspaceIdentity] = [:]
+        for (key, slot) in spaces {
+            // v3 composite key shape: "<uuid>:<workspaceName>". Prefer
+            // explicit slot fields; fall back to key-split for defensive
+            // hand-edits.
+            let parts = key.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+            let keyUUID = parts.count > 0 ? String(parts[0]) : ""
+            let keyName = parts.count > 1 ? String(parts[1]) : ""
+            let uuid = (slot["displayUUID"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? keyUUID
+            let name = (slot["workspaceName"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? keyName
+            guard !uuid.isEmpty, !name.isEmpty else { continue }
+
+            let displayName = slot["name"] as? String ?? name
+
             var icon = slot["icon"] as? String
             if icon == nil, let iconSpec = slot["iconSpec"] as? [String: Any] {
-                // Try codepoint first, then symbolName, then fallbackText
                 if let codepoint = iconSpec["codepoint"] as? String {
-                    // Decode \uXXXX escape sequences to actual unicode characters
                     icon = decodeUnicodeEscapes(codepoint)
                 }
                 if icon == nil {
@@ -329,20 +368,12 @@ final class StatusBarController: NSObject, NSMenuDelegate {
                     icon = iconSpec["fallbackText"] as? String
                 }
             }
-            
             let colorHex = slot["color"] as? String
-            
-            newWorkspaces.append(WorkspaceInfo(
-                index: slotIndex,
-                name: name,
-                icon: icon,
-                colorHex: colorHex
-            ))
+
+            out[WorkspaceTarget(displayUUID: uuid, workspaceName: name)] =
+                WorkspaceIdentity(name: displayName, icon: icon, colorHex: colorHex)
         }
-        
-        // Determine current slot from yabai or cache
-        currentSlot = getCurrentSlot()
-        workspaces = newWorkspaces
+        return out
     }
     
     private func getCurrentSlot() -> Int {

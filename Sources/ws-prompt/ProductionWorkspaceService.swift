@@ -30,35 +30,29 @@ final class ProductionWorkspaceService: WorkspaceService {
     // MARK: - Sync reads
 
     func loadWorkspaces() -> [Workspace] {
-        // Single yabai query for both the slot count AND the per-slot
-        // display index. The display info is what lets the manage
-        // overlay's optimistic pre-paint short-circuit without an
-        // extra RPC at chord-commit time.
-        let displayBySlot = querySpaceDisplays()
-        let count = displayBySlot.keys.max() ?? 0
+        // querySpaces() is the source of truth for which workspaces
+        // currently exist. Identity (name / color / icon) joins from
+        // spaces.json by WorkspaceTarget (displayUUID, workspaceName).
+        // Empty list when aerospace is unreachable — the caller treats
+        // that as "no workspaces" and renders an empty pill strip.
+        let liveSpaces = (try? windowManager.querySpaces()) ?? []
         let identities = readIdentities()
-        return (1...max(count, 0)).map { idx in
-            let id = identities[idx]
+        return liveSpaces.enumerated().map { (position, space) in
+            let target = WorkspaceTarget(
+                displayUUID: space.displayUUID,
+                workspaceName: space.workspaceName
+            )
+            let id = identities[target]
+            let ordinal = position + 1
             return Workspace(
-                index: idx,
-                display: displayBySlot[idx] ?? 1,
-                name: id?.name ?? "ws\(idx)",
+                index: ordinal,
+                display: space.display,
+                name: id?.name ?? "ws\(ordinal)",
                 color: id?.color ?? "#7f8c8d",
                 icon: id?.icon,
                 iconKind: id?.iconKind ?? .none
             )
         }
-    }
-
-    /// Build a `[slot index → display index]` map from the window
-    /// manager's space snapshot. Empty when the window manager is
-    /// unreachable; the caller treats that as "no spaces" and renders
-    /// an empty list.
-    private func querySpaceDisplays() -> [Int: Int] {
-        guard let spaces = try? windowManager.querySpaces() else { return [:] }
-        var out: [Int: Int] = [:]
-        for space in spaces { out[space.index] = space.display }
-        return out
     }
 
     func focusedSpaceIndex() -> Int? {
@@ -166,15 +160,34 @@ final class ProductionWorkspaceService: WorkspaceService {
         let iconKind: Workspace.IconKind
     }
 
-    private func readIdentities() -> [Int: ResolvedIdentity] {
+    /// Build a `[WorkspaceTarget → ResolvedIdentity]` map from spaces.json.
+    /// Joined against `querySpaces()` in `loadWorkspaces()` so live
+    /// workspaces inherit their name / color / icon from the JSON
+    /// identity layer. Empty when the file is missing / unreadable —
+    /// callers fall back to per-position defaults.
+    private func readIdentities() -> [WorkspaceTarget: ResolvedIdentity] {
         guard let data = try? Data(contentsOf: paths.wsConfig) else { return [:] }
-        struct Root: Decodable { let spaces: [String: IdentityRaw]? }
+        struct SlotRaw: Decodable {
+            let name: String?
+            let color: String?
+            let iconSpec: IconSpec?
+            let displayUUID: String?
+            let workspaceName: String?
+        }
+        struct Root: Decodable { let spaces: [String: SlotRaw]? }
         guard let root = try? JSONDecoder().decode(Root.self, from: data),
               let raw = root.spaces else { return [:] }
 
-        var out: [Int: ResolvedIdentity] = [:]
+        var out: [WorkspaceTarget: ResolvedIdentity] = [:]
         for (key, value) in raw {
-            guard let idx = Int(key) else { continue }
+            // v3 composite-key shape: "<uuid>:<workspaceName>". Prefer
+            // explicit fields on the slot; fall back to splitting the
+            // key if either is missing (defensive).
+            let (keyUUID, keyName) = Self.splitCompositeKey(key)
+            let uuid = (value.displayUUID?.isEmpty == false) ? value.displayUUID! : keyUUID
+            let name = (value.workspaceName?.isEmpty == false) ? value.workspaceName! : keyName
+            guard !uuid.isEmpty, !name.isEmpty else { continue }
+
             let kind: Workspace.IconKind
             let glyph: String?
             switch value.iconSpec?.kind {
@@ -190,7 +203,8 @@ final class ProductionWorkspaceService: WorkspaceService {
                 kind = .none
                 glyph = nil
             }
-            out[idx] = ResolvedIdentity(
+            let target = WorkspaceTarget(displayUUID: uuid, workspaceName: name)
+            out[target] = ResolvedIdentity(
                 name: value.name,
                 color: value.color,
                 icon: glyph,
@@ -198,6 +212,13 @@ final class ProductionWorkspaceService: WorkspaceService {
             )
         }
         return out
+    }
+
+    private static func splitCompositeKey(_ key: String) -> (uuid: String, name: String) {
+        guard let colon = key.firstIndex(of: ":") else { return ("", "") }
+        let uuid = String(key[..<colon])
+        let name = String(key[key.index(after: colon)...])
+        return (uuid, name)
     }
 
     private static func decodeCodepoint(_ raw: String?) -> String? {

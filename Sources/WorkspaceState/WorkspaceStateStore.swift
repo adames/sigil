@@ -85,14 +85,15 @@ public final class WorkspaceStateStore {
 
         // v3 keys are composite `<displayUUID>:<workspaceName>`. Sort by
         // the same tuple the renderer uses so decode order matches what
-        // the user sees on disk + in the pill strip.
+        // the user sees on disk + in the pill strip. Any per-workspace
+        // ordinal a UI consumer wants comes from this sort position.
         let orderedKeys = spaces.keys.sorted(by: Migration.spacesKeyOrder)
 
         var slots: [WorkspaceSlot] = []
         for (position, key) in orderedKeys.enumerated() {
             guard let dict = spaces[key] as? [String: Any] else { continue }
-            let id = position + 1  // 1-based ordinal; legacy field, due to retire
-            let name  = (dict["name"] as? String) ?? "ws\(id)"
+            let positionalFallback = "ws\(position + 1)"
+            let name  = (dict["name"] as? String) ?? positionalFallback
             let color = (dict["color"] as? String) ?? "#cdd6f4"
             let stableLabel = (dict["stableLogicalLabel"] as? String) ?? name
             let iconSpec = (dict["iconSpec"] as? [String: Any]).map(Self.decodeSpec)
@@ -101,7 +102,6 @@ public final class WorkspaceStateStore {
             let workspaceName = (dict["workspaceName"] as? String) ?? ""
 
             slots.append(WorkspaceSlot(
-                id: id,
                 name: name,
                 color: color,
                 iconSpec: iconSpec,
@@ -152,11 +152,11 @@ public final class WorkspaceStateStore {
 
         var spacesObj: [String: Any] = [:]
         for slot in config.slots {
-            // v3 composite key from (displayUUID, workspaceName). Both
-            // fields are required under v3; an empty value indicates a
-            // construction bug and surfaces as an invalid `:name` /
-            // `uuid:` key the renderer will faithfully output (and the
-            // loader will reject on read).
+            // v3 composite key from (displayUUID, workspaceName) — the
+            // WorkspaceTarget tuple. Both fields are required under v3;
+            // an empty value indicates a construction bug and surfaces
+            // as an invalid `:name` / `uuid:` key the renderer will
+            // faithfully output (and the loader will reject on read).
             let key = "\(slot.displayUUID):\(slot.workspaceName)"
             spacesObj[key] = [
                 "name":               slot.name,

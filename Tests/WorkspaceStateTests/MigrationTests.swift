@@ -186,9 +186,9 @@ struct RenamePreservesOverrideTests {
         #expect(slot.iconSpec.userOverridden)
         #expect(slot.iconSpec.kind       == .sfSymbol)
         #expect(slot.iconSpec.symbolName == "star.fill")
-        #expect(slot.id                  == 1)
         #expect(slot.workspaceName       == "1")
         #expect(slot.displayUUID         == "UUID-A")
+        #expect(slot.target              == WorkspaceTarget(displayUUID: "UUID-A", workspaceName: "1"))
 
         let encoded = store.encodeJSON(config)
         #expect(encoded.contains("\"userOverridden\": true"))

@@ -204,14 +204,31 @@ func cmdResolveIcon(args: [String]) -> Int32 {
         return 1
     }
 
-    let slot: WorkspaceSlot?
-    if let idx = Int(slotArg) {
-        slot = config.slots.first { $0.id == idx }
-    } else {
-        slot = config.slots.first { $0.name.lowercased() == slotArg.lowercased() }
-    }
+    // Resolve the arg in priority order:
+    //   1. matches a workspaceName exactly (the v3 canonical identity)
+    //   2. matches a slot.name (case-insensitive — user-facing label)
+    //   3. parses as a 1-based ordinal into spaces.json's sorted order
+    //
+    // Order #1 wins on tie because workspaceName is the routing key the
+    // chord layer + aerospace.toml use, and order #2 is the label the
+    // pill renders. A digit string falls through to #3 only when no
+    // workspaceName matches it — preserves "resolve-icon 1" for legacy
+    // callers without breaking aerospace deployments where "1" is a
+    // real workspace name.
+    let slot: WorkspaceSlot? = {
+        if let direct = config.slots.first(where: { $0.workspaceName == slotArg }) {
+            return direct
+        }
+        if let labeled = config.slots.first(where: { $0.name.lowercased() == slotArg.lowercased() }) {
+            return labeled
+        }
+        if let idx = Int(slotArg), idx >= 1, idx <= config.slots.count {
+            return config.slots[idx - 1]
+        }
+        return nil
+    }()
     guard let slot else {
-        FileHandle.standardError.write(Data("resolve-icon: no slot matches '\(slotArg)'\n".utf8))
+        FileHandle.standardError.write(Data("resolve-icon: no slot matches '\(slotArg)' (try a workspaceName, slot name, or 1-based ordinal)\n".utf8))
         return 1
     }
 
@@ -224,8 +241,9 @@ func cmdResolveIcon(args: [String]) -> Int32 {
     )
 
     let json: [String: Any] = [
-        "slot":  slot.id,
-        "name":  slot.name,
+        "workspaceName": slot.workspaceName,
+        "displayUUID":   slot.displayUUID,
+        "name":          slot.name,
         "kind":  resolved.kind.rawValue,
         "value": resolved.value,
     ]

@@ -1,7 +1,11 @@
 import Foundation
 
+/// Identity of one workspace, post-AeroSpace migration. The canonical
+/// key is `(displayUUID, workspaceName)`; everything else is presentation.
+/// A per-workspace ordinal (the "slot N" the pill strip + digit chords
+/// think in) is derived from sort-order at use-time, not stored here —
+/// `WorkspaceSlot.target` is the only identity that survives reordering.
 public struct WorkspaceSlot: Codable, Equatable, Sendable {
-    public var id: Int
     public var name: String
     public var color: String
     public var iconSpec: IconSpec
@@ -14,7 +18,6 @@ public struct WorkspaceSlot: Codable, Equatable, Sendable {
     public var workspaceName: String
 
     public init(
-        id: Int,
         name: String,
         color: String,
         iconSpec: IconSpec,
@@ -22,13 +25,19 @@ public struct WorkspaceSlot: Codable, Equatable, Sendable {
         displayUUID: String,
         workspaceName: String
     ) {
-        self.id = id
         self.name = name
         self.color = color
         self.iconSpec = iconSpec
         self.stableLogicalLabel = stableLogicalLabel
         self.displayUUID = displayUUID
         self.workspaceName = workspaceName
+    }
+
+    /// Canonical identity tuple. Use this when matching slots against
+    /// the window manager's focused workspace or comparing for equality
+    /// across reorderings.
+    public var target: WorkspaceTarget {
+        WorkspaceTarget(displayUUID: displayUUID, workspaceName: workspaceName)
     }
 }
 
