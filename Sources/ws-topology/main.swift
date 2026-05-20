@@ -267,68 +267,22 @@ enum SfSymbolAvailability {
 
 // MARK: - emit-aerospace
 
-/// AeroSpace.toml binding block renderer. Output is sentinel-fenced so the
-/// merge writer can replace just this section without touching the user's
-/// gaps / modes / on-window-detected / non-digit bindings.
+/// Renders the two sigil-fenced regions in aerospace.toml from spaces.json:
+/// the digit-bindings block (inside `[mode.main.binding]`) and the
+/// assignment block (top-level, emits `[workspace-to-monitor-force-
+/// assignment]`). Each region has its own fence pair so `merge` can
+/// update them independently.
 enum AerospaceFragment {
 
-    /// Open / close fences for the digit-bindings block. Plain ASCII,
-    /// idempotent to detect: a regex match across the file picks up
-    /// multi-line content between them. The "digit-bindings" fence sits
-    /// inside `[mode.main.binding]` because the keys it emits
-    /// (`cmd-alt-ctrl-shift-N = 'workspace …'`) only resolve when the
-    /// surrounding table is open.
     static let openFence  = "# >>> sigil generated >>>"
     static let closeFence = "# <<< sigil generated <<<"
 
-    /// Open / close fences for the `[workspace-to-monitor-force-assignment]`
-    /// block. Lives at the top level (must appear before any other `[…]`
-    /// header). Separate fence pair so the merge function can update each
-    /// region independently — the digit bindings change when spaces.json's
-    /// names change; the assignment table changes when the slot count or
-    /// monitor mapping changes.
     static let assignmentOpenFence  = "# >>> sigil generated: assignments >>>"
     static let assignmentCloseFence = "# <<< sigil generated: assignments <<<"
 
-    /// Path of the user-side on-space-changed hook the cascade calls.
-    /// Matches the path the aerospace signal points at today; survives the
-    /// burn-aerospace cut because the script is deployed by dotfiles, not by
-    /// the window manager.
-    static let cascadeHookPath = "$HOME/.config/workspace/on-space-changed.sh"
-
-    /// Render the fenced TOML block for a given set of slots.
-    ///
-    /// - Digit bindings (`cmd-alt-ctrl-shift-1..0`) map to the first 10
-    ///   slots in spaces.json's deterministic order, addressing
-    ///   workspaces by name (fork B).
-    /// - Send-window digit bindings are intentionally NOT emitted —
-    ///   Hyperkey collapses Caps+Shift+digit into Caps+digit
-    ///   (cmd+alt+ctrl+shift+digit), so they'd collide with focus.
-    ///   Send-window is reachable via Caps+g (ws-prompt) instead.
-    /// - `exec-on-workspace-change` is the only cascade hook AeroSpace
-    ///   offers; it replaces aerospace's `space_changed` signal subscription.
-    /// Render the fenced TOML block for a given set of slots.
-    ///
-    /// **Block must be placed inside an already-open `[mode.main.binding]`
-    /// table.** TOML is sequential — once a table opens with `[name]`,
-    /// everything until the next `[…]` belongs to it. The generator
-    /// emits only the digit-binding key=value pairs (no header) so it
-    /// can sit at the bottom of the user-owned `[mode.main.binding]`
-    /// block. Duplicating `[mode.main.binding]` as a header here would
-    /// trip TOML's no-redefine rule.
-    ///
-    /// The cascade hook (`exec-on-workspace-change`) lives outside the
-    /// generated block — it's a top-level key and must appear before
-    /// any `[…]` header. configs/aerospace.toml's top section sets it
-    /// directly to `$HOME/.config/workspace/on-space-changed.sh`.
-    ///
-    /// - Digit bindings (`cmd-alt-ctrl-shift-1..0`) map to the first 10
-    ///   slots in spaces.json's deterministic order, addressing
-    ///   workspaces by name (fork B).
-    /// - Send-window digit bindings are intentionally NOT emitted —
-    ///   Hyperkey collapses Caps+Shift+digit into Caps+digit
-    ///   (cmd+alt+ctrl+shift+digit), so they'd collide with focus.
-    ///   Send-window is reachable via Caps+g (ws-prompt) instead.
+    /// Digit bindings `cmd-alt-ctrl-shift-1..0` for the first 10 slots.
+    /// Slot 10 wraps to `'0'`. Must sit inside `[mode.main.binding]`;
+    /// emits no table header to avoid TOML's no-redefine rule.
     static func render(slotNames: [String]) -> String {
         let visible = Array(slotNames.prefix(10))
         var lines: [String] = []
@@ -358,20 +312,10 @@ enum AerospaceFragment {
         return lines.joined(separator: "\n") + "\n"
     }
 
-    /// Render the fenced TOML block for `[workspace-to-monitor-force-assignment]`.
-    ///
-    /// Unlike the digit-bindings block, this fence sits OUTSIDE any
-    /// `[…]` table (and emits its own `[workspace-to-monitor-force-
-    /// assignment]` header) — top-level TOML keys must appear before
-    /// any table header is opened. spaces.json drives both the count
-    /// and the names; monitor binding is currently `1` (primary) for
-    /// every slot since v3 spaces.json stores `displayUUID` but not a
-    /// committed monitor ordinal.
-    ///
-    /// TODO: when spaces.json grows displayUUID → monitor-ordinal
-    /// resolution (via topology), thread the real ordinal through here.
-    /// For now everything pins to monitor 1; this matches the current
-    /// hand-managed behavior and keeps single-display setups working.
+    /// `[workspace-to-monitor-force-assignment]` table. Top-level; emits
+    /// its own table header. Every slot pins to monitor 1 — when v3
+    /// spaces.json gains real displayUUID → ordinal resolution, thread
+    /// it through here.
     static func renderAssignmentBlock(slotNames: [String]) -> String {
         var lines: [String] = []
         lines.append(assignmentOpenFence)
@@ -396,28 +340,15 @@ enum AerospaceFragment {
         return lines.joined(separator: "\n") + "\n"
     }
 
-    /// Escape single quotes for safe insertion inside `'…'` TOML strings.
-    /// AeroSpace workspace names allow most printable ASCII; we only need
-    /// to defend against the quote char.
+    /// Escape single quotes for `'…'` TOML strings.
     static func escapeBindingArg(_ s: String) -> String {
         s.replacingOccurrences(of: "'", with: "\\'")
     }
 
-    /// Merge `block` into `existing`, replacing the content between the
-    /// fences (inclusive) if they're present, or appending at EOF
-    /// otherwise. Idempotent: re-merging the same block yields the same
-    /// output.
-    ///
-    /// The fence pair is parameterised so the caller can drive either
-    /// the digit-bindings region or the workspace-assignments region
-    /// against the same engine. Defaults to the digit-bindings fence
-    /// for backwards compatibility with existing callers.
-    ///
-    /// **Line-anchored** — the fence string must appear as a STANDALONE
-    /// LINE, not as a substring inside a documentation comment.
-    /// (Prior versions used `String.range(of:)` substring matching; when
-    /// users documented the fence by name in a header comment, the
-    /// search snagged the doc comment and mangled the whole file.)
+    /// Replace lines between the fence pair (inclusive) with `block`, or
+    /// append at EOF if absent. Idempotent. Line-anchored — fences must
+    /// appear as standalone lines, not as substrings in doc comments
+    /// (the regression test pins this).
     static func merge(
         block: String,
         into existing: String,
@@ -473,16 +404,12 @@ func cmdEmitAerospace(args: [String]) -> Int32 {
         return 1
     }
 
-    // Use workspaceName as the binding target. Names are stable; ordinals
-    // are not. Slot.id ordering already reflects spaces.json composite-key
-    // sort thanks to WorkspaceStateStore.extractSlotId.
+    // workspaceName is the binding target — names are stable, ordinals
+    // aren't. Slot ordering follows spaces.json composite-key sort.
     let names = config.slots.map(\.workspaceName)
     let bindingsBlock   = AerospaceFragment.render(slotNames: names)
     let assignmentBlock = AerospaceFragment.renderAssignmentBlock(slotNames: names)
 
-    // Default to stdout if --write isn't passed, regardless of --dry-run.
-    // Print both blocks separated by a blank line; consumers can pipe to
-    // grep for the fence they care about.
     if !write || dryRun {
         print(assignmentBlock, terminator: "")
         print("")
@@ -493,9 +420,7 @@ func cmdEmitAerospace(args: [String]) -> Int32 {
     let target = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".config/aerospace/aerospace.toml")
     let existing: String = (try? String(contentsOf: target, encoding: .utf8)) ?? ""
-    // Two independent merges. Order matters: assignments first so they
-    // land above [mode.main.binding]; bindings second so they sit inside
-    // that table. Both are line-anchored against their own fence pair.
+    // Assignments first (top-level), then bindings (inside [mode.main.binding]).
     let afterAssign = AerospaceFragment.merge(
         block: assignmentBlock,
         into: existing,

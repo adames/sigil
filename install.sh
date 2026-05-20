@@ -111,13 +111,8 @@ for template in "${TEMPLATES[@]}"; do
     launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
   fi
 
-  # `launchctl bootstrap` can return EIO (exit 5) immediately after a
-  # `bootout` of the same label — the agent's old handle hasn't drained
-  # from launchd's state yet. Retry once with a small backoff; if it
-  # still fails, surface the error rather than masking it. (Without
-  # this, a clean bootstrap.sh run could trip on a stale agent and
-  # cascade into the wizard's "topology did not build" follow-up even
-  # though the binaries built fine.)
+  # `launchctl bootstrap` can return EIO (5) right after a bootout —
+  # stale handle race. Retry once after a backoff.
   if ! launchctl bootstrap "gui/$(id -u)" "$dst" 2>/dev/null; then
     sleep 1
     if ! launchctl bootstrap "gui/$(id -u)" "$dst"; then
