@@ -9,7 +9,7 @@ import SwiftUI
 ///   - PID-file single-instance lock under ~/.cache/workspace/
 ///   - windowDidResignKey blur dismissal
 ///
-/// External dependencies (yabai) come in via WindowSource so the App is
+/// External dependencies (aerospace) come in via WindowSource so the App is
 /// in principle testable, though the live overlay path is exercised
 /// end-to-end via the bash harness.
 final class WsPickerApp {

@@ -6,7 +6,7 @@ import Foundation
 //
 //   PromptController     — focus/send state machine (pure-ish; ObservableObject)
 //   ManageController     — manage state machine (multi-stage; ObservableObject)
-//   WorkspaceService     — single seam to yabai / ws CLI / file system
+//   WorkspaceService     — single seam to aerospace / ws CLI / file system
 //   WsPromptApp          — AppKit window + key dispatch + lifecycle
 //   PromptView/ManageView — SwiftUI rendering bound to the controllers
 //

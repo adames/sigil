@@ -16,7 +16,7 @@ enum PickerKey: Equatable {
 }
 
 /// Outcome of a key. The UI re-renders on every event; the binary
-/// dispatches `yabai -m window --focus` on `.commit`.
+/// dispatches `aerospace -m window --focus` on `.commit`.
 enum PickerAction: Equatable {
     case idle
     case refilter
@@ -27,7 +27,7 @@ enum PickerAction: Equatable {
 /// State machine for the window picker. Mirrors `PromptController`'s
 /// shape — letters build a fuzzy query, Tab cycles matches, Enter
 /// commits, Esc cancels. No digit-fast-path: window IDs are 6-digit
-/// yabai handles, not slot numbers.
+/// aerospace handles, not slot numbers.
 final class PickerController: ObservableObject {
     let items: [WindowItem]
 

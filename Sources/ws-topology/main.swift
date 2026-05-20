@@ -278,8 +278,8 @@ enum AerospaceFragment {
     static let closeFence = "# <<< sigil generated <<<"
 
     /// Path of the user-side on-space-changed hook the cascade calls.
-    /// Matches the path the yabai signal points at today; survives the
-    /// burn-yabai cut because the script is deployed by dotfiles, not by
+    /// Matches the path the aerospace signal points at today; survives the
+    /// burn-aerospace cut because the script is deployed by dotfiles, not by
     /// the window manager.
     static let cascadeHookPath = "$HOME/.config/workspace/on-space-changed.sh"
 
@@ -293,7 +293,7 @@ enum AerospaceFragment {
     ///   (cmd+alt+ctrl+shift+digit), so they'd collide with focus.
     ///   Send-window is reachable via Caps+g (ws-prompt) instead.
     /// - `exec-on-workspace-change` is the only cascade hook AeroSpace
-    ///   offers; it replaces yabai's `space_changed` signal subscription.
+    ///   offers; it replaces aerospace's `space_changed` signal subscription.
     /// Render the fenced TOML block for a given set of slots.
     ///
     /// **Block must be placed inside an already-open `[mode.main.binding]`

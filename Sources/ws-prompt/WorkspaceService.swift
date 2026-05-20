@@ -1,6 +1,6 @@
 import Foundation
 
-/// Outcome of a long-running command (ws / yabai). `output` is stdout +
+/// Outcome of a long-running command (ws / aerospace). `output` is stdout +
 /// stderr concatenated because the ws CLI writes its `ok`/`err` helpers
 /// to stderr; the manage overlay surfaces all of it in the result panel.
 struct CommandResult: Equatable {
@@ -18,7 +18,7 @@ struct IconCatalogEntry: Equatable {
 
 /// The single seam between the controllers and the outside world.
 ///
-/// Everything that talks to yabai, the `ws` CLI, or the file system
+/// Everything that talks to aerospace, the `ws` CLI, or the file system
 /// goes through this protocol — `Process()` invocations, reads of
 /// `~/.config/workspace/spaces.json` and `~/.config/workspace/lib/sf-to-nerd.json`,
 /// invocations of helper scripts. The production implementation
@@ -54,7 +54,7 @@ protocol WorkspaceService {
 
     /// Fire sketchybar's optimistic-pre-paint trigger. Called from the
     /// overlay the instant a focus/send chord commits, so the pill
-    /// updates before yabai's transition animation even starts. Pure
+    /// updates before aerospace's transition animation even starts. Pure
     /// fire-and-forget; ws-focus / ws-send-follow's bash-side trigger
     /// is the redundant fallback for direct CLI invocations.
     func fireOptimisticPrePaint(newSlot: Int, oldSlot: Int, display: Int)

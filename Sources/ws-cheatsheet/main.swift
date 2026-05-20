@@ -126,8 +126,8 @@ container.addSubview(hosting)
 window.contentView = container
 
 // Lock the window's frame: even if something else tries to resize us
-// (yabai, AppKit auto-layout, errant SwiftUI passes), `setFrame` snaps
-// back to the screen rect. See CheatsheetWindow.lockedFrame below.
+// (AeroSpace's tiling pass, AppKit auto-layout, errant SwiftUI passes),
+// `setFrame` snaps back to the screen rect. See CheatsheetWindow.lockedFrame below.
 let screenFrame = frame
 window.setFrame(screenFrame, display: true)
 window.contentMinSize = screenFrame.size
@@ -197,8 +197,8 @@ final class CheatsheetWindow: NSWindow {
 
     /// When non-nil, all `setFrame` calls are clamped to this rect. We arm
     /// it after the window is shown so the initial layout still works but
-    /// later resize requests (from NSHostingView auto-sizing, yabai, etc.)
-    /// can't push the content off-screen.
+    /// later resize requests (from NSHostingView auto-sizing, AeroSpace,
+    /// etc.) can't push the content off-screen.
     var lockedFrame: NSRect?
 
     override func setFrame(_ frameRect: NSRect, display flag: Bool) {

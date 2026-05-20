@@ -4,7 +4,7 @@ import WsUI
 
 /// SwiftUI overlay for the **change workspace** prompt (binary: ws-picker).
 /// Lists every visible window across every space; selecting one focuses
-/// that window, which yabai follows by jumping to its space. Visual
+/// that window, which aerospace follows by jumping to its space. Visual
 /// contract matches ws-prompt's PromptView so the workspace-prompt suite
 /// feels like one tool: same card geometry, Catppuccin palette, pill style.
 struct PickerView: View {

@@ -1,7 +1,7 @@
 import Foundation
 import WorkspaceState
 
-/// The "real" service. Spawns yabai / ws, reads spaces.json.
+/// The "real" service. Spawns aerospace / ws, reads spaces.json.
 /// SF Symbols are stored directly; Nerd Font map available for
 /// cross-platform use. All Process invocations and FileManager
 /// paths that used to be scattered across main.swift,
@@ -101,7 +101,7 @@ final class ProductionWorkspaceService: WorkspaceService {
     // Phase 5: runYabai + runAdd retired. AeroSpace can't create or
     // destroy workspaces at runtime; ws-prompt's add / destroy verbs
     // surface a help message instead (see ManageController's
-    // aerospaceMutationHelp). Read-only yabai queries that survive
+    // aerospaceMutationHelp). Read-only aerospace queries that survive
     // until Phase 6 use querySpaceCountSync below.
 
     // MARK: - Fire-and-forget helpers

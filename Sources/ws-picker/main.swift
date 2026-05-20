@@ -2,12 +2,12 @@ import Foundation
 
 // ws-picker [--simulate-keys "<keys>"]
 //
-// Window-picker overlay bound to Caps+e in skhdrc. Lists every visible
-// yabai window, fuzzy-filters by app + title + space, focuses the pick
+// Window-picker overlay bound to Caps+e in aerospace.toml. Lists every visible
+// aerospace window, fuzzy-filters by app + title + space, focuses the pick
 // on Enter. Runtime split:
 //
 //   PickerController       — state machine (pure-ish; ObservableObject)
-//   ProductionWindowSource — single seam to yabai
+//   ProductionWindowSource — single seam to aerospace
 //   WsPickerApp            — AppKit window + key dispatch + lifecycle
 //   PickerView             — SwiftUI rendering bound to the controller
 //

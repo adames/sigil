@@ -2,10 +2,10 @@ import Foundation
 
 /// Wire shape of ~/.config/workspace/cheatsheet.json. The file is GENERATED
 /// by `lib/cheatsheet-gen.py` from `@cs` annotations in the upstream
-/// config files (skhdrc, tmux.conf, nvim-init.lua, …) plus a layout
-/// description at `configs/workspace/cheatsheet-layout.json`. The
-/// renderer treats it as static input — column count, column ordering,
-/// and section assignments are all decided at generation time.
+/// config files (aerospace.toml, tmux.conf, nvim-init.lua, …) plus a
+/// layout description at `configs/workspace/cheatsheet-layout.json`.
+/// The renderer treats it as static input — column count, column
+/// ordering, and section assignments are all decided at generation time.
 ///
 /// The decoder is permissive about extra keys (anything starting with
 /// `_` is ignored) so the layout file's `_doc` annotations and any
@@ -63,7 +63,7 @@ struct CheatsheetDocument: Decodable {
         let color: String?
         let family: String?
 
-        /// Small subtitle line under the title (e.g. "yabai · skhd").
+        /// Small subtitle line under the title (e.g. "aerospace · ws-prompt").
         let sub: String?
 
         /// Optional one-line "mental model" caption — italicized below

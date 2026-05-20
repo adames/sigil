@@ -13,7 +13,7 @@ import SwiftUI
 ///   terminate()            → removes PID file, removes NSEvent
 ///                            monitor, terminates NSApp
 ///
-/// External dependencies (yabai, ws, file system) come in through
+/// External dependencies (aerospace, ws, file system) come in through
 /// `service` so the App class itself is testable in principle — though
 /// the live overlay path is exercised end-to-end via the bash harness.
 final class WsPromptApp {
@@ -40,7 +40,7 @@ final class WsPromptApp {
         let workspaces = service.loadWorkspaces()
         // Snapshot the focused slot once at overlay open. Used by
         // dispatchFocusOrSend to fire sketchybar's optimistic pre-paint
-        // trigger the instant the chord commits — no extra yabai RPC
+        // trigger the instant the chord commits — no extra aerospace RPC
         // at commit time.
         let focusedIndex = service.focusedSpaceIndex()
         self.workspaces = workspaces
@@ -176,7 +176,7 @@ final class WsPromptApp {
 
     /// Optimistic pre-paint. Fires the sketchybar trigger with the
     /// target SID + OLD SID + target display before we even spawn the
-    /// bash helper. Removes the helper's subprocess fork + yabai-RPC
+    /// bash helper. Removes the helper's subprocess fork + aerospace-RPC
     /// cost (~30–40 ms) from the chord-to-pill latency. Helper still
     /// fires the same trigger as a defensive backstop when invoked
     /// from the CLI directly.

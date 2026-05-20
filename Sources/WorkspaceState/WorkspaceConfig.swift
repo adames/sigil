@@ -23,10 +23,12 @@ import Foundation
 //        # >>> sigil generated >>>
 //        # <<< sigil generated <<<
 //
-//    Inside the fence: per-workspace `[mode.main.binding]` digit chords + the
-//    `exec-on-workspace-change` cascade that replaces yabai's space_changed
-//    signal. Missing fences ⇒ first-run appends both fence and content at EOF.
-//    Hand-edits inside the fence are clobbered on next `ws-topology emit-aerospace`.
+//    Inside the fence: per-workspace `[mode.main.binding]` digit chords.
+//    The cascade hook (`exec-on-workspace-change`) lives in the
+//    user-owned top section as a top-level key — it's stable and the
+//    user might want to edit it. Missing fences ⇒ first-run appends
+//    both fence and content at EOF. Hand-edits inside the fence are
+//    clobbered on next `ws-topology emit-aerospace`.
 //
 // 3. `spaces.json` v3 schema (composite-key, AeroSpace-native):
 //

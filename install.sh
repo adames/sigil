@@ -120,7 +120,7 @@ cat <<NOTE
 
 Configuration:
   Bundle prefix: $WORKSPACE_BUNDLE_PREFIX
-  Window manager: ${WORKSPACE_WINDOW_MANAGER:-yabai}
+  Window manager: aerospace
   Bar: ${WORKSPACE_BAR:-ws-statusbar}
 
 To uninstall:

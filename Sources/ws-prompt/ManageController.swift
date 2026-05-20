@@ -44,7 +44,7 @@ enum ManageAction: Equatable {
 ///
 /// Holds its own state (`stage`) as a `@Published` so SwiftUI views bind
 /// directly to the controller — no separate view-model. Side effects
-/// (yabai create / destroy, `ws name` / `ws layout`, …) are dispatched
+/// (aerospace create / destroy, `ws name` / `ws layout`, …) are dispatched
 /// through the injected `WorkspaceService`, which lets tests pin every
 /// transition with no Process spawning. Once a command completes the
 /// controller flips itself to `.result(...)` on the main queue and the
@@ -55,7 +55,7 @@ final class ManageController: ObservableObject {
     let workspaces: [Workspace]
     private let service: WorkspaceService
 
-    /// Yabai's currently-focused space index, captured once at overlay
+    /// AeroSpace's currently-focused space index, captured once at overlay
     /// open. Used to default the rename/destroy target pickers to "act
     /// on the workspace I'm already on" so Enter-without-typing is the
     /// fast path. Nil → fall back to selection index 0.
@@ -99,7 +99,7 @@ final class ManageController: ObservableObject {
     """
 
     /// Position of the focused workspace within `workspaces` (0-based),
-    /// or 0 if yabai didn't report a focus. Used as the initial
+    /// or 0 if aerospace didn't report a focus. Used as the initial
     /// selection when entering a target picker.
     private var focusedSelection: Int {
         guard let fi = focusedIndex,
@@ -391,7 +391,7 @@ final class ManageController: ObservableObject {
         case .escape:                return .terminate
         case .char("d"), .char("D"), .char("y"), .char("Y"), .enter:
             // Phase 5: AeroSpace can't destroy workspaces at runtime.
-            // Surface the edit-then-reload help text instead. (The yabai
+            // Surface the edit-then-reload help text instead. (The aerospace
             // path would have leaned on the space_destroyed signal +
             // on-space-destroyed.sh cascade to prune spaces.json — that
             // cascade is moot under aerospace because there's no

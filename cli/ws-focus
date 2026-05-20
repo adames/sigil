@@ -22,8 +22,8 @@ if [[ "$target" == "last" || "$target" == "recent" ]]; then
   exit 1
 fi
 
-# next/prev → delegate to aerospace's built-in cycle. wrap-around keeps
-# parity with the yabai-era modulo semantics.
+# next/prev → delegate to aerospace's built-in cycle. --wrap-around
+# makes the last workspace's "next" land back on the first.
 if [[ "$target" == "next" || "$target" == "prev" ]]; then
   if aerospace workspace --wrap-around --no-stdin "$target" 2>/dev/null; then
     command -v sketchybar >/dev/null 2>&1 \

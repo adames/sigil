@@ -31,9 +31,9 @@ _wm_run() {
     "$WORKSPACE_WM_BIN" "$@"
 }
 
-# Get the focused workspace name (the v3 identity, replacing yabai's
-# global slot index). Use wm_focused_space_index to get the legacy
-# per-display ordinal during the transition.
+# Get the focused workspace name (the v3 identity). Use
+# wm_focused_space_index to get the per-display ordinal for callers
+# that still think in slot numbers.
 wm_focused_space() {
     _wm_run list-workspaces --focused --json 2>/dev/null \
         | jq -r '.[0].workspace // empty'

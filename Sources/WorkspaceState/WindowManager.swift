@@ -14,11 +14,8 @@ public protocol WindowManager {
 
     // MARK: - Space Operations
 
-    /// Focus the workspace identified by `target`. Under aerospace this is
-    /// `aerospace workspace <name>`; under yabai it resolves the target's
-    /// workspaceName/displayUUID back to a yabai global slot via the
-    /// `(displayUUID, workspaceName) → slot` lookup that
-    /// `WorkspaceTarget` carries.
+    /// Focus the workspace identified by `target` — shells to
+    /// `aerospace workspace <workspaceName>`.
     func focusSpace(target: WorkspaceTarget) throws
 
     /// Send the focused window to the workspace identified by `target`,
@@ -89,16 +86,19 @@ public enum WindowManagerError: Error {
 
 // MARK: - Wire shapes
 //
-// Decodable structs the window manager returns from the read-side
+// Plain value types the window manager returns from the read-side
 // queries above. Modeled minimally — only fields current consumers
-// read. Add a field when a consumer needs one; don't speculate.
+// read. AerospaceWindowManager constructs them directly via memberwise
+// inits after parsing aerospace's JSON; nothing decodes these structs
+// from JSON, so they're not Codable. Add a field when a consumer needs
+// one; don't speculate.
 
 /// One display, identified by its window-manager index plus its CG
 /// frame. The frame is what `ws-autohide` needs to match the cursor's
-/// screen to a yabai/aerospace display ordinal. Under v3, `displayUUID`
-/// is the CG-stable identifier — present on aerospace returns, empty
-/// string on yabai (filled in by AerospaceWindowManager).
-public struct DisplayInfo: Decodable, Sendable {
+/// screen to an aerospace display ordinal. `displayUUID` is the
+/// CG-stable identifier (`CGDisplayCreateUUIDFromDisplayID`) —
+/// AerospaceWindowManager fills it in from the bridged CG lookup.
+public struct DisplayInfo: Sendable {
     public let index: Int
     public let frame: Frame
     public let displayUUID: String
@@ -109,31 +109,22 @@ public struct DisplayInfo: Decodable, Sendable {
         self.displayUUID = displayUUID
     }
 
-    enum CodingKeys: String, CodingKey {
-        case index, frame, displayUUID
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        self.index = try c.decode(Int.self, forKey: .index)
-        self.frame = try c.decode(Frame.self, forKey: .frame)
-        self.displayUUID = (try? c.decode(String.self, forKey: .displayUUID)) ?? ""
-    }
-
-    /// Display frame in CG points. yabai emits this as a nested object
-    /// with `x`/`y`/`w`/`h` keys, so we mirror that shape.
-    public struct Frame: Decodable, Sendable {
+    /// Display frame in CG points — `x`/`y`/`w`/`h`.
+    public struct Frame: Sendable {
         public let x: Double
         public let y: Double
         public let w: Double
         public let h: Double
+
+        public init(x: Double, y: Double, w: Double, h: Double) {
+            self.x = x; self.y = y; self.w = w; self.h = h
+        }
     }
 }
 
 /// One window, with the fields the picker uses to render rows and the
-/// flags it filters by. yabai emits more fields (frame, role, opacity,
-/// …) — they're ignored on decode.
-public struct WindowInfo: Decodable, Sendable {
+/// flags it filters by.
+public struct WindowInfo: Sendable {
     public let id: Int
     public let app: String
     public let title: String
@@ -142,27 +133,31 @@ public struct WindowInfo: Decodable, Sendable {
     public let isVisible: Bool
     public let isMinimized: Bool
 
-    enum CodingKeys: String, CodingKey {
-        case id, app, title, space, display
-        case isVisible = "is-visible"
-        case isMinimized = "is-minimized"
+    public init(
+        id: Int,
+        app: String,
+        title: String,
+        space: Int,
+        display: Int,
+        isVisible: Bool,
+        isMinimized: Bool
+    ) {
+        self.id = id
+        self.app = app
+        self.title = title
+        self.space = space
+        self.display = display
+        self.isVisible = isVisible
+        self.isMinimized = isMinimized
     }
 }
 
-/// One space / workspace. Post-fork-B, the source of truth for
-/// "which workspace lives on which display" is the
-/// `(displayUUID, workspaceName)` pair carried here, not the slot
-/// `index`. `index` and `display` remain as derived/legacy convenience
-/// fields for the statusbar pill renderer and any consumers that still
-/// think in global slots; aerospace synthesizes them as a per-display
-/// ordinal + monitor index.
-///
-/// Custom `Decodable` because yabai's `--query --spaces` JSON has
-/// `index` and `display` but no `workspaceName`/`displayUUID` — those
-/// are synthesized post-decode by the YabaiWindowManager. Aerospace's
-/// implementation constructs `SpaceInfo` directly (not via decode) and
-/// supplies real values for all four fields.
-public struct SpaceInfo: Decodable, Sendable {
+/// One workspace. Identity is the `(displayUUID, workspaceName)` tuple;
+/// `index` is a per-display ordinal (1-based) and `display` is the
+/// aerospace monitor ordinal that workspace lives on. Both ordinals
+/// are synthesized at query time and shouldn't be held across
+/// reorderings.
+public struct SpaceInfo: Sendable {
     public let index: Int
     public let display: Int
     public let displayUUID: String
@@ -179,37 +174,12 @@ public struct SpaceInfo: Decodable, Sendable {
         self.displayUUID = displayUUID
         self.workspaceName = workspaceName
     }
-
-    enum CodingKeys: String, CodingKey {
-        case index, display, displayUUID, workspaceName, label
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        let index = try c.decode(Int.self, forKey: .index)
-        let display = try c.decode(Int.self, forKey: .display)
-        // Aerospace path may emit these directly. Yabai path leaves them
-        // absent; we synthesize. `label` is yabai's space label and is
-        // preferred as workspaceName when present.
-        let uuid = try c.decodeIfPresent(String.self, forKey: .displayUUID)
-        let nameField = try c.decodeIfPresent(String.self, forKey: .workspaceName)
-        let label = try c.decodeIfPresent(String.self, forKey: .label)
-        self.index = index
-        self.display = display
-        self.displayUUID = uuid ?? ""
-        let resolvedName = nameField
-            ?? (label?.isEmpty == false ? label : nil)
-            ?? "slot\(index)"
-        self.workspaceName = resolvedName
-    }
 }
 
-/// Composite key identifying a workspace under fork B's per-display
-/// data model: `(displayUUID, workspaceName)`. `displayUUID` is the
-/// CoreGraphics-derived UUID from `CGDisplayCreateUUIDFromDisplayID` —
-/// stable across reboots and hot-plug. `workspaceName` is the aerospace
-/// workspace name (or the synthesized "slot<N>" name for yabai-era
-/// slots that haven't been reconciled yet).
+/// Composite key identifying a workspace: `(displayUUID, workspaceName)`.
+/// `displayUUID` is the CoreGraphics UUID from
+/// `CGDisplayCreateUUIDFromDisplayID` — stable across reboots and
+/// hot-plug. `workspaceName` is the aerospace workspace identifier.
 public struct WorkspaceTarget: Hashable, Sendable {
     public let displayUUID: String
     public let workspaceName: String
@@ -219,8 +189,6 @@ public struct WorkspaceTarget: Hashable, Sendable {
         self.workspaceName = workspaceName
     }
 
-    /// Convenience constructor for transitional callers that still hold
-    /// a `SpaceInfo`. Equivalent to copying the two key fields.
     public init(_ space: SpaceInfo) {
         self.displayUUID = space.displayUUID
         self.workspaceName = space.workspaceName

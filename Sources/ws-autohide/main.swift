@@ -44,9 +44,7 @@ app.run()
 //                                               Most idle ticks skip it.
 //
 // Total: zero subprocess spawns when nothing's hidden and the cursor
-// is mid-screen — which is the overwhelmingly common case. Compare
-// to the previous shape, which spawned /bin/sh + yabai + jq AND ran
-// CGWindowListCopyWindowInfo on every single tick (10/sec, all day).
+// is mid-screen — which is the overwhelmingly common case.
 
 final class AutohideDaemon {
     private let pollInterval: DispatchTimeInterval = .milliseconds(100)
@@ -90,7 +88,7 @@ final class AutohideDaemon {
         }
 
         // Invalidate the display-index cache whenever macOS reconfigures
-        // screens. Cheaper + more correct than polling yabai every tick.
+        // screens. Cheaper + more correct than polling the WM every tick.
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
@@ -124,7 +122,7 @@ final class AutohideDaemon {
         guard let screen = Self.screen(containing: appKitPoint) else { return }
         guard let yidx = displayIndexCache[DisplayKey(screen.frame)] else {
             // Cache miss → mark dirty so we rebuild next tick. Happens if
-            // screen-config changed without a notification, or if yabai
+            // screen-config changed without a notification, or if aerospace
             // wasn't up at the previous rebuild.
             cacheDirty = true
             return
@@ -170,10 +168,9 @@ final class AutohideDaemon {
 
     // MARK: - Display-index cache
 
-    /// Identity key for an NSScreen / yabai-display match. Rounding to
-    /// integer points avoids floating-point equality flakiness — yabai
-    /// reports `frame.x` as a JSON number which can drift slightly from
-    /// what NSScreen reports for the same display.
+    /// Identity key for matching NSScreen → aerospace monitor. Rounding
+    /// to integer points avoids floating-point equality flakiness when
+    /// frame coordinates round-trip through JSON.
     private struct DisplayKey: Hashable {
         let x: Int
         let y: Int

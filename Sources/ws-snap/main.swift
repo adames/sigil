@@ -5,13 +5,13 @@ import Foundation
 
 // MARK: - ws-snap
 //
-// Absolute window snaps for yabai-unmanaged windows (floating windows
+// Absolute window snaps for aerospace-unmanaged windows (floating windows
 // like System Settings, or Ghostty when a tile rule excludes it).
 // Not bound to a chord today — the common new-window case is handled
-// by configs/workspace/stage-window.sh from yabai's window_created
+// by configs/workspace/stage-window.sh from aerospace's window_created
 // signal. ws-snap remains as a manual CLI for one-off absolute snaps.
 //
-// We use the Accessibility API directly because yabai's CLI only
+// We use the Accessibility API directly because aerospace's CLI only
 // affects managed windows, and we explicitly want to move floating
 // ones.
 //
