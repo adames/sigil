@@ -28,9 +28,10 @@
 #     reveals what's being written, not just that something is.
 #   • functions: cmd_<subcommand>  → public CLI subcommand (1:1 with
 #     `ws <subcommand>`). _<name>()  → file-private helper.
-#   • boolean knobs phrase the toggle as English: WS_GROW_YABAI_ON_ADD,
-#     WS_SKIP_YABAI_SLOT_CHECK. Default value matches the safe behavior
-#     (=1 grow, =0 skip) so callers usually don't need to set them.
+#   • boolean knobs phrase the toggle as English. Current set:
+#     WS_SKIP_WM_SLOT_CHECK (test harness disables WM-derived bounds so
+#     it can exercise JSON-only state). Default = 0. Legacy
+#     WS_SKIP_YABAI_SLOT_CHECK is honored as an alias for back-compat.
 
 set -u
 
@@ -103,17 +104,15 @@ _require_config() {
 
 _count() { jq '.spaces | keys | map(tonumber) | length' "$WS_CONFIG"; }
 
-# Window manager's authoritative space count. 0 when WM is absent / down / when
-# WS_SKIP_WM_SLOT_CHECK=1 (the verify harness disables WM-derived bounds
-# so it can exercise JSON-only state).
+# Window manager's authoritative workspace count. 0 when aerospace is
+# absent / daemon down / when WS_SKIP_WM_SLOT_CHECK=1 (the verify harness
+# disables WM-derived bounds so it can exercise JSON-only state).
 _wm_count() {
   [[ "${WS_SKIP_WM_SLOT_CHECK:-${WS_SKIP_YABAI_SLOT_CHECK:-0}}" == "1" ]] && { printf '0\n'; return; }
   if [[ -n "${WORKSPACE_WM_BIN:-}" ]]; then
     wm_space_count 2>/dev/null || printf '0\n'
   else
-    # Legacy fallback: try yabai directly
-    command -v yabai >/dev/null 2>&1 || { printf '0\n'; return; }
-    yabai -m query --spaces 2>/dev/null | jq 'length' 2>/dev/null || printf '0\n'
+    printf '0\n'
   fi
 }
 
@@ -173,10 +172,10 @@ _ensure_slot() {
 # Accept either a numeric slot index OR a slot name. Print the resolved
 # slot index to stdout. Exit 2 on no-match / ambiguous.
 #
-# Numeric input is bounded by `_addressable_max` (yabai-derived when
-# present), so any yabai-known slot is addressable even when it carries
-# no JSON identity yet. Name lookup stays JSON-only — names are an
-# identity concept, not an existence one; uncustomized slots have no
+# Numeric input is bounded by `_addressable_max` (WM-derived when
+# present), so any aerospace-known workspace is addressable even when it
+# carries no JSON identity yet. Name lookup stays JSON-only — names are
+# an identity concept, not an existence one; uncustomized slots have no
 # name to match.
 _resolve_slot() {
   local input="$1"
@@ -344,7 +343,7 @@ USAGE
 INSPECTION
   status [--json]            list all slots with color swatches
   get <SLOT> [--json]        dump slot as JSON
-  count [--customized]       print addressable slot count (default: yabai's; --customized: JSON-key count)
+  count [--customized]       print addressable slot count (default: WM's; --customized: JSON-key count)
   themes [--json]            list available themes
   doctor                     validate spaces.json schema
   verify                     run end-to-end cascade tests
@@ -400,13 +399,13 @@ cmd_status() {
     jq '.spaces' "$WS_CONFIG"
     return
   fi
-  # Row count is addressable_max (yabai reality when up, JSON keys
+  # Row count is addressable_max (aerospace reality when up, JSON keys
   # otherwise) so the table mirrors the pill strip - uncustomized
   # slots render with bare wsN / neutral defaults rather than being
-  # hidden. Mirrors paint-all.sh's yabai-owns-existence join.
+  # hidden. Mirrors paint-all.sh's aerospace-owns-existence join.
   local n; n=$(_addressable_max)
   if (( n == 0 )); then
-    printf '(no spaces - Mission Control'\''s + creates one)\n'
+    printf '(no workspaces — declare them in ~/.config/aerospace/aerospace.toml)\n'
     return
   fi
   printf '%-3s %-4s %-12s %-9s %s\n' '#' 'ICON' 'NAME' 'COLOR' ''
@@ -447,7 +446,7 @@ cmd_get() {
 cmd_count() {
   _require_config
   # Default: addressable count (matches what the user sees in the pill
-  # strip — yabai's reality). `--customized` returns just the JSON-key
+  # strip — aerospace's reality). `--customized` returns just the JSON-key
   # count for scripts that care about identity coverage.
   if [[ "${1:-}" == "--customized" ]]; then
     _count
@@ -886,28 +885,25 @@ cmd_add() {
   # Nerd Font path: user can input raw codepoint if needed for cross-platform
 
   # ── window manager first, spaces.json second ───────────────────────────
-  # Atomicity: the failure-prone step is creating a space in the WM,
-  # which silently fails when the WM's scripting-addition isn't loaded
-  # into Dock (yabai). If we wrote spaces.json first and WM then failed,
-  # we'd leak a phantom slot — identity without existence — and the user
-  # would think the add succeeded. Instead, grow WM first; only
-  # commit the spaces.json mutation if WM accepted.
+  # Under aerospace, workspace existence is config-time: it lives in
+  # ~/.config/aerospace/aerospace.toml, not in a runtime daemon mutation.
+  # `wm_create_space` always returns non-zero and prints the help text.
+  # The CLI surfaces that here, then aborts before any spaces.json write
+  # so identity and existence stay in sync.
   #
-  # Skipped when WM is absent (Linux) or down; in those cases `ws add`
-  # is an identity-only operation, which has always been valid for
-  # non-macOS deployments.
+  # Skipped on explicit identity-only deployments (Linux harness, etc.)
+  # via WS_GROW_WM_ON_ADD=0; in that case `ws add` writes the JSON only,
+  # which has always been valid for non-macOS / no-WM setups.
   if [[ "${WS_GROW_WM_ON_ADD:-${WS_GROW_YABAI_ON_ADD:-1}}" == 1 ]] && _wm_available; then
     local wm_err
     if ! wm_err=$(wm_create_space 2>&1); then
-      err "window manager space creation failed; aborting (spaces.json untouched)"
-      err "wm: ${wm_err:-<no output>}"
-      if [[ "$wm_err" == *"scripting-addition"* ]]; then
-        err ""
-        err "the yabai scripting-addition is not loaded. fix:"
-        err "  ~/dotfiles/macos/yabai-sa-install.sh --force"
-        err "then re-attempt:"
-        err "  ws add $name${icon:+ $icon}"
-      fi
+      err "cannot create workspace at runtime under aerospace."
+      err ""
+      err "edit ~/.config/aerospace/aerospace.toml — add the workspace to"
+      err "[workspace-to-monitor-force-assignment] (and any [mode.main.binding]"
+      err "you want), then:"
+      err "  aerospace reload-config && ws-topology emit-aerospace --write"
+      err "  ws name <slot> $name${icon:+ && ws icon <slot> $icon}"
       exit 1
     fi
   fi
@@ -1174,58 +1170,33 @@ cmd_layout() {
       [[ -r "$src" ]] || { err "layout not found: $src"; exit 1; }
       jq -e . "$src" >/dev/null 2>&1 || { err "layout is malformed JSON: $src"; exit 1; }
 
-      # Reconcile yabai's macOS Space count to match the layout's slot
-      # count BEFORE writing spaces.json. Without this step, loading a
-      # 7-slot layout onto a 4-space system leaves 3 entries as orphans
-      # (and the inverse — loading a 4-slot layout onto 7 spaces leaves
-      # 3 bare ws<N> pills with no identity). yabai handles destroying
-      # the focused space gracefully (focus shifts to a neighbour), so
-      # we don't bother detecting that case here.
-      #
-      # We destroy from the highest index down so each `--destroy N` is
-      # operating on what is still the tail at that moment (yabai never
-      # renumbers when destroying the highest slot).
+      # Under aerospace, workspace existence is config-time
+      # (aerospace.toml). Layout load can replace identity (spaces.json)
+      # but cannot reconcile workspace count — that's a manual step.
+      # When the saved layout's slot count diverges from aerospace's
+      # workspace count, surface the mismatch and let the user reconcile
+      # aerospace.toml first; the identity replace then completes the
+      # picture.
       local saved_count current_count
       saved_count=$(jq '.spaces | length' "$src" 2>/dev/null)
-      if command -v yabai >/dev/null 2>&1 && yabai -m query --spaces >/dev/null 2>&1; then
-        current_count=$(yabai -m query --spaces 2>/dev/null | jq 'length' 2>/dev/null)
-      else
-        current_count=""
-        warn "yabai not available — loading identity only; yabai space count not reconciled"
-      fi
+      current_count=$(wm_space_count 2>/dev/null || printf '')
 
       if [[ "${saved_count:-}" =~ ^[0-9]+$ && "${current_count:-}" =~ ^[0-9]+$ ]]; then
         if (( saved_count < 1 )); then
-          err "layout '$name' has 0 slots — refusing to load (yabai requires ≥ 1 space)"
+          err "layout '$name' has 0 slots — refusing to load (aerospace requires ≥ 1 workspace)"
           exit 1
         fi
-        _confirm "load layout '$name' (will reconcile yabai $current_count → $saved_count spaces, then replace spaces.json)?" "$yes" \
-          || { warn "aborted"; exit 1; }
-
-        local i yerr
-        if (( saved_count > current_count )); then
-          for ((i = current_count; i < saved_count; i++)); do
-            if ! yerr=$(yabai -m space --create 2>&1); then
-              err "yabai space --create failed; aborted with $i/$saved_count spaces; spaces.json untouched."
-              err "yabai: ${yerr:-<no output>}"
-              [[ "$yerr" == *"scripting-addition"* ]] && \
-                err "fix: ~/dotfiles/macos/yabai-sa-install.sh --force"
-              exit 1
-            fi
-          done
-        elif (( saved_count < current_count )); then
-          for ((i = current_count; i > saved_count; i--)); do
-            if ! yerr=$(yabai -m space --destroy "$i" 2>&1); then
-              err "yabai space --destroy $i failed; aborted; spaces.json untouched."
-              err "yabai: ${yerr:-<no output>}"
-              [[ "$yerr" == *"scripting-addition"* ]] && \
-                err "fix: ~/dotfiles/macos/yabai-sa-install.sh --force"
-              exit 1
-            fi
-          done
+        if (( saved_count != current_count )); then
+          err "layout '$name' has $saved_count workspaces, aerospace has $current_count."
+          err "edit ~/.config/aerospace/aerospace.toml to match, then:"
+          err "  aerospace reload-config && ws-topology emit-aerospace --write"
+          err "  ws layout load $name"
+          exit 1
         fi
+        _confirm "load layout '$name' (replace spaces.json identity for $saved_count workspaces)?" "$yes" \
+          || { warn "aborted"; exit 1; }
       else
-        # yabai unavailable or layout count unparseable — preserve the
+        # WM unavailable or layout count unparseable — preserve the
         # legacy identity-only load behaviour.
         _confirm "replace spaces.json with layout '$name'?" "$yes" \
           || { warn "aborted"; exit 1; }
@@ -1467,23 +1438,23 @@ cmd_doctor() {
       warn "duplicate name: $name"
     done <<<"$dups"
   fi
-  # Drift check: spaces.json should never have more slots than yabai has
-  # spaces. on-space-destroyed.sh truncates on every yabai destroy, but
-  # if it ever misses an event (yabai down at destroy time, signal-storm
-  # races, older deploys without the handler), orphans accumulate and
-  # silently block `ws name` uniqueness checks against ghost slots.
-  # WS_SKIP_YABAI_SLOT_CHECK=1 disables every yabai-derived bound (this drift
-  # check + _resolve_slot's addressable bound + cmd_count's view). Set
-  # by the verify harness, which intentionally grows the JSON beyond
-  # yabai's real space count to give positional tests headroom without
-  # touching yabai state.
-  if [[ "${WS_SKIP_YABAI_SLOT_CHECK:-0}" != "1" ]] \
-       && command -v yabai >/dev/null 2>&1 && yabai -m query --spaces >/dev/null 2>&1; then
-    local yabai_n json_n
-    yabai_n=$(yabai -m query --spaces 2>/dev/null | jq 'length' 2>/dev/null || echo 0)
+  # Drift check: spaces.json should never have more entries than
+  # aerospace has workspaces. Under aerospace, workspace count is
+  # config-time (aerospace.toml), so drift means the user added a
+  # spaces.json entry without declaring the corresponding workspace —
+  # orphans accumulate and block `ws name` uniqueness checks against
+  # ghost slots. WS_SKIP_WM_SLOT_CHECK=1 (alias: WS_SKIP_YABAI_SLOT_CHECK)
+  # disables every WM-derived bound (this drift check +
+  # _resolve_slot's addressable bound + cmd_count's view). Set by the
+  # verify harness, which intentionally grows the JSON beyond aerospace's
+  # real workspace count to give positional tests headroom.
+  if [[ "${WS_SKIP_WM_SLOT_CHECK:-${WS_SKIP_YABAI_SLOT_CHECK:-0}}" != "1" ]] \
+       && _wm_available; then
+    local wm_n json_n
+    wm_n=$(wm_space_count 2>/dev/null || echo 0)
     json_n=$(jq '.spaces | length' "$WS_CONFIG" 2>/dev/null || echo 0)
-    if (( json_n > yabai_n )); then
-      warn "drift: spaces.json has $json_n slots, yabai has $yabai_n. Orphan slots $((yabai_n + 1))..$json_n won't render but will block name-uniqueness. Fix with: ws remove $((yabai_n + 1))..$json_n  (or rerun yabai's space_destroyed cascade)"
+    if (( json_n > wm_n )); then
+      warn "drift: spaces.json has $json_n slots, aerospace has $wm_n. Orphan slots $((wm_n + 1))..$json_n won't render but will block name-uniqueness. Fix: declare them in ~/.config/aerospace/aerospace.toml + reload-config, or run \`ws remove $((wm_n + 1))..$json_n\` to drop identity."
       bad=1
     fi
   fi

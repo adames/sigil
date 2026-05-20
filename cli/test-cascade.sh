@@ -31,17 +31,21 @@ if [[ -z "$WS_BIN" ]]; then
   fi
 fi
 
-# Don't grow yabai during tests — we're only exercising the JSON layer.
-# WS_GROW_YABAI_ON_ADD controls whether `ws add` calls
-# `yabai -m space --create` to create a real macOS space alongside the
-# JSON slot. Tests set 0 to keep the harness side-effect-free.
-export WS_GROW_YABAI_ON_ADD=0
-# The harness intentionally grows the JSON past yabai's space count to
-# give positional tests headroom. WS_SKIP_YABAI_SLOT_CHECK=1 tells the
-# `ws` CLI to skip every yabai-derived slot-count check (the validator,
-# the doctor's drift check, and the count subcommand) so the JSON-side
-# tests can exercise slots that don't correspond to real yabai spaces.
-export WS_SKIP_YABAI_SLOT_CHECK=1
+# Don't grow the WM during tests — we're only exercising the JSON layer.
+# WS_GROW_WM_ON_ADD (alias: WS_GROW_YABAI_ON_ADD) controls whether
+# `ws add` attempts a runtime workspace create. Under aerospace, that's
+# a config-time operation and always fails — but setting this to 0
+# keeps the test harness explicit about its identity-only intent.
+export WS_GROW_WM_ON_ADD=0
+export WS_GROW_YABAI_ON_ADD=0  # back-compat alias
+# The harness intentionally grows the JSON past the WM's workspace count
+# to give positional tests headroom. WS_SKIP_WM_SLOT_CHECK=1 (alias:
+# WS_SKIP_YABAI_SLOT_CHECK) tells the `ws` CLI to skip every WM-derived
+# slot-count check (the validator, the doctor's drift check, and the
+# count subcommand) so the JSON-side tests can exercise slots that
+# don't correspond to real aerospace workspaces.
+export WS_SKIP_WM_SLOT_CHECK=1
+export WS_SKIP_YABAI_SLOT_CHECK=1  # back-compat alias
 
 red()   { printf '\033[31m%s\033[0m\n' "$*" >&2; }
 green() { printf '\033[32m%s\033[0m\n' "$*"; }
@@ -325,20 +329,20 @@ layout_name="harness-test-$$"
 "$WS_BIN" layout save "$layout_name" >/dev/null
 "$WS_BIN" layout list | grep -q "^$layout_name$" && pass "layout list shows saved layout" || fail "layout list missing $layout_name"
 
-# Trim the saved layout to min(json_count, yabai_count) so `layout load`'s
-# reconciliation step is a no-op. Without this, the harness's 7-slot JSON
-# floor (line 77) forces `yabai -m space --create` calls during load, which
-# fail on machines where yabai's scripting-addition isn't loaded — even
-# though the property under test (identity restore) is independent of
-# yabai's space count. Slot 1 is preserved because we trim from the tail.
+# Trim the saved layout to min(json_count, wm_count) so `layout load`'s
+# count-equality check is a no-op. Without this, the harness's 7-slot
+# JSON floor (line 77) forces the layout-load count-mismatch error path
+# on machines whose aerospace.toml declares fewer workspaces. Slot 1 is
+# preserved because we trim from the tail.
 layouts_dir="${WS_LAYOUTS_DIR:-$HOME/.config/workspace/layouts}"
 layout_file="$layouts_dir/$layout_name.json"
-if command -v yabai >/dev/null 2>&1 && yabai -m query --spaces >/dev/null 2>&1; then
-  yabai_n=$(yabai -m query --spaces 2>/dev/null | jq 'length' 2>/dev/null || echo 0)
+if command -v aerospace >/dev/null 2>&1 \
+   && aerospace list-workspaces --all --json >/dev/null 2>&1; then
+  wm_n=$(aerospace list-workspaces --all --json 2>/dev/null | jq 'length' 2>/dev/null || echo 0)
   json_n=$(jq '.spaces | length' "$layout_file" 2>/dev/null || echo 0)
-  if [[ "$yabai_n" =~ ^[0-9]+$ && "$yabai_n" -ge 1 && "$yabai_n" -lt "$json_n" ]]; then
+  if [[ "$wm_n" =~ ^[0-9]+$ && "$wm_n" -ge 1 && "$wm_n" -lt "$json_n" ]]; then
     tmp=$(mktemp) || { red "mktemp failed"; exit 1; }
-    jq --argjson n "$yabai_n" \
+    jq --argjson n "$wm_n" \
        '.spaces |= (to_entries | sort_by(.key | tonumber) | .[:$n] | from_entries)' \
        "$layout_file" > "$tmp" && mv -f "$tmp" "$layout_file"
   fi
@@ -390,12 +394,12 @@ else
 fi
 
 # 18 · optional-subsystem absence: run on-space-changed.sh with a stripped
-#      PATH so sketchybar/tmux/yabai are absent. The handler must
+#      PATH so sketchybar/tmux/aerospace are absent. The handler must
 #      still exit 0 and refresh current.env (silent-on-absence contract).
 if [[ -x "$WS_HANDLER" ]]; then
   cache_env="$HOME/.cache/workspace/current.env"
   if PATH="/usr/bin:/bin" WS_CONFIG="$WS_CONFIG" "$WS_HANDLER" >/dev/null 2>&1; then
-    pass "cascade exits 0 with stripped PATH (no sketchybar/tmux/yabai)"
+    pass "cascade exits 0 with stripped PATH (no sketchybar/tmux/aerospace)"
   else
     fail "cascade failed with stripped PATH"
   fi

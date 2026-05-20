@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # ws-send-follow <SLOT|next|prev> — send focused window to target
-# space and follow it. Loud failure if no window is focused or the
-# target slot doesn't exist. Replaces the old silent Mod+digit chord
-# bound directly to `yabai -m window --space N && yabai -m space --focus N`.
+# workspace and follow it. Loud failure if no window is focused or the
+# target workspace doesn't exist. Post-Phase-6 wrapper around aerospace's
+# move-node-to-workspace; slot index is resolved to a workspace name via
+# aerospace's `list-workspaces --all --json` ordering.
 set -u
 
 target="${1:-}"
@@ -11,55 +12,63 @@ target="${1:-}"
   exit 2
 }
 
-# Refuse to act if there is no focused window — `window --space N` is
-# a silent no-op in that case, which lets users think they sent a
-# window when they didn't.
-win=$(yabai -m query --windows --window 2>/dev/null | jq -r '.id // empty' 2>/dev/null)
+# Refuse to act if there is no focused window — move-node-to-workspace
+# is a silent no-op in that case, which lets users think they moved
+# something when they didn't.
+win=$(aerospace list-windows --focused --json 2>/dev/null \
+        | jq -r '.[0]."window-id" // empty' 2>/dev/null)
 if [[ -z "$win" ]]; then
   osascript -e 'display notification "no focused window" with title "ws"'
   exit 1
 fi
 
-count=$(yabai -m query --spaces 2>/dev/null | jq 'length' 2>/dev/null)
-cur=$(yabai -m query --spaces --space 2>/dev/null | jq -r '.index' 2>/dev/null)
-if [[ -z "${count:-}" || ! "$count" =~ ^[0-9]+$ || -z "${cur:-}" || "$cur" == "null" ]]; then
-  osascript -e 'display notification "yabai unavailable" with title "ws"'
-  exit 1
+# Aerospace's `move-node-to-workspace next|prev` already exists; pass
+# those through directly and let aerospace handle the wraparound + focus.
+if [[ "$target" == "next" || "$target" == "prev" ]]; then
+  if ! aerospace move-node-to-workspace --focus-follows-window --wrap-around "$target" 2>/dev/null; then
+    osascript -e "display notification \"send $target failed\" with title \"ws\""
+    exit 1
+  fi
+  exit 0
 fi
 
-# Resolve next/prev to a literal index up front. Computing it from the
-# already-queried `cur` avoids the race where `window --space next`
-# moves the window before `space --focus next` is evaluated.
-
-case "$target" in
-  next) target=$(( cur % count + 1 )) ;;
-  prev) target=$(( (cur - 2 + count) % count + 1 )) ;;
-esac
-
-if [[ "$target" =~ ^[0-9]+$ ]] && (( target < 1 || target > count )); then
+# Numeric slot → resolve to workspace name via aerospace's ordered list.
+# spaces.json composite-key order matches aerospace's monitor-grouped
+# order under fork B, so the N-th entry is the chord target.
+all=$(aerospace list-workspaces --all --json 2>/dev/null)
+if [[ -z "$all" ]]; then
+  osascript -e 'display notification "aerospace unavailable" with title "ws"'
+  exit 1
+fi
+count=$(jq 'length' <<<"$all")
+if [[ ! "$target" =~ ^[0-9]+$ ]] || (( target < 1 || target > count )); then
   osascript -e "display notification \"slot $target does not exist (have $count)\" with title \"ws\""
   exit 1
 fi
+name=$(jq -r --argjson n "$target" '.[$n - 1].workspace' <<<"$all")
+[[ -z "$name" || "$name" == "null" ]] && {
+  osascript -e "display notification \"slot $target has no workspace name\" with title \"ws\""
+  exit 1
+}
 
-if ! yabai -m window --space "$target" 2>/dev/null; then
-  osascript -e "display notification \"send to slot $target failed\" with title \"ws\""
+cur=$(aerospace list-workspaces --focused --json 2>/dev/null \
+        | jq -r '.[0].workspace // empty')
+
+if ! aerospace move-node-to-workspace --focus-follows-window "$name" 2>/dev/null; then
+  osascript -e "display notification \"send to $name failed\" with title \"ws\""
   exit 1
 fi
 
-# Look up the target's display for the optimistic pre-paint (separate
-# yabai query because we don't know the display until after the
-# resolve-next/prev step above). Skipped when sketchybar isn't running
-# or the target is the current slot (no pill change needed).
-if command -v sketchybar >/dev/null 2>&1 && [[ "$cur" != "$target" ]]; then
-  target_disp=$(yabai -m query --spaces 2>/dev/null \
-                | jq -r --arg t "$target" \
-                    '.[] | select((.index|tostring) == $t) | .display' 2>/dev/null)
-  if [[ -n "${target_disp:-}" ]]; then
+# Optimistic pre-paint for sketchybar — only when both names are known
+# and they differ. WS_OPTIMISTIC_DISPLAY uses the target workspace's
+# monitor-id (aerospace's per-monitor ordinal).
+if command -v sketchybar >/dev/null 2>&1 && [[ -n "$cur" && "$cur" != "$name" ]]; then
+  target_disp=$(jq -r --arg n "$name" '.[] | select(.workspace == $n) | ."monitor-id"' <<<"$all")
+  if [[ -n "$target_disp" ]]; then
     sketchybar --trigger workspace_changed \
       WS_OPTIMISTIC_SID="$target" \
-      WS_OPTIMISTIC_OLD_SID="$cur" \
+      WS_OPTIMISTIC_OLD_NAME="$cur" \
+      WS_OPTIMISTIC_NEW_NAME="$name" \
       WS_OPTIMISTIC_DISPLAY="$target_disp" >/dev/null 2>&1 || true
   fi
 fi
-
-yabai -m space --focus "$target" 2>/dev/null
