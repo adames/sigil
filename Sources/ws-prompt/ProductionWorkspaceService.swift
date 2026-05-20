@@ -12,10 +12,6 @@ import WorkspaceState
 /// production code path (e.g. integration tests).
 final class ProductionWorkspaceService: WorkspaceService {
     struct Paths {
-        // yabaiBinary retained only for the legacy `querySpaceCountSync`
-        // path (still referenced by the read-side fallback during the
-        // aerospace transition). All runtime mutation is gone.
-        let yabaiBinary: String
         let wsBinary: String
         let wsConfig: URL
         let iconMap: URL
@@ -255,22 +251,6 @@ final class ProductionWorkspaceService: WorkspaceService {
         return result.success ? result.output : nil
     }
 
-    private static func querySpaceCountSync(binary: String) -> Int {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: binary)
-        task.arguments = ["-m", "query", "--spaces"]
-        let pipe = Pipe()
-        task.standardOutput = pipe
-        task.standardError = Pipe()
-        do { try task.run(); task.waitUntilExit() } catch { return 0 }
-        guard task.terminationStatus == 0 else { return 0 }
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        guard let arr = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
-            return 0
-        }
-        return arr.count
-    }
-
     private func spawnHelper(name: String, arg: String) {
         let path = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".local/bin/\(name)").path
@@ -287,11 +267,9 @@ final class ProductionWorkspaceService: WorkspaceService {
 // MARK: - Path resolution
 
 extension ProductionWorkspaceService.Paths {
-    /// Build a Paths value from the live environment. yabai is probed
-    /// against both Homebrew install locations; the rest are the fixed
-    /// dotfiles locations. WS_CONFIG env var overrides spaces.json so
-    /// the bash test harness can point at a fixture without monkey-
-    /// patching the home directory.
+    /// Build a Paths value from the live environment. WS_CONFIG env var
+    /// overrides spaces.json so the bash test harness can point at a
+    /// fixture without monkey-patching the home directory.
     static var `default`: ProductionWorkspaceService.Paths {
         let home = FileManager.default.homeDirectoryForCurrentUser
         let env = ProcessInfo.processInfo.environment
@@ -304,26 +282,9 @@ extension ProductionWorkspaceService.Paths {
         }()
 
         return .init(
-            yabaiBinary: resolveYabaiBinary(),
             wsBinary: home.appendingPathComponent(".local/bin/ws").path,
             wsConfig: wsConfig,
             iconMap: home.appendingPathComponent(".config/workspace/lib/sf-to-nerd.json")
         )
-    }
-
-    /// yabai install paths vary (Apple-Silicon Homebrew, Intel Homebrew,
-    /// or a user-installed binary). YABAI_BIN env var wins when set —
-    /// the bash test harness uses this to point at the yabai-stub.
-    private static func resolveYabaiBinary() -> String {
-        if let override = ProcessInfo.processInfo.environment["YABAI_BIN"],
-           !override.isEmpty,
-           FileManager.default.isExecutableFile(atPath: override) {
-            return override
-        }
-        for path in ["/opt/homebrew/bin/yabai", "/usr/local/bin/yabai"]
-        where FileManager.default.isExecutableFile(atPath: path) {
-            return path
-        }
-        return "yabai"  // last resort: rely on PATH
     }
 }

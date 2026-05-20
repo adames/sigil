@@ -4,7 +4,7 @@
 
 # Default configuration - can be overridden by user
 : "${WORKSPACE_BUNDLE_PREFIX:=com.user.workspace}"
-: "${WORKSPACE_WINDOW_MANAGER:=yabai}"
+: "${WORKSPACE_WINDOW_MANAGER:=aerospace}"
 : "${WORKSPACE_BAR:=ws-statusbar}"
 
 # XDG-compliant paths
@@ -22,10 +22,9 @@ WORKSPACE_TOPOLOGY_FILE="topology.json"
 WORKSPACE_LAYOUT_ENV="layout.env"
 WORKSPACE_CURRENT_ENV="current.env"
 
-# Window manager binary paths
-if [[ "$WORKSPACE_WINDOW_MANAGER" == "yabai" ]]; then
-    WORKSPACE_WM_BIN="/opt/homebrew/bin/yabai"
-elif [[ "$WORKSPACE_WINDOW_MANAGER" == "aerospace" ]]; then
+# Window manager binary path. AeroSpace is the only supported backend
+# post-yabai burn; leave WORKSPACE_WM_BIN empty for explicit-none setups.
+if [[ "$WORKSPACE_WINDOW_MANAGER" == "aerospace" ]]; then
     WORKSPACE_WM_BIN="/opt/homebrew/bin/aerospace"
 else
     WORKSPACE_WM_BIN=""

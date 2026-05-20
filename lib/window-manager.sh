@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Window Manager abstraction layer
-# Provides unified interface for yabai, aerospace, and other window managers
-# Sources config.sh for WORKSPACE_WINDOW_MANAGER and WORKSPACE_WM_BIN
+# Window Manager abstraction layer (shell side).
+# Wraps the `aerospace` CLI with the same function surface the Swift
+# `WindowManager` protocol exposes. Post-Phase-6: aerospace is the only
+# backend; yabai branches are gone. Functions return non-zero + log to
+# stderr when the daemon isn't reachable so callers can fail soft.
 
 # Ensure config is loaded
 if [[ -z "${WORKSPACE_WINDOW_MANAGER:-}" ]]; then
@@ -9,215 +11,112 @@ if [[ -z "${WORKSPACE_WINDOW_MANAGER:-}" ]]; then
         # shellcheck source=/dev/null
         source "$HOME/.config/workspace/lib/config.sh"
     else
-        WORKSPACE_WINDOW_MANAGER="${WORKSPACE_WINDOW_MANAGER:-yabai}"
-        WORKSPACE_WM_BIN="${WORKSPACE_WM_BIN:-/opt/homebrew/bin/yabai}"
+        WORKSPACE_WINDOW_MANAGER="${WORKSPACE_WINDOW_MANAGER:-aerospace}"
+        WORKSPACE_WM_BIN="${WORKSPACE_WM_BIN:-/opt/homebrew/bin/aerospace}"
     fi
 fi
 
-# Check if window manager binary exists
+# Check if the aerospace binary exists.
 _wm_available() {
     [[ -x "$WORKSPACE_WM_BIN" ]]
 }
 
-# Run window manager command with error handling
+# Run an aerospace subcommand. Stderr is preserved so callers can see
+# "Can't connect to AeroSpace server" when the daemon is down.
 _wm_run() {
     if ! _wm_available; then
-        printf 'window-manager: %s not available at %s\n' "$WORKSPACE_WINDOW_MANAGER" "$WORKSPACE_WM_BIN" >&2
+        printf 'window-manager: aerospace not available at %s\n' "$WORKSPACE_WM_BIN" >&2
         return 1
     fi
     "$WORKSPACE_WM_BIN" "$@"
 }
 
-# Get the focused space index (1-based)
-# Returns: space index or empty string on error
+# Get the focused workspace name (the v3 identity, replacing yabai's
+# global slot index). Use wm_focused_space_index to get the legacy
+# per-display ordinal during the transition.
 wm_focused_space() {
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m query --spaces --space 2>/dev/null | jq -r '.index // empty'
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            printf 'aerospace support not yet implemented\n' >&2
-            return 1
-            ;;
-        *)
-            printf 'unknown window manager: %s\n' "$WORKSPACE_WINDOW_MANAGER" >&2
-            return 1
-            ;;
-    esac
+    _wm_run list-workspaces --focused --json 2>/dev/null \
+        | jq -r '.[0].workspace // empty'
 }
 
-# Get total number of spaces
-# Returns: count or 0 on error
+# Legacy per-display ordinal. Synthesizes 1..N within the focused
+# monitor — matches AerospaceWindowManager.focusedSpaceIndex().
+wm_focused_space_index() {
+    local focused monitor_id
+    focused=$(_wm_run list-workspaces --focused --json 2>/dev/null)
+    [[ -z "$focused" ]] && return 1
+    monitor_id=$(jq -r '.[0]."monitor-id" // 1' <<<"$focused")
+    _wm_run list-workspaces --monitor "$monitor_id" --json 2>/dev/null \
+        | jq --arg name "$(jq -r '.[0].workspace' <<<"$focused")" \
+             '[.[].workspace] | index($name) + 1'
+}
+
+# Get total number of workspaces.
 wm_space_count() {
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m query --spaces 2>/dev/null | jq 'length'
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            printf '0'
-            ;;
-        *)
-            printf '0'
-            ;;
-    esac
+    _wm_run list-workspaces --all --json 2>/dev/null | jq 'length'
 }
 
-# Focus a space by index
-# Args: $1 = space index (1-based)
+# Focus a workspace by name (the v3 identity).
 wm_focus_space() {
-    local index="$1"
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m space --focus "$index" 2>/dev/null
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
+    local name="$1"
+    _wm_run workspace "$name"
 }
 
-# Send focused window to a space
-# Args: $1 = space index (1-based), $2 = follow ("true" to follow window)
+# Send focused window to a workspace by name. $2="true" follows the
+# window after move; default leaves focus on the source workspace.
 wm_send_window() {
-    local index="$1"
+    local name="$1"
     local follow="${2:-false}"
-    local window_id
-    
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            if [[ "$follow" == "true" ]]; then
-                window_id=$(wm_focused_window)
-            fi
-            _wm_run -m window --space "$index" 2>/dev/null
-            if [[ "$follow" == "true" && -n "$window_id" ]]; then
-                wm_focus_window "$window_id"
-            fi
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
+    if [[ "$follow" == "true" ]]; then
+        _wm_run move-node-to-workspace --focus-follows-window "$name"
+    else
+        _wm_run move-node-to-workspace "$name"
+    fi
 }
 
-# Create a new space
-# Returns: new space index or empty on error
+# Workspace existence is config-time under aerospace. Both create and
+# destroy intentionally fail with an explicit message — callers should
+# emit the edit-then-reload help text (ManageController already does).
 wm_create_space() {
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m space --create 2>/dev/null
-            wm_space_count
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
+    printf 'window-manager: aerospace workspaces are declared in aerospace.toml; cannot create at runtime\n' >&2
+    return 1
 }
 
-# Destroy a space by index
-# Args: $1 = space index (1-based)
 wm_destroy_space() {
-    local index="$1"
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m space "$index" --destroy 2>/dev/null
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
+    printf 'window-manager: aerospace workspaces are declared in aerospace.toml; cannot destroy at runtime\n' >&2
+    return 1
 }
 
-# Get the focused window ID
-# Returns: window ID or empty string
+# Get the focused window ID.
 wm_focused_window() {
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m query --windows --window 2>/dev/null | jq -r '.id // empty'
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
+    _wm_run list-windows --focused --json 2>/dev/null \
+        | jq -r '.[0]."window-id" // empty'
 }
 
-# Focus a window by ID
-# Args: $1 = window ID
+# Focus a window by ID.
 wm_focus_window() {
     local id="$1"
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m window --focus "$id" 2>/dev/null
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            return 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
+    _wm_run focus --window-id "$id"
 }
 
-# Get display information (for topology)
-# Returns: JSON array of displays
+# Get display information (for topology consumers). AeroSpace's
+# list-monitors emits {"monitor-id","monitor-name"}; CG-bridged frame +
+# stable UUID resolution lives in the Swift WindowManager. This shell
+# helper surfaces the raw aerospace JSON for ws-doctor / debug use.
 wm_query_displays() {
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m query --displays 2>/dev/null
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            printf '[]\n'
-            ;;
-        *)
-            printf '[]\n'
-            ;;
-    esac
+    _wm_run list-monitors --json 2>/dev/null
 }
 
-# Get space information (for topology)
-# Returns: JSON array of spaces
+# Get workspace information (for topology consumers).
 wm_query_spaces() {
-    case "$WORKSPACE_WINDOW_MANAGER" in
-        yabai)
-            _wm_run -m query --spaces 2>/dev/null
-            ;;
-        aerospace)
-            # TODO: Implement aerospace support
-            printf '[]\n'
-            ;;
-        *)
-            printf '[]\n'
-            ;;
-    esac
+    _wm_run list-workspaces --all --json 2>/dev/null
 }
 
 # Export functions for use by other scripts
 export -f _wm_available
 export -f _wm_run
 export -f wm_focused_space
+export -f wm_focused_space_index
 export -f wm_space_count
 export -f wm_focus_space
 export -f wm_send_window

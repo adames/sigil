@@ -102,44 +102,31 @@ public enum WorkspaceSystem {
     public static let currentEnvFileName: String = "current.env"
 }
 
-/// Window manager integration configuration
+/// Window manager integration configuration. Post-Phase-6 there's only
+/// one supported backend (AeroSpace); the env var still exists for
+/// rare test setups that want to force `none`.
 public enum WindowManagerConfig {
-    /// The window manager to use.
-    /// Override with WORKSPACE_WINDOW_MANAGER env var.
-    /// Supported: "yabai", "aerospace", "rectangle", "none"
+    /// The window manager to use. Override with WORKSPACE_WINDOW_MANAGER
+    /// env var. Supported values: `"aerospace"` (default), `"none"`.
+    /// Legacy values `"yabai"` and `"rectangle"` decode to a no-op
+    /// backend during transition; logging surfaces remain quiet.
     public static let `default`: String = {
         ProcessInfo.processInfo.environment["WORKSPACE_WINDOW_MANAGER"]
-            ?? "yabai"
+            ?? "aerospace"
     }()
-    
-    /// Path to window manager binary. yabai install paths vary
-    /// (Apple-Silicon Homebrew, Intel Homebrew, or a user-installed
-    /// binary). `YABAI_BIN` env var wins when set — the bash test
-    /// harness uses this to point at the yabai-stub; the corresponding
-    /// `AEROSPACE_BIN` is honored the same way.
+
+    /// Path to the aerospace binary. `AEROSPACE_BIN` env var wins when
+    /// set (test harnesses use this to point at a stub).
     public static let binaryPath: String = {
         let env = ProcessInfo.processInfo.environment
-        switch `default` {
-        case "yabai":
-            return resolveBinary(
-                envVar: "YABAI_BIN",
-                candidates: ["/opt/homebrew/bin/yabai", "/usr/local/bin/yabai"],
-                env: env
-            )
-        case "aerospace":
-            return resolveBinary(
-                envVar: "AEROSPACE_BIN",
-                candidates: [
-                    "/opt/homebrew/bin/aerospace",
-                    "/usr/local/bin/aerospace"
-                ],
-                env: env
-            )
-        case "rectangle":
-            return "/Applications/Rectangle.app/Contents/MacOS/Rectangle"
-        default:
-            return ""
-        }
+        return resolveBinary(
+            envVar: "AEROSPACE_BIN",
+            candidates: [
+                "/opt/homebrew/bin/aerospace",
+                "/usr/local/bin/aerospace",
+            ],
+            env: env
+        )
     }()
 
     private static func resolveBinary(

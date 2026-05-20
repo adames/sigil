@@ -1,73 +1,54 @@
 import Foundation
 
 /// Factory for creating the appropriate WindowManager based on configuration.
-/// Respects the WORKSPACE_WINDOW_MANAGER environment variable and config.
+///
+/// Post-Phase-6 there's only one real backend: AeroSpace. `NoOpWindowManager`
+/// is retained for tests and for setups where no daemon is available. The
+/// `WindowManagerKind` enum survives as a type seam in case a third
+/// implementation is ever introduced — but there's no branching here today.
 public enum WindowManagerFactory {
     /// Create a WindowManager based on the current configuration.
-    /// Defaults to yabai if no configuration is found.
+    /// Defaults to aerospace.
     public static func create() -> WindowManager {
-        let kind = configuredKind()
-        
-        switch kind {
-        case .yabai:
-            return YabaiWindowManager(binaryPath: WindowManagerConfig.binaryPath)
+        switch configuredKind() {
         case .aerospace:
-            // Phase 1 scaffold: every method throws .notImplemented.
-            // Phase 2 fills in the real CLI invocations.
             return AerospaceWindowManager(binaryPath: WindowManagerConfig.binaryPath)
-        case .rectangle:
-            // Rectangle doesn't support spaces, return a no-op manager
-            print("Warning: rectangle does not support workspace spaces")
-            return NoOpWindowManager()
-        case .none:
+        case .none, .yabai, .rectangle:
+            // `.yabai` and `.rectangle` survive in the enum only to keep
+            // any existing WORKSPACE_WINDOW_MANAGER=yabai env vars from
+            // crashing the factory mid-transition — they degrade to no-op.
             return NoOpWindowManager()
         }
     }
-    
-    /// Get the configured window manager kind from environment or config.
+
+    /// Get the configured window manager kind. WORKSPACE_WINDOW_MANAGER
+    /// wins when set; otherwise falls back to aerospace presence on disk.
     public static func configuredKind() -> WindowManagerKind {
-        // Check environment variable first
         if let env = ProcessInfo.processInfo.environment["WORKSPACE_WINDOW_MANAGER"],
            let kind = WindowManagerKind(rawValue: env) {
             return kind
         }
-        
-        // Check if yabai is installed (default)
-        let yabaiPaths = [
-            "/opt/homebrew/bin/yabai",
-            "/usr/local/bin/yabai"
-        ]
-        for path in yabaiPaths {
-            if FileManager.default.fileExists(atPath: path) {
-                return .yabai
-            }
-        }
-        
-        // Check for aerospace
         let aerospacePaths = [
             "/opt/homebrew/bin/aerospace",
-            "/usr/local/bin/aerospace"
+            "/usr/local/bin/aerospace",
         ]
-        for path in aerospacePaths {
-            if FileManager.default.fileExists(atPath: path) {
-                return .aerospace
-            }
+        for path in aerospacePaths where FileManager.default.fileExists(atPath: path) {
+            return .aerospace
         }
-        
         return .none
     }
-    
-    /// Check if a window manager is available.
+
+    /// Check if a window manager is available on disk.
     public static func isAvailable(_ kind: WindowManagerKind) -> Bool {
         switch kind {
-        case .yabai:
-            let paths = ["/opt/homebrew/bin/yabai", "/usr/local/bin/yabai"]
-            return paths.contains { FileManager.default.fileExists(atPath: $0) }
         case .aerospace:
             let paths = ["/opt/homebrew/bin/aerospace", "/usr/local/bin/aerospace"]
             return paths.contains { FileManager.default.fileExists(atPath: $0) }
         case .rectangle:
             return FileManager.default.fileExists(atPath: "/Applications/Rectangle.app")
+        case .yabai:
+            // Always false post-burn — yabai support is retired.
+            return false
         case .none:
             return true
         }
@@ -78,9 +59,9 @@ public enum WindowManagerFactory {
 public final class NoOpWindowManager: WindowManager {
     public static let kind: WindowManagerKind = .none
     public let binaryPath: String = ""
-    
+
     public init() {}
-    
+
     public func focusSpace(target: WorkspaceTarget) throws {
         throw WindowManagerError.unavailable
     }
@@ -104,11 +85,11 @@ public final class NoOpWindowManager: WindowManager {
     public func focusedSpaceIndex() throws -> Int? {
         return nil
     }
-    
+
     public func spaceCount() throws -> Int {
         return 0
     }
-    
+
     public func focusedWindowID() throws -> Int? {
         return nil
     }
