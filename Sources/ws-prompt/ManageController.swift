@@ -79,6 +79,25 @@ final class ManageController: ObservableObject {
         self.service = service
     }
 
+    /// Help text shown in `.result(…)` when the user invokes the add or
+    /// destroy verbs under aerospace. Workspace identity (rename / icon
+    /// / color) still works through ws-prompt; existence is config-time.
+    static let aerospaceMutationHelp = """
+    AeroSpace declares workspaces statically in
+      ~/.config/aerospace/aerospace.toml
+
+    To add a workspace:
+      1. Open ~/.config/aerospace/aerospace.toml in $EDITOR
+      2. Add it to [workspace-to-monitor-force-assignment] and any
+         [mode.main.binding] you want.
+      3. Run:  aerospace reload-config && ws-topology emit-aerospace --write
+
+    To destroy a workspace: same flow, removing the entries.
+
+    Rename / icon / color still work here — they only touch spaces.json.
+    Workspace existence is the config-time operation that moved.
+    """
+
     /// Position of the focused workspace within `workspaces` (0-based),
     /// or 0 if yabai didn't report a focus. Used as the initial
     /// selection when entering a target picker.
@@ -211,13 +230,16 @@ final class ManageController: ObservableObject {
         case .backspace:
             stage = .addIcon(name: name, buffer: String(buf.dropLast())); return .idle
         case .enter:
-            // Icon resolution policy: empty → no icon (CLI default).
-            // SF Symbol name → stored directly. Nerd Font codepoint path
-            // available for cross-platform use. Silently drop invalid icons
-            // so the workspace is created cleanly.
-            let icon = (!buf.isEmpty && service.iconResolvable(buf)) ? buf : nil
-            dispatch(verb: "add") { [weak self] completion in
-                self?.service.runAdd(name: name, icon: icon, completion: completion)
+            // Phase 5: AeroSpace can't create workspaces at runtime, so
+            // surface the edit-then-reload help text in the result panel
+            // instead of trying to mutate. Identity edits (rename / icon
+            // / color) still work — only workspace existence is config-
+            // time under aerospace.toml.
+            dispatch(verb: "add") { completion in
+                completion(CommandResult(
+                    success: false,
+                    output: Self.aerospaceMutationHelp
+                ))
             }
             return .idle
         case .char(let c):
@@ -368,12 +390,17 @@ final class ManageController: ObservableObject {
         switch key {
         case .escape:                return .terminate
         case .char("d"), .char("D"), .char("y"), .char("Y"), .enter:
-            // yabai's space_destroyed signal fires the cascade
-            // (on-space-destroyed.sh) which prunes spaces.json on its
-            // own — no follow-up `ws remove` needed.
-            dispatch(verb: "destroy") { [weak self] completion in
-                self?.service.runYabai(args: ["-m", "space", "--destroy", String(slot)],
-                                       completion: completion)
+            // Phase 5: AeroSpace can't destroy workspaces at runtime.
+            // Surface the edit-then-reload help text instead. (The yabai
+            // path would have leaned on the space_destroyed signal +
+            // on-space-destroyed.sh cascade to prune spaces.json — that
+            // cascade is moot under aerospace because there's no
+            // signal subsystem to subscribe to.)
+            dispatch(verb: "destroy") { completion in
+                completion(CommandResult(
+                    success: false,
+                    output: Self.aerospaceMutationHelp
+                ))
             }
             return .idle
         default:

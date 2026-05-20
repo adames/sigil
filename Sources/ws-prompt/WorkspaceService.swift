@@ -40,11 +40,13 @@ protocol WorkspaceService {
 
     // MARK: Async commands (capture stdout+stderr; complete on main queue)
     func runWs(args: [String], completion: @escaping (CommandResult) -> Void)
-    func runYabai(args: [String], completion: @escaping (CommandResult) -> Void)
-    /// Composite: `yabai space --create` + `ws name <new-index> NAME` +
-    /// optionally `ws icon <new-index> ICON`. Surfaces the combined
-    /// result.
-    func runAdd(name: String, icon: String?, completion: @escaping (CommandResult) -> Void)
+    // Note: `runYabai` and `runAdd` were retired in the aerospace
+    // migration (Phase 5). AeroSpace declares workspaces statically in
+    // aerospace.toml — there's no runtime create/destroy. The manage
+    // overlay's add / destroy verbs now route through a synthesized
+    // CommandResult that surfaces the edit-then-reload help text in the
+    // result panel. Identity edits (rename / icon / color) still go
+    // through `runWs` because they only touch spaces.json.
 
     // MARK: Fire-and-forget helpers (focus/send don't show a panel)
     func spawnFocus(slot: Int)

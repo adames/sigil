@@ -12,6 +12,9 @@ import WorkspaceState
 /// production code path (e.g. integration tests).
 final class ProductionWorkspaceService: WorkspaceService {
     struct Paths {
+        // yabaiBinary retained only for the legacy `querySpaceCountSync`
+        // path (still referenced by the read-side fallback during the
+        // aerospace transition). All runtime mutation is gone.
         let yabaiBinary: String
         let wsBinary: String
         let wsConfig: URL
@@ -105,62 +108,11 @@ final class ProductionWorkspaceService: WorkspaceService {
         runCommandAsync(binary: paths.wsBinary, args: args, completion: completion)
     }
 
-    func runYabai(args: [String], completion: @escaping (CommandResult) -> Void) {
-        runCommandAsync(binary: paths.yabaiBinary, args: args, completion: completion)
-    }
-
-    /// Composite "add" — yabai space --create, then `ws name <new> NAME`,
-    /// then optionally `ws icon <new> ICON`. Surfaces combined output.
-    /// Without the yabai step we'd create spaces.json orphans; without
-    /// the `ws name` step we'd have an unnamed yabai space.
-    func runAdd(name: String, icon: String?, completion: @escaping (CommandResult) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async { [paths] in
-            // Step 1: create the macOS Space.
-            let create = Self.runCommandSync(binary: paths.yabaiBinary,
-                                             args: ["-m", "space", "--create"])
-            guard create.success else {
-                DispatchQueue.main.async {
-                    completion(CommandResult(
-                        success: false,
-                        output: "yabai space --create failed:\n\(create.output)"
-                    ))
-                }
-                return
-            }
-
-            // Step 2: figure out the new slot index.
-            let newIndex = Self.querySpaceCountSync(binary: paths.yabaiBinary)
-            guard newIndex >= 1 else {
-                DispatchQueue.main.async {
-                    completion(CommandResult(
-                        success: false,
-                        output: "yabai created the space but the new count couldn't be read"
-                    ))
-                }
-                return
-            }
-
-            // Step 3: attach name (and icon if any).
-            let nameRes = Self.runCommandSync(
-                binary: paths.wsBinary, args: ["name", String(newIndex), name]
-            )
-            var iconRes = CommandResult(success: true, output: "")
-            if nameRes.success, let icon = icon {
-                iconRes = Self.runCommandSync(
-                    binary: paths.wsBinary, args: ["icon", String(newIndex), icon]
-                )
-            }
-
-            let combined = [nameRes.output, iconRes.output]
-                .filter { !$0.isEmpty }
-                .joined(separator: "\n")
-            let final = CommandResult(
-                success: nameRes.success && iconRes.success,
-                output: combined.isEmpty ? "slot \(newIndex) → \(name)" : combined
-            )
-            DispatchQueue.main.async { completion(final) }
-        }
-    }
+    // Phase 5: runYabai + runAdd retired. AeroSpace can't create or
+    // destroy workspaces at runtime; ws-prompt's add / destroy verbs
+    // surface a help message instead (see ManageController's
+    // aerospaceMutationHelp). Read-only yabai queries that survive
+    // until Phase 6 use querySpaceCountSync below.
 
     // MARK: - Fire-and-forget helpers
 
