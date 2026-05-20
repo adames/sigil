@@ -12,11 +12,21 @@ enum FragmentMirror {
     static let openFence  = "# >>> sigil generated >>>"
     static let closeFence = "# <<< sigil generated <<<"
 
+    static let assignmentOpenFence  = "# >>> sigil generated: assignments >>>"
+    static let assignmentCloseFence = "# <<< sigil generated: assignments <<<"
+
     /// Verbatim copy of `AerospaceFragment.merge` semantics — replaces the
     /// fenced block in-place (line-anchored: fence must be a standalone
     /// line, not a substring inside a doc comment), or appends with a
-    /// separator newline when the fence is absent.
-    static func merge(block: String, into existing: String) -> String {
+    /// separator newline when the fence is absent. Fence pair is
+    /// parameterised so the same engine handles either the digit-bindings
+    /// region or the workspace-assignments region.
+    static func merge(
+        block: String,
+        into existing: String,
+        openFence: String = FragmentMirror.openFence,
+        closeFence: String = FragmentMirror.closeFence
+    ) -> String {
         let cleanBlock = block.hasSuffix("\n") ? String(block.dropLast()) : block
 
         var lines = existing.components(separatedBy: "\n")
@@ -141,6 +151,64 @@ struct AerospaceFragmentMergeTests {
     /// entire file between the doc comment and the real bottom fence.
     /// The fix is line-anchored matching — fence must be a standalone
     /// line. This test pins that contract.
+    /// The assignment fence uses a distinct fence pair so the merge can
+    /// update the `[workspace-to-monitor-force-assignment]` block
+    /// independently of the digit bindings. Verifies the parametrised
+    /// merge writes into the right region and leaves the other untouched.
+    @Test func assignment_fence_merges_independently_of_bindings_fence() {
+        let existing = """
+        # >>> sigil generated: assignments >>>
+        OLD ASSIGN
+        # <<< sigil generated: assignments <<<
+
+        [mode.main.binding]
+        # >>> sigil generated >>>
+        OLD BINDINGS
+        # <<< sigil generated <<<
+        """
+        let newAssign = """
+        # >>> sigil generated: assignments >>>
+        [workspace-to-monitor-force-assignment]
+        "main" = 1
+        # <<< sigil generated: assignments <<<
+        """
+        let merged = FragmentMirror.merge(
+            block: newAssign,
+            into: existing,
+            openFence: FragmentMirror.assignmentOpenFence,
+            closeFence: FragmentMirror.assignmentCloseFence
+        )
+        // Assignment region rewritten
+        #expect(!merged.contains("OLD ASSIGN"))
+        #expect(merged.contains(#""main" = 1"#))
+        // Bindings region untouched
+        #expect(merged.contains("OLD BINDINGS"))
+        #expect(merged.contains("# >>> sigil generated >>>"))
+    }
+
+    /// Belt-and-braces: re-merging the same assignment block produces no
+    /// change. Pins the idempotency contract for the second fence pair.
+    @Test func assignment_fence_is_idempotent() {
+        let existing = """
+        # >>> sigil generated: assignments >>>
+        [workspace-to-monitor-force-assignment]
+        "main" = 1
+        # <<< sigil generated: assignments <<<
+        """
+        let block = existing
+        let once  = FragmentMirror.merge(
+            block: block, into: existing,
+            openFence: FragmentMirror.assignmentOpenFence,
+            closeFence: FragmentMirror.assignmentCloseFence
+        )
+        let twice = FragmentMirror.merge(
+            block: block, into: once,
+            openFence: FragmentMirror.assignmentOpenFence,
+            closeFence: FragmentMirror.assignmentCloseFence
+        )
+        #expect(once == twice, "double-merge of assignment block should be a no-op")
+    }
+
     @Test func doc_comment_referencing_fence_by_name_is_ignored() {
         let existing = """
         # AeroSpace configuration
