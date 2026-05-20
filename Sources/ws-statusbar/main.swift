@@ -378,8 +378,8 @@ final class StatusBarController: NSObject, NSMenuDelegate {
     
     private func getCurrentSlot() -> Int {
         // Live read first; cache file is the fallback when the window
-        // manager is unreachable (briefly during boot, or if the user
-        // has WORKSPACE_WINDOW_MANAGER=none).
+        // manager is unreachable (briefly during boot, or when aerospace
+        // isn't installed and the factory degrades to NoOpWindowManager).
         if let idx = try? windowManager.focusedSpaceIndex(), idx > 0 {
             return idx
         }

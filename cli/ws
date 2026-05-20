@@ -34,8 +34,8 @@
 
 set -u
 
-# Source workspace configuration (bundle prefix, paths, window manager)
-# This provides: WORKSPACE_BUNDLE_PREFIX, WORKSPACE_WINDOW_MANAGER, etc.
+# Source workspace configuration (bundle prefix, paths, WM binary).
+# This provides: WORKSPACE_BUNDLE_PREFIX, WORKSPACE_WM_BIN, etc.
 if [[ -r "$HOME/.config/workspace/lib/config.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/config.sh"
