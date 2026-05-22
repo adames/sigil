@@ -6,7 +6,6 @@
 
 # Default configuration - can be overridden by user
 : "${WORKSPACE_BUNDLE_PREFIX:=com.user.workspace}"
-: "${WORKSPACE_BAR:=ws-statusbar}"
 
 # XDG-compliant paths
 WORKSPACE_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/workspace"
@@ -34,7 +33,6 @@ WORKSPACE_LOG_SUBSYSTEM="${WORKSPACE_BUNDLE_PREFIX}.topology"
 
 # LaunchAgent labels
 LAUNCHAGENT_TOPOLOGY="${WORKSPACE_BUNDLE_PREFIX}.topologyd"
-LAUNCHAGENT_STATUSBAR="${WORKSPACE_BUNDLE_PREFIX}.statusbar"
 LAUNCHAGENT_AUTOHIDE="${WORKSPACE_BUNDLE_PREFIX}.autohide"
 
 # Load user overrides if present
@@ -45,7 +43,6 @@ fi
 
 # Export all variables for child processes
 export WORKSPACE_BUNDLE_PREFIX
-export WORKSPACE_BAR
 export WORKSPACE_CONFIG_DIR
 export WORKSPACE_CACHE_DIR
 export WORKSPACE_BIN_DIR

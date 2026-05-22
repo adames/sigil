@@ -29,11 +29,11 @@ LAUNCH_AGENTS="$WORKSPACE_LAUNCH_AGENTS_DIR"
 
 # Binaries we build + symlink. CLIs come first (no LaunchAgent), daemons
 # follow with their matching plist files.
-BINARIES=(ws-topology ws-topologyd ws-cheatsheet ws-prompt ws-picker ws-snap ws-statusbar)
+BINARIES=(ws-topology ws-topologyd ws-cheatsheet ws-prompt ws-picker ws-snap)
 
 # Template names and their generated plist names
-TEMPLATES=(topologyd statusbar)
-AGENT_LABELS=("$WORKSPACE_BUNDLE_PREFIX.topologyd" "$WORKSPACE_BUNDLE_PREFIX.statusbar")
+TEMPLATES=(topologyd)
+AGENT_LABELS=("$WORKSPACE_BUNDLE_PREFIX.topologyd")
 
 step() { printf '\033[36m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m!!\033[0m %s\n' "$*" >&2; }
@@ -129,7 +129,6 @@ cat <<NOTE
 Configuration:
   Bundle prefix: $WORKSPACE_BUNDLE_PREFIX
   Window manager: aerospace
-  Bar: ${WORKSPACE_BAR:-ws-statusbar}
 
 To uninstall:
   for L in ${AGENT_LABELS[*]}; do launchctl bootout "gui/$(id -u)/\$L" 2>/dev/null || true; rm -f "$LAUNCH_AGENTS/\$L.plist"; done

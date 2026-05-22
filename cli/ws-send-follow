@@ -54,24 +54,7 @@ name=$(jq -r --argjson n "$target" '.[$n - 1].workspace' <<<"$all")
   exit 1
 }
 
-cur=$(aerospace list-workspaces --focused --json 2>/dev/null \
-        | jq -r '.[0].workspace // empty')
-
 if ! aerospace move-node-to-workspace --focus-follows-window "$name" 2>/dev/null; then
   osascript -e "display notification \"send to $name failed\" with title \"ws\""
   exit 1
-fi
-
-# Optimistic pre-paint for sketchybar — only when both names are known
-# and they differ. WS_OPTIMISTIC_DISPLAY uses the target workspace's
-# monitor-id (aerospace's per-monitor ordinal).
-if command -v sketchybar >/dev/null 2>&1 && [[ -n "$cur" && "$cur" != "$name" ]]; then
-  target_disp=$(jq -r --arg n "$name" '.[] | select(.workspace == $n) | ."monitor-id"' <<<"$all")
-  if [[ -n "$target_disp" ]]; then
-    sketchybar --trigger workspace_changed \
-      WS_OPTIMISTIC_SID="$target" \
-      WS_OPTIMISTIC_OLD_NAME="$cur" \
-      WS_OPTIMISTIC_NEW_NAME="$name" \
-      WS_OPTIMISTIC_DISPLAY="$target_disp" >/dev/null 2>&1 || true
-  fi
 fi

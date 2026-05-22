@@ -25,11 +25,9 @@ cd ~/.config/workspace
 |--------|--------------|---------|
 | ws-prompt | Focus/send/manage workspace overlay | Caps+f, Caps+g, Caps+w |
 | ws-picker | Fuzzy find window across workspaces | Caps+e |
-| ws-cheatsheet | Key reference HUD | Caps+; |
-| ws-statusbar | Menu bar current workspace | Auto-start |
+| ws-cheatsheet | Key reference HUD | Caps+/ |
 | ws-topologyd | Display detection daemon | Auto-start |
-| ws-autohide | SketchyBar auto-hide | Auto-start (if using SketchyBar) |
-| ws-snap | Snap floating windows | Caps+hjkl (on floats) |
+| ws-snap | Snap floating windows | `ws-snap left\|right\|max\|center` (CLI) |
 | ws-topology | CLI for topology/layout | `ws-topology dump` |
 
 ## Development

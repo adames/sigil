@@ -32,7 +32,6 @@ Sigil is organized into layers:
 - **`ws-topologyd`** - LaunchAgent for display change monitoring
 - **`ws-prompt`** - SwiftUI overlay for focus/send operations
 - **`ws-picker`** - Window-based workspace switching
-- **`ws-statusbar`** - Menu bar status item
 - **`ws`** - Bash CLI for workspace mutation
 
 ## Making Changes

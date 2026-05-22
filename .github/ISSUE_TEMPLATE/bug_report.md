@@ -31,7 +31,4 @@ Add any other context about the problem here. Include relevant logs from:
 # For daemon issues
 cat ~/.cache/workspace/ws-topologyd.log
 cat ~/.cache/workspace/ws-topologyd.err
-
-# For menu bar issues
-cat ~/.cache/workspace/ws-statusbar.log
 ```
