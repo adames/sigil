@@ -1,7 +1,7 @@
 {
   "banner": [
-    { "k": "Caps",   "v": "Hyper (⌃⌥⌘⇧) — single layer; tap = Esc" },
-    { "k": "Caps+␣", "v": "tmux prefix" }
+    { "k": "caps",     "v": "Hyper (⌃⌥⌘⇧) — single layer; tap = esc" },
+    { "k": "caps + ␣", "v": "tmux prefix" }
   ],
   "views": [
     {
@@ -43,28 +43,18 @@
         { "sections": ["neovim-lsp-search"] },
         { "sections": [] }
       ]
-    },
-    {
-      "id": "all",
-      "label": "All",
-      "key": "5",
-      "columns": [
-        { "sections": ["windows-focus", "submodes", "workspaces", "launchers"] },
-        { "sections": ["tmux", "shell", "vim-motion", "vim-edit"] },
-        { "sections": ["neovim-files-buffers", "neovim-lsp-search"] }
-      ]
     }
   ],
   "sections": {
     "windows-focus": {
       "title": "Windows · Focus / Float / Close",
       "rows": [
-        ["Caps  h j k l", "focus neighbour  ←  ↓  ↑  →"],
-        ["Caps  a",       "focus last window (alternate)"],
-        ["Caps  c",       "close window"],
-        ["Caps  d",       "move to next display (wraps)"],
-        ["Caps  v",       "toggle float ↔ tile"],
-        ["Caps  z",       "fullscreen toggle (zoom)"]
+        ["caps + h j k l", "focus neighbour  ←  ↓  ↑  →"],
+        ["caps + a",       "focus last window (alternate)"],
+        ["caps + c",       "close window"],
+        ["caps + d",       "move to next display (wraps)"],
+        ["caps + v",       "toggle float ↔ tile"],
+        ["caps + z",       "fullscreen toggle (zoom)"]
       ],
       "family": "system",
       "sub":   "AeroSpace · Hyper (⌃⌥⌘⇧) held",
@@ -73,29 +63,29 @@
     "submodes": {
       "title": "Sub-modes · Move / Service",
       "rows": [
-        ["Caps  m  →  h j k l", "MOVE mode: move window ←  ↓  ↑  →  (Esc exits)"],
-        ["Caps  s  →  r",       "flatten + rotate workspace tree"],
-        ["Caps  s  →  b",       "balance sizes"],
-        ["Caps  s  →  f",       "toggle float ↔ tile"],
-        ["Caps  s  →  h j k l", "join-with neighbour  ←  ↓  ↑  →"],
-        ["Caps  s  →  - / =",   "resize -50 / +50  (stays in mode)"],
-        ["Caps  s  →  ⌫",       "close all windows but current"],
-        ["Caps  s  →  ⏎",       "reload aerospace config"]
+        ["caps + m → h j k l", "MOVE mode: move window ←  ↓  ↑  →  (esc exits)"],
+        ["caps + s → r",       "flatten + rotate workspace tree"],
+        ["caps + s → b",       "balance sizes"],
+        ["caps + s → f",       "toggle float ↔ tile"],
+        ["caps + s → h j k l", "join-with neighbour  ←  ↓  ↑  →"],
+        ["caps + s → - / =",   "resize -50 / +50  (stays in mode)"],
+        ["caps + s → ⌫",       "close all windows but current"],
+        ["caps + s → ⏎",       "reload aerospace config"]
       ],
       "family": "system",
       "sub":   "AeroSpace mode.move · mode.service",
-      "idea":  "Caps+m enters move mode (hjkl moves, Esc exits). Caps+s is the service drawer for rare ops; resize stays in mode for repeat taps."
+      "idea":  "caps + m enters move mode (hjkl moves, esc exits). caps + s is the service drawer for rare ops; resize stays in mode for repeat taps."
     },
     "workspaces": {
       "title": "Workspaces · Cycle / Focus / Send",
       "rows": [
-        ["Caps  n / p",  "prev / next workspace (wraps)"],
-        ["Caps  Tab",    "last / recent workspace"],
-        ["Caps  1 … 0",  "focus workspace 1..10"],
-        ["Caps  e",      "change workspace (fuzzy: every window, every space)"],
-        ["Caps  f",      "focus workspace prompt"],
-        ["Caps  g",      "send window to workspace"],
-        ["Caps  w",      "manage workspace (rename / icon / color)"]
+        ["caps + n / p",  "prev / next workspace (wraps)"],
+        ["caps + tab",    "last / recent workspace"],
+        ["caps + 1 … 0",  "focus workspace 1..10"],
+        ["caps + e",      "change workspace (fuzzy: every window, every space)"],
+        ["caps + f",      "focus workspace prompt"],
+        ["caps + g",      "send window to workspace"],
+        ["caps + w",      "manage workspace (rename / icon / color)"]
       ],
       "family": "system",
       "sub":   "AeroSpace · ws-focus · ws-prompt",
@@ -104,14 +94,14 @@
     "launchers": {
       "title": "Launchers",
       "rows": [
-        ["Caps  t",   "terminal"],
-        ["Caps  b",   "browser"],
-        ["Caps  .",   "Finder"],
-        ["Caps  ;",   "notes"],
-        ["Caps  '",   "writing / inbox"],
-        ["Caps  ,",   "System Settings"],
-        ["Caps  /",   "cheatsheet HUD (toggle)"],
-        ["Caps  ␣",   "tmux prefix shim → C-Space"]
+        ["caps + t",   "terminal"],
+        ["caps + b",   "browser"],
+        ["caps + .",   "Finder"],
+        ["caps + ;",   "notes"],
+        ["caps + '",   "writing / inbox"],
+        ["caps + ,",   "System Settings"],
+        ["caps + /",   "cheatsheet HUD (toggle)"],
+        ["caps + ␣",   "tmux prefix shim → C-Space"]
       ],
       "family": "system",
       "sub":   "ws-launch-* · open -a · Hyper held",
@@ -120,36 +110,36 @@
     "tmux": {
       "title": "Tmux",
       "rows": [
-        ["Caps+␣  h j k l",   "select pane  ←  ↓  ↑  →"],
-        ["Caps+␣  v / s",     "split right / below"],
-        ["Caps+␣  | / -",     "split right / below  (aliases)"],
-        ["Caps+␣  z",         "zoom pane (toggle)"],
-        ["Caps+␣  d",         "detach session"],
-        ["Caps+␣  r",         "reload tmux.conf"],
-        ["Caps+␣  [",         "copy / scroll mode  (q to exit)"],
-        ["Caps+␣  f",         "sessionizer — fzf pick → switch/create session"],
-        ["Caps+␣  c",         "new window"],
-        ["Caps+␣  n / p",     "next / prev window"],
-        ["Caps+␣  0…9",       "go to window N"],
-        ["Caps+␣  x",         "kill pane  (no confirmation)"],
-        ["Caps+␣  &",         "kill window  (no confirmation)"],
-        ["Caps+␣  $",         "rename current session"],
-        ["Caps+␣  Caps+␣",    "send literal C-Space to inner program"]
+        ["caps + ␣ → h j k l", "select pane  ←  ↓  ↑  →"],
+        ["caps + ␣ → v / s",   "split right / below"],
+        ["caps + ␣ → | / -",   "split right / below  (aliases)"],
+        ["caps + ␣ → z",       "zoom pane (toggle)"],
+        ["caps + ␣ → d",       "detach session"],
+        ["caps + ␣ → r",       "reload tmux.conf"],
+        ["caps + ␣ → [",       "copy / scroll mode  (q to exit)"],
+        ["caps + ␣ → f",       "sessionizer — fzf pick → switch/create session"],
+        ["caps + ␣ → c",       "new window"],
+        ["caps + ␣ → n / p",   "next / prev window"],
+        ["caps + ␣ → 0…9",     "go to window N"],
+        ["caps + ␣ → x",       "kill pane  (no confirmation)"],
+        ["caps + ␣ → &",       "kill window  (no confirmation)"],
+        ["caps + ␣ → $",       "rename current session"],
+        ["caps + ␣ → caps + ␣", "send literal C-Space to inner program"]
       ],
       "family": "terminal",
-      "sub":   "prefix = Caps+␣",
-      "idea":  "Tap Caps+Space, release Caps, then type the command. AeroSpace forwards C-Space to tmux; the prefix itself is one keypress."
+      "sub":   "prefix = caps + ␣",
+      "idea":  "Tap caps + space, release caps, then type the command. AeroSpace forwards C-Space to tmux; the prefix itself is one keypress."
     },
     "shell": {
       "title": "Shell",
       "rows": [
-        ["ctrl-r",        "fzf history search"],
-        ["ctrl-t",        "fzf file picker (insert path)"],
-        ["alt-c",         "fzf cd into subdir"],
+        ["ctrl + r",      "fzf history search"],
+        ["ctrl + t",      "fzf file picker (insert path)"],
+        ["alt + c",       "fzf cd into subdir"],
         ["⟨pat⟩**<tab>",  "fzf completion on the current word"],
         ["z ⟨pat⟩",       "zoxide — jump to frecent dir"],
         ["zi",            "zoxide interactive picker"],
-        ["esc  →  hjkl",  "vi mode in zsh — navigate command line"],
+        ["esc → h j k l", "vi mode in zsh — navigate command line"],
         ["rg ⟨pat⟩",      "ripgrep — fast recursive search"],
         ["fd ⟨pat⟩",      "fd — fast find replacement"],
         ["direnv allow",  "trust this dir's .envrc on first entry"]
@@ -161,15 +151,15 @@
     "vim-motion": {
       "title": "Vim · Motion",
       "rows": [
-        ["0  ^  $",          "line: start / first nonblank / end"],
-        ["gg  G",            "file: top / bottom"],
-        ["{  }",             "paragraph: back / forward"],
-        ["f / F  ·  t / T",  "find / till char in line  ·  uppercase = backwards"],
-        ["%",                "matching ( [ {"],
-        ["/pat   n / N",     "search forward · next / prev match"],
-        ["*  #",             "search word under cursor: fwd / back"],
-        ["ctrl-o  ctrl-i",   "jumplist: back / forward"],
-        ["m⟨a-z⟩  '⟨a-z⟩",   "set mark / jump to mark line"]
+        ["0  ^  $",            "line: start / first nonblank / end"],
+        ["gg  G",              "file: top / bottom"],
+        ["{  }",               "paragraph: back / forward"],
+        ["f / F  ·  t / T",    "find / till char in line  ·  uppercase = backwards"],
+        ["%",                  "matching ( [ {"],
+        ["/pat → n / N",       "search forward · next / prev match"],
+        ["*  #",               "search word under cursor: fwd / back"],
+        ["ctrl + o / ctrl + i", "jumplist: back / forward"],
+        ["m⟨a-z⟩  '⟨a-z⟩",     "set mark / jump to mark line"]
       ],
       "family": "vim",
       "sub":   "neovim · cursor & jumps",
@@ -178,16 +168,16 @@
     "vim-edit": {
       "title": "Vim · Edit",
       "rows": [
-        ["i  a   I  A",       "insert: before / after / line-start / line-end"],
-        ["o  O",              "open line: below / above"],
-        ["cc  dd  yy",        "change / delete / yank whole line"],
-        ["ci⟨x⟩  ca⟨x⟩",      "change inside / around  (\" ' ( [ { t p)"],
-        ["p  P",              "paste: after / before"],
-        ["u   ctrl-r",        "undo / redo"],
-        [".",                 "repeat last change"],
-        ["ctrl-a  ctrl-x",    "increment / decrement number"],
-        ["q⟨x⟩ … q     @⟨x⟩", "record macro to x / replay x"],
-        [":%s/foo/bar/g",     "replace all in buffer  (add c for confirm)"]
+        ["i  a   I  A",          "insert: before / after / line-start / line-end"],
+        ["o  O",                 "open line: below / above"],
+        ["cc  dd  yy",           "change / delete / yank whole line"],
+        ["ci⟨x⟩  ca⟨x⟩",         "change inside / around  (\" ' ( [ { t p)"],
+        ["p  P",                 "paste: after / before"],
+        ["u / ctrl + r",         "undo / redo"],
+        [".",                    "repeat last change"],
+        ["ctrl + a / ctrl + x",  "increment / decrement number"],
+        ["q⟨x⟩ … q → @⟨x⟩",      "record macro to x / replay x"],
+        [":%s/foo/bar/g",        "replace all in buffer  (add c for confirm)"]
       ],
       "family": "vim",
       "sub":   "neovim · change & yank",
@@ -196,13 +186,13 @@
     "neovim-files-buffers": {
       "title": "Neovim · Files & Buffers",
       "rows": [
-        ["-",                "open parent dir  (oil — edit names like text)"],
-        ["⟨leader⟩ ff",      "fzf files"],
-        ["⟨leader⟩ fb",      "fzf buffers"],
-        ["⟨leader⟩ bn / bp", "buffer: next / prev"],
-        ["⟨leader⟩ bd",      "buffer: delete current"],
-        ["⟨leader⟩ bo",      "buffer: close others"],
-        ["m⟨a-z⟩  '⟨a-z⟩",   "set mark / jump to mark line  (native, replaces harpoon)"]
+        ["-",                  "open parent dir  (oil — edit names like text)"],
+        ["⟨leader⟩ + ff",      "fzf files"],
+        ["⟨leader⟩ + fb",      "fzf buffers"],
+        ["⟨leader⟩ + bn / bp", "buffer: next / prev"],
+        ["⟨leader⟩ + bd",      "buffer: delete current"],
+        ["⟨leader⟩ + bo",      "buffer: close others"],
+        ["m⟨a-z⟩  '⟨a-z⟩",     "set mark / jump to mark line  (native, replaces harpoon)"]
       ],
       "family": "nvim",
       "sub":   "fzf-lua · oil · :b* · native marks",
@@ -211,14 +201,14 @@
     "neovim-lsp-search": {
       "title": "Neovim · LSP & Search",
       "rows": [
-        ["gd   gr",        "go to definition / references"],
-        ["K",              "hover docs"],
-        ["⟨leader⟩ rn",    "rename symbol"],
-        ["⟨leader⟩ =",     "format buffer  (auto-runs ruff on :w for *.py)"],
-        ["⟨leader⟩ fg",    "fzf live grep"],
-        ["⟨leader⟩ gs",    "fzf git status"],
-        ["ctrl-w  v / s",  "split right / below"],
-        ["ctrl-w  h j k l", "navigate splits"]
+        ["gd  gr",                "go to definition / references"],
+        ["K",                     "hover docs"],
+        ["⟨leader⟩ + rn",         "rename symbol"],
+        ["⟨leader⟩ + =",          "format buffer  (auto-runs ruff on :w for *.py)"],
+        ["⟨leader⟩ + fg",         "fzf live grep"],
+        ["⟨leader⟩ + gs",         "fzf git status"],
+        ["ctrl + w → v / s",      "split right / below"],
+        ["ctrl + w → h j k l",    "navigate splits"]
       ],
       "family": "nvim",
       "sub":   "leader = space · pyright + ruff for *.py",
