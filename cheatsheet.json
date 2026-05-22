@@ -35,13 +35,23 @@
       ]
     },
     {
-      "id": "all",
-      "label": "All",
+      "id": "nvim",
+      "label": "Neovim",
       "key": "4",
       "columns": [
+        { "sections": ["neovim-files-buffers"] },
+        { "sections": ["neovim-lsp-search"] },
+        { "sections": [] }
+      ]
+    },
+    {
+      "id": "all",
+      "label": "All",
+      "key": "5",
+      "columns": [
         { "sections": ["windows-focus", "submodes", "workspaces", "launchers"] },
-        { "sections": ["tmux", "shell"] },
-        { "sections": ["vim-motion", "vim-edit"] }
+        { "sections": ["tmux", "shell", "vim-motion", "vim-edit"] },
+        { "sections": ["neovim-files-buffers", "neovim-lsp-search"] }
       ]
     }
   ],
@@ -182,6 +192,37 @@
       "family": "vim",
       "sub":   "neovim · change & yank",
       "idea":  "Verb + motion = composable change. The . key replays your last verb on the next thing."
+    },
+    "neovim-files-buffers": {
+      "title": "Neovim · Files & Buffers",
+      "rows": [
+        ["-",                "open parent dir  (oil — edit names like text)"],
+        ["⟨leader⟩ ff",      "fzf files"],
+        ["⟨leader⟩ fb",      "fzf buffers"],
+        ["⟨leader⟩ bn / bp", "buffer: next / prev"],
+        ["⟨leader⟩ bd",      "buffer: delete current"],
+        ["⟨leader⟩ bo",      "buffer: close others"],
+        ["m⟨a-z⟩  '⟨a-z⟩",   "set mark / jump to mark line  (native, replaces harpoon)"]
+      ],
+      "family": "nvim",
+      "sub":   "fzf-lua · oil · :b* · native marks",
+      "idea":  "fzf hops to any file; marks pin the few you keep returning to; oil edits the filesystem as text."
+    },
+    "neovim-lsp-search": {
+      "title": "Neovim · LSP & Search",
+      "rows": [
+        ["gd   gr",        "go to definition / references"],
+        ["K",              "hover docs"],
+        ["⟨leader⟩ rn",    "rename symbol"],
+        ["⟨leader⟩ =",     "format buffer  (auto-runs ruff on :w for *.py)"],
+        ["⟨leader⟩ fg",    "fzf live grep"],
+        ["⟨leader⟩ gs",    "fzf git status"],
+        ["ctrl-w  v / s",  "split right / below"],
+        ["ctrl-w  h j k l", "navigate splits"]
+      ],
+      "family": "nvim",
+      "sub":   "leader = space · pyright + ruff for *.py",
+      "idea":  "Leader is your nvim command palette. LSP for code, fzf for everything else."
     }
   }
 }
