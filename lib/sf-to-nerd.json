@@ -1,5 +1,5 @@
 {
-  "_doc": "SF Symbol → Nerd Font codepoint map. Used by `workspace icon` to accept SF names (e.g. `workspace icon stream play.fill`). The Nerd Font codepoint is what sketchybar's font-driven surface actually paints; the SF Symbol name is preserved in iconSpec.symbolName for native UI surfaces (future SwiftUI bar). Add your own mappings here — the file is sourced verbatim. Codepoints are in the Font Awesome range of JetBrainsMono Nerd Font.",
+  "_doc": "SF Symbol → Nerd Font codepoint map. Used by `workspace icon` to accept SF names (e.g. `workspace icon stream play.fill`). The SF Symbol name is what the SwiftUI overlays render; the Nerd Font codepoint is preserved in iconSpec for text-only surfaces (tmux env, starship chip). Add your own mappings here — the file is sourced verbatim. Codepoints are in the Font Awesome range of JetBrainsMono Nerd Font.",
 
   "play.fill":                "\\uf04b",
   "play.circle":              "\\uf01d",

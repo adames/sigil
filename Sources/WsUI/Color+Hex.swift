@@ -11,9 +11,8 @@ import SwiftUI
 
 public extension Color {
     /// Initialize from a "#RRGGBB" string. Returns nil on parse failure.
-    /// Both overlays paint their UI from hex strings that live in user-
-    /// editable JSON (sketchybar colors, spaces.json), so a forgiving
-    /// parser at the boundary is convenient.
+    /// Overlays paint their UI from hex strings in user-editable JSON
+    /// (spaces.json), so a forgiving parser at the boundary is convenient.
     init?(hex: String) {
         var s = hex.trimmingCharacters(in: .whitespaces)
         if s.hasPrefix("#") { s.removeFirst() }

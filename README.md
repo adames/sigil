@@ -1,6 +1,6 @@
 # Sigil Workspace
 
-Workspace management for macOS. SwiftUI overlays, menu bar, and yabai integration.
+Workspace management for macOS. SwiftUI overlays on top of AeroSpace.
 
 **Repo:** github.com/adames/sigil  
 **Installs to:** ~/.config/workspace/
@@ -56,8 +56,7 @@ Work in `~/projects/sigil`, push to GitHub, pull in `~/.config/workspace` to tes
 
 - macOS 14+
 - Swift 6.0+ (Xcode or Command Line Tools)
-- yabai (for window tiling)
-- skhd (for hotkeys)
+- AeroSpace (window manager + hotkeys)
 
 ## CLI
 

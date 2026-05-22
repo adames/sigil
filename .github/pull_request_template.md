@@ -16,12 +16,6 @@
 - [ ] Tested on macOS [version]
 - [ ] Verified with `ws doctor`
 
-## Window Manager Support
-<!-- If applicable, which window managers were tested -->
-- [ ] yabai
-- [ ] aerospace
-- [ ] Not applicable
-
 ## Checklist
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
