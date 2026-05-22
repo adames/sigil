@@ -102,8 +102,11 @@ let timestamp = formatter.string(from: Date())
 let view = CheatsheetView(state: state, timestamp: timestamp)
 
 // Pick the focused display so the HUD opens where the user is looking.
+// Use `visibleFrame` (not `frame`) so the window sits below the macOS
+// menu bar and above the Dock — otherwise the banner card clips under
+// the menu strip on its top edge.
 let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
-let frame = screen.frame
+let frame = screen.visibleFrame
 
 // Use .nonactivatingPanel to stay out of Dock but still become key
 let window = CheatsheetWindow(
