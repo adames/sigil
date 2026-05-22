@@ -21,7 +21,7 @@ A clear and concise description of what you expected to happen.
 
 **Environment:**
  - macOS version: [e.g. 14.2.1]
- - Window manager: [e.g. yabai, aerospace]
+ - AeroSpace version: [e.g. 0.20.0]
  - Installation method: [e.g. install.sh, manual build]
  - Version/Commit: [e.g. v1.0.0 or abc1234]
 

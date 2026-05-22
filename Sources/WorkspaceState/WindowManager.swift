@@ -26,8 +26,8 @@ public protocol WindowManager {
     func focusedSpace() throws -> WorkspaceTarget?
 
     /// Get the currently focused space's per-display ordinal (1-based).
-    /// Transitional convenience for consumers (statusbar cache fallback,
-    /// ws-prompt index renderers) still wired to ordinals.
+    /// Convenience for consumers (ws-prompt index renderers) still wired
+    /// to ordinals.
     func focusedSpaceIndex() throws -> Int?
 
     // MARK: - Window Operations
@@ -49,7 +49,7 @@ public protocol WindowManager {
     /// Snapshot of every space (index + owning display). The
     /// (index, display) tuple is the source of truth for "which space
     /// lives on which display" used by the manage overlay's optimistic
-    /// pre-paint and statusbar transitions.
+    /// pre-paint.
     func querySpaces() throws -> [SpaceInfo]
 }
 
@@ -77,10 +77,9 @@ public enum WindowManagerError: Error {
 // one; don't speculate.
 
 /// One display, identified by its window-manager index plus its CG
-/// frame. The frame is what `ws-autohide` needs to match the cursor's
-/// screen to an aerospace display ordinal. `displayUUID` is the
-/// CG-stable identifier (`CGDisplayCreateUUIDFromDisplayID`) —
-/// AerospaceWindowManager fills it in from the bridged CG lookup.
+/// frame. `displayUUID` is the CG-stable identifier
+/// (`CGDisplayCreateUUIDFromDisplayID`) — AerospaceWindowManager fills
+/// it in from the bridged CG lookup.
 public struct DisplayInfo: Sendable {
     public let index: Int
     public let frame: Frame

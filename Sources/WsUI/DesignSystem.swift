@@ -2,10 +2,9 @@ import SwiftUI
 
 // MARK: - Catppuccin Mocha palette
 //
-// Hex values match `configs/sketchybar/colors.sh` so every overlay reads
-// as the same surface as the sketchybar pill strip. Caseless struct
-// (vs enum) follows the Swift convention for "namespace for constants" —
-// `enum` is conventionally for tagged unions.
+// Shared palette so every overlay reads as the same surface. Caseless
+// struct (vs enum) follows the Swift convention for "namespace for
+// constants" — `enum` is conventionally for tagged unions.
 
 public struct Catppuccin {
     public static let crust    = Color(hex: "#11111b") ?? .black
@@ -27,8 +26,6 @@ public struct Catppuccin {
 
 public struct PromptStyle {
     /// SF Symbols for all icons — native Apple icon system.
-    /// Previously used JetBrainsMono Nerd Font for sketchybar compatibility,
-    /// now standardized on SF Symbols for all surfaces.
     public static let iconFont: Font = .system(size: 16, weight: .medium)
 
     public static func icon(_ size: CGFloat) -> Font {

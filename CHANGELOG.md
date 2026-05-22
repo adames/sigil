@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Window manager abstraction layer supporting yabai and future aerospace integration
+- Window manager abstraction layer over AeroSpace
 - Configurable bundle prefix via `WORKSPACE_BUNDLE_PREFIX` environment variable
 - XDG-compliant path configuration
 - Template-based LaunchAgent plist generation
@@ -18,7 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Deprecated hardcoded `com.adames.workspace.*` identifiers in favor of configurable prefixes
 - Moved window manager operations to abstraction layer (`lib/window-manager.sh`)
-- Updated all yabai calls to use new abstraction
+- Cheatsheet HUD rewritten around AeroSpace bindings (vim sections dropped, banner trimmed, tmux prefix relabeled to `Caps+␣`)
+
+### Removed
+- `ws-statusbar` (menu-bar pill strip) — superseded by AeroSpace's native windowing
+- `ws-autohide` — SketchyBar integration retired in an earlier cycle; symlinks + docs cleaned up here
+- SketchyBar pre-paint triggers from `ws-focus` / `ws-send-follow`
+- yabai support — AeroSpace is now the only supported backend
 
 ### Fixed
 - Made project de-personalized for open source distribution

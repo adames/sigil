@@ -18,8 +18,3 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Additional context**
 Add any other context, screenshots, or mockups about the feature request here.
-
-**Window manager compatibility**
-- [ ] Works with yabai
-- [ ] Works with aerospace
-- [ ] Window manager agnostic

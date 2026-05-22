@@ -2,9 +2,7 @@ import SwiftUI
 import WsUI
 
 // Visual vocabulary (palette, typography, pill geometry) lives in
-// WsUI/DesignSystem.swift — see `Catppuccin` and `PromptStyle`. The
-// overlay borrows its language from `configs/sketchybar/colors.sh` so
-// switching between the bar and the prompt feels like one app.
+// WsUI/DesignSystem.swift — see `Catppuccin` and `PromptStyle`.
 
 /// Binds directly to `PromptController`'s `@Published` state — no
 /// separate view-model. The view re-renders whenever query / selection
@@ -80,8 +78,8 @@ struct PromptView: View {
         }
     }
 
-    /// Same shape as a sketchybar workspace.name chip — fixed corner,
-    /// 22pt tall, full-color fill, dark catppuccin text.
+    /// Mode chip — fixed corner, 22pt tall, full-color fill, dark
+    /// catppuccin text.
     private var modeChip: some View {
         Text(modeChipLabel)
             .font(.system(size: 11, weight: .medium))
@@ -164,13 +162,9 @@ struct PromptView: View {
         .frame(maxHeight: 360)
     }
 
-    /// One row = one sketchybar pill. We mirror the chip's
-    /// focused/unfocused visual contract directly:
-    ///   - Selected row → filled with slot color, dark catppuccin text.
-    ///     This is exactly what `workspace.name.<D>` looks like on the
-    ///     focused display.
-    ///   - Unselected row → transparent fill, slot-color border + text.
-    ///     Same as the unfocused-display chip.
+    /// One workspace row, styled as a chip:
+    ///   - Selected → filled with slot color, dark catppuccin text.
+    ///   - Unselected → transparent fill, slot-color border + text.
     private func workspaceRow(ws: Workspace, selected: Bool) -> some View {
         let slot = Color(hex: ws.color) ?? Catppuccin.overlay1
         let textColor: Color = selected ? Catppuccin.base : Catppuccin.text
