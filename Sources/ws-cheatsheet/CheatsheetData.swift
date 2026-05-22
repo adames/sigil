@@ -1,25 +1,32 @@
 import Foundation
 
-/// Wire shape of ~/.config/workspace/cheatsheet.json. The file is GENERATED
-/// by `lib/cheatsheet-gen.py` from `@cs` annotations in the upstream
-/// config files (aerospace.toml, tmux.conf, nvim-init.lua, …) plus a
-/// layout description at `configs/workspace/cheatsheet-layout.json`.
-/// The renderer treats it as static input — column count, column
-/// ordering, and section assignments are all decided at generation time.
+/// Wire shape of ~/.config/workspace/cheatsheet.json.
+///
+/// The document is a section pool + a list of named lenses (views). Each
+/// view declares its own 3-column layout by referencing section ids from
+/// the pool. The renderer picks one view at a time; the user toggles
+/// between views with number keys / Tab in the HUD.
+///
+/// Design rationale:
+/// - Sections written once → no drift when the same binding appears in
+///   multiple lenses.
+/// - Per-view column layout → hand-tuned visual balance per lens.
+/// - "Default + learning category" model: the first two columns are
+///   typically AeroSpace bindings (stay frozen); column 2 changes per
+///   view. Reduces eye travel when toggling between lenses.
 ///
 /// The decoder is permissive about extra keys (anything starting with
-/// `_` is ignored) so the layout file's `_doc` annotations and any
-/// future per-column metadata don't blow up older binaries.
+/// `_` is ignored) so the layout file's `_doc` annotations don't blow up
+/// older binaries.
 struct CheatsheetDocument: Decodable {
     let banner: [BannerItem]
-    let columns: [Column]
+    let views: [Lens]
+    let sections: [String: Section]
 
-    // Memberwise init kept explicit so the in-code fallback in main.swift
-    // (the "couldn't load cheatsheet.json" error card) can construct a
-    // document directly without round-tripping through JSON.
-    init(banner: [BannerItem], columns: [Column]) {
+    init(banner: [BannerItem], views: [Lens], sections: [String: Section]) {
         self.banner = banner
-        self.columns = columns
+        self.views = views
+        self.sections = sections
     }
 
     struct BannerItem: Decodable {
@@ -32,20 +39,33 @@ struct CheatsheetDocument: Decodable {
         }
     }
 
-    /// One vertical column in the family-column mosaic. The generator
-    /// produces these from `cheatsheet-layout.json`'s `columns` array:
-    /// each entry concatenates the sections of one or more families,
-    /// in family-then-source-order.
-    struct Column: Decodable, Identifiable {
-        let sections: [Section]
-        /// Identity for `ForEach`. Stable across rebuilds: the first
-        /// section's title doubles as the column ID (titles are unique
-        /// across the document by construction). Falls back to a UUID
-        /// only for genuinely empty columns, which shouldn't happen on
-        /// the production layout but is safe defensive code.
-        var id: String { sections.first?.title ?? UUID().uuidString }
+    /// A named view over the section pool. `key` is the single-character
+    /// chord the user presses inside the HUD to jump to this lens.
+    struct Lens: Decodable, Identifiable {
+        let id: String
+        let label: String
+        let key: String
+        let columns: [Column]
 
-        init(sections: [Section]) {
+        init(id: String, label: String, key: String, columns: [Column]) {
+            self.id = id
+            self.label = label
+            self.key = key
+            self.columns = columns
+        }
+    }
+
+    /// One vertical column in a lens. References sections by id; the
+    /// renderer resolves them via `CheatsheetDocument.resolve(view:)`.
+    struct Column: Decodable, Identifiable {
+        let sections: [String]
+
+        /// Identity for `ForEach`. Stable per (lens, column-index) — the
+        /// first section id doubles as the column id. Empty columns get
+        /// a UUID so SwiftUI's diffing still works.
+        var id: String { sections.first ?? UUID().uuidString }
+
+        init(sections: [String]) {
             self.sections = sections
         }
     }
@@ -57,9 +77,6 @@ struct CheatsheetDocument: Decodable {
         /// Optional `color` (legacy hex per-section) and `family`
         /// (preferred Catppuccin token). `family` wins via
         /// `FamilyColors.resolve`; `color` is the v1-back-compat fallback.
-        /// The current generator emits `family` for every section, but
-        /// the decoder keeps `color` decodable so a hand-edited fixture
-        /// for tests doesn't have to follow the generator's conventions.
         let color: String?
         let family: String?
 
@@ -78,7 +95,6 @@ struct CheatsheetDocument: Decodable {
 
         var id: String { title }
 
-        // Memberwise init kept for tests / fallbacks built in code.
         init(
             title: String,
             rows: [[String]],
@@ -95,6 +111,26 @@ struct CheatsheetDocument: Decodable {
             self.sub = sub
             self.idea = idea
             self.customLayout = customLayout
+        }
+    }
+
+    /// One column with its section ids resolved into Section values.
+    /// Renderer-facing shape — produced by `resolve(view:)`.
+    struct ResolvedColumn: Identifiable {
+        let id: String
+        let sections: [Section]
+    }
+
+    /// Resolve a lens's column → section-id references into the actual
+    /// Section values from the pool. Missing ids are silently dropped
+    /// (the lens still renders; the gap is a visible hint to the
+    /// editor).
+    func resolve(view: Lens) -> [ResolvedColumn] {
+        view.columns.enumerated().map { idx, col in
+            ResolvedColumn(
+                id: "\(view.id)-\(idx)",
+                sections: col.sections.compactMap { sections[$0] }
+            )
         }
     }
 }
