@@ -22,8 +22,16 @@ enum ModifierFamily {
 
     static func classify(_ chord: String) -> ModifierFamily {
         let s = chord.lowercased()
-        if s.hasPrefix("caps + shift")   { return .mod }
-        if s.hasPrefix("caps +")         { return .hyper }
+        // Tmux prefix sequence: caps + space (the prefix shim) followed
+        // by a sequential `→`. The leading chord is still caps-held, but
+        // the row's effective family is terminal — the prefix bounces
+        // us into tmux's world. Match both the ␣ glyph and the word
+        // "space" so authors can write either.
+        if s.hasPrefix("caps + ␣ →") || s.hasPrefix("caps + space →") { return .tmuxPrefix }
+        if s.hasPrefix("caps + shift") { return .mod }
+        if s.hasPrefix("caps +")       { return .hyper }
+        // Legacy patterns (pre-`caps + x` convention) kept for back-
+        // compat with hand-rolled fixtures.
         if s.hasPrefix("c-a") || s.hasPrefix("c-space") { return .tmuxPrefix }
         return .raw
     }

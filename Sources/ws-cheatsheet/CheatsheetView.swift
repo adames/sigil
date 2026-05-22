@@ -19,8 +19,12 @@ struct CheatsheetView: View {
     let timestamp: String
 
     private let outerHPadding: CGFloat = 20
-    private let outerTopPadding: CGFloat = 20
-    private let outerBottomPadding: CGFloat = 16
+    /// Small margin below the menu bar. The window is positioned via
+    /// `screen.visibleFrame` so it already sits below the menu strip;
+    /// this is just enough to keep the banner from feeling pinned to
+    /// the boundary without eating row budget.
+    private let outerTopPadding: CGFloat = 12
+    private let outerBottomPadding: CGFloat = 12
 
     private var document: CheatsheetDocument { state.document }
     private var currentLens: CheatsheetDocument.Lens { state.currentLens }
@@ -87,11 +91,11 @@ struct CheatsheetView: View {
                     KeyCap(text: item.k)
                     Text(item.v)
                         .font(.system(size: 9))
-                        .foregroundColor(.white.opacity(0.58))
+                        .foregroundColor(Catppuccin.subtext0)
                         .lineLimit(1)
                 }
                 if idx < document.banner.count - 1 {
-                    Text("·").foregroundColor(.white.opacity(0.18))
+                    Text("·").foregroundColor(Catppuccin.surface2)
                 }
             }
         }
@@ -99,10 +103,10 @@ struct CheatsheetView: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 999)
-                .fill(Color(red: 0.031, green: 0.039, blue: 0.059).opacity(0.78))
+                .fill(Catppuccin.mantle.opacity(0.92))
                 .overlay(
                     RoundedRectangle(cornerRadius: 999)
-                        .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
+                        .strokeBorder(Catppuccin.surface0.opacity(0.6), lineWidth: 1)
                 )
         )
     }
@@ -126,7 +130,7 @@ struct CheatsheetView: View {
         return HStack(spacing: 6) {
             Text(lens.key)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundColor(isActive ? Color.black.opacity(0.78) : accent)
+                .foregroundColor(isActive ? Catppuccin.crust : accent)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 1)
                 .background(
@@ -135,7 +139,7 @@ struct CheatsheetView: View {
                 )
             Text(lens.label)
                 .font(.system(size: 11, weight: isActive ? .semibold : .regular))
-                .foregroundColor(isActive ? accent : .white.opacity(0.55))
+                .foregroundColor(isActive ? accent : Catppuccin.subtext0)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
@@ -143,11 +147,11 @@ struct CheatsheetView: View {
             RoundedRectangle(cornerRadius: 999)
                 .fill(isActive
                       ? accent.opacity(0.12)
-                      : Color(red: 0.031, green: 0.039, blue: 0.059).opacity(0.55))
+                      : Catppuccin.mantle.opacity(0.6))
                 .overlay(
                     RoundedRectangle(cornerRadius: 999)
                         .strokeBorder(
-                            isActive ? accent.opacity(0.55) : Color.white.opacity(0.06),
+                            isActive ? accent.opacity(0.55) : Catppuccin.surface0.opacity(0.55),
                             lineWidth: 1
                         )
                 )
@@ -176,10 +180,10 @@ struct CheatsheetView: View {
     private var footer: some View {
         HStack {
             Spacer()
-            Text("1..4 SWITCH LENS  ·  TAB CYCLE  ·  ESC OR CAPS+/ TO CLOSE  ·  \(timestamp)")
+            Text("1..4 switch lens  ·  tab cycle  ·  esc or caps+/ to close  ·  \(timestamp)")
                 .font(.system(size: 9))
                 .tracking(0.5)
-                .foregroundColor(.white.opacity(0.25))
+                .foregroundColor(Catppuccin.overlay0)
             Spacer()
         }
     }
@@ -219,17 +223,17 @@ struct LayoutMetrics {
     )
 
     static let spacious = LayoutMetrics(
-        titleSize: 18,
-        subSize: 12,
-        ideaSize: 13,
-        rowDescSize: 14,
-        keyCapSize: 13,
-        badgeSize: 7,
-        rowVerticalPadding: 5,
-        cardHPadding: 16,
-        cardVPadding: 14,
-        cardSpacing: 14,
-        columnSpacing: 14
+        titleSize: 22,
+        subSize: 14,
+        ideaSize: 16,
+        rowDescSize: 17,
+        keyCapSize: 16,
+        badgeSize: 8,
+        rowVerticalPadding: 3,
+        cardHPadding: 18,
+        cardVPadding: 10,
+        cardSpacing: 10,
+        columnSpacing: 16
     )
 
     /// Density rule: lenses with > 4 resolved sections fall back to
@@ -263,7 +267,7 @@ private struct SectionCard: View {
                 if let sub = section.sub, !sub.isEmpty {
                     Text(sub)
                         .font(.system(size: metrics.subSize))
-                        .foregroundColor(.white.opacity(0.38))
+                        .foregroundColor(Catppuccin.overlay1)
                         .padding(.bottom, section.idea == nil ? 8 : 4)
                 }
 
@@ -294,10 +298,10 @@ private struct SectionCard: View {
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.031, green: 0.039, blue: 0.059).opacity(0.88))
+                .fill(Catppuccin.mantle.opacity(0.94))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(accentColor.opacity(0.18), lineWidth: 1)
+                        .strokeBorder(accentColor.opacity(0.22), lineWidth: 1)
                 )
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -312,11 +316,11 @@ private struct SectionCard: View {
                 // Footnote row: italic muted prose, no badge, no keycap.
                 Text("—")
                     .font(.system(size: metrics.rowDescSize, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.22))
+                    .foregroundColor(Catppuccin.surface2)
                     .frame(width: 60, alignment: .leading)
                 Text(desc)
                     .font(.system(size: metrics.rowDescSize - 1))
-                    .foregroundColor(.white.opacity(0.50))
+                    .foregroundColor(Catppuccin.overlay0)
                     .italic()
                     .fixedSize(horizontal: false, vertical: true)
             } else {
@@ -326,7 +330,7 @@ private struct SectionCard: View {
                     .layoutPriority(1)
                 Text(desc)
                     .font(.system(size: metrics.rowDescSize))
-                    .foregroundColor(Color(red: 0.866, green: 0.894, blue: 0.933).opacity(0.68))
+                    .foregroundColor(Catppuccin.subtext0)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
@@ -351,15 +355,15 @@ struct KeyCap: View {
     var body: some View {
         Text(text)
             .font(.system(size: fontSize, design: .monospaced))
-            .foregroundColor(Color(red: 0.866, green: 0.894, blue: 0.933))
+            .foregroundColor(Catppuccin.text)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.white.opacity(0.05))
+                    .fill(Catppuccin.surface0.opacity(0.55))
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
+                            .strokeBorder(Catppuccin.surface1, lineWidth: 1)
                     )
             )
             .fixedSize(horizontal: true, vertical: false)
