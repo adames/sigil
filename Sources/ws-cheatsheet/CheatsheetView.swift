@@ -8,12 +8,10 @@ import WsUI   // re-exports `Color(hex:)`
 ///   via number keys (1..N) or Tab inside the HUD.
 /// - Each **column** of the active lens stacks cards top-down. Card
 ///   layout is declared by the lens; no algorithm.
-/// - **Family colors** (system blue, terminal green, vim orange) carry
-///   the categorical cue. Sections share a family.
-/// - **Typography scales with section count**: lenses with ≤ 4 sections
-///   render with a `spacious` metric (~35% bigger). The `All` lens (8
-///   sections) keeps the `compact` metric since every section has to
-///   share vertical room.
+/// - **Family colors** (system blue, terminal green, vim peach, nvim
+///   mauve) carry the categorical cue. Sections share a family.
+/// - Window position uses `screen.visibleFrame` so the HUD sits cleanly
+///   below the menu bar and above the Dock.
 struct CheatsheetView: View {
     @ObservedObject var state: CheatsheetState
     let timestamp: String
@@ -31,9 +29,7 @@ struct CheatsheetView: View {
     private var resolvedColumns: [CheatsheetDocument.ResolvedColumn] {
         document.resolve(view: currentLens)
     }
-    private var metrics: LayoutMetrics {
-        LayoutMetrics.forLens(currentLens, in: document)
-    }
+    private var metrics: LayoutMetrics { .spacious }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -191,9 +187,14 @@ struct CheatsheetView: View {
 
 // MARK: - LayoutMetrics
 //
-// Two density tiers. The renderer picks one per lens based on section
-// count: lenses with ≤ 4 cards get `spacious`; the All-lens gets
-// `compact` because it has to fit 8 cards.
+// Single tier sized for ≤ 4 sections per lens — large enough to read
+// at a glance, tight enough on vertical padding that AeroSpace's
+// densest column (14 rows + a long idea wrap) fits inside the
+// visibleFrame on a standard MacBook display.
+//
+// If a future lens lands with more sections than `spacious` can hold,
+// reintroduce a `compact` tier here and have the view pick between
+// them based on section count.
 
 struct LayoutMetrics {
     let titleSize: CGFloat
@@ -208,20 +209,6 @@ struct LayoutMetrics {
     let cardSpacing: CGFloat
     let columnSpacing: CGFloat
 
-    static let compact = LayoutMetrics(
-        titleSize: 13,
-        subSize: 9,
-        ideaSize: 10,
-        rowDescSize: 11,
-        keyCapSize: 10,
-        badgeSize: 5,
-        rowVerticalPadding: 3,
-        cardHPadding: 12,
-        cardVPadding: 10,
-        cardSpacing: 10,
-        columnSpacing: 12
-    )
-
     static let spacious = LayoutMetrics(
         titleSize: 22,
         subSize: 14,
@@ -235,18 +222,6 @@ struct LayoutMetrics {
         cardSpacing: 10,
         columnSpacing: 16
     )
-
-    /// Density rule: lenses with > 4 resolved sections fall back to
-    /// `compact`; anything sparser gets `spacious` so the typography can
-    /// breathe. Threshold is forgiving on purpose — small jumps in
-    /// section count shouldn't flip density.
-    static func forLens(_ lens: CheatsheetDocument.Lens, in document: CheatsheetDocument) -> LayoutMetrics {
-        let sectionCount = lens.columns
-            .flatMap { $0.sections }
-            .filter { document.sections[$0] != nil }
-            .count
-        return sectionCount > 4 ? .compact : .spacious
-    }
 }
 
 // MARK: - SectionCard
