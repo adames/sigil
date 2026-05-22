@@ -325,9 +325,7 @@ enum AerospaceFragment {
         lines.append("#")
         lines.append("# Workspace existence + monitor binding. Each name MUST match a")
         lines.append("# spaces.json slot's workspaceName; mismatches cause aerospace")
-        lines.append("# chords (`workspace N`) to fail silently. ws-statusbar renders")
-        lines.append("# one pill per declared workspace, so the count here also drives")
-        lines.append("# the pill bar grid.")
+        lines.append("# chords (`workspace N`) to fail silently.")
         if slotNames.isEmpty {
             lines.append("# (no workspaces declared in spaces.json yet)")
         } else {

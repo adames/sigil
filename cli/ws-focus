@@ -14,8 +14,6 @@ target="${1:-}"
 # `last`/`recent` → delegate to aerospace's built-in back-and-forth.
 if [[ "$target" == "last" || "$target" == "recent" ]]; then
   if aerospace workspace-back-and-forth 2>/dev/null; then
-    command -v sketchybar >/dev/null 2>&1 \
-      && sketchybar --trigger workspace_changed >/dev/null 2>&1 || true
     exit 0
   fi
   osascript -e 'display notification "no recent workspace yet" with title "ws"'
@@ -26,8 +24,6 @@ fi
 # makes the last workspace's "next" land back on the first.
 if [[ "$target" == "next" || "$target" == "prev" ]]; then
   if aerospace workspace --wrap-around --no-stdin "$target" 2>/dev/null; then
-    command -v sketchybar >/dev/null 2>&1 \
-      && sketchybar --trigger workspace_changed >/dev/null 2>&1 || true
     exit 0
   fi
   osascript -e "display notification \"aerospace workspace $target failed\" with title \"ws\""
@@ -53,31 +49,7 @@ name=$(jq -r --argjson n "$target" '.[$n - 1].workspace' <<<"$all")
   exit 1
 }
 
-# Capture current state for the optimistic sketchybar pre-paint.
-cur_name=$(aerospace list-workspaces --focused --json 2>/dev/null \
-             | jq -r '.[0].workspace // empty')
-target_disp=$(jq -r --arg n "$name" '.[] | select(.workspace == $n) | ."monitor-id"' <<<"$all")
-
-# Optimistic pre-paint. Tell sketchybar the new active workspace + OLD
-# *before* aerospace's transition lands, so the pill snaps the instant
-# the chord commits. The cascade hook (exec-on-workspace-change) fires
-# the full paint redundantly without these env vars; states match, no
-# flicker.
-if command -v sketchybar >/dev/null 2>&1 \
-   && [[ -n "$target_disp" && -n "$cur_name" && "$cur_name" != "$name" ]]; then
-  sketchybar --trigger workspace_changed \
-    WS_OPTIMISTIC_SID="$target" \
-    WS_OPTIMISTIC_OLD_NAME="$cur_name" \
-    WS_OPTIMISTIC_NEW_NAME="$name" \
-    WS_OPTIMISTIC_DISPLAY="$target_disp" >/dev/null 2>&1 || true
-fi
-
 aerospace workspace "$name" 2>/dev/null || {
-  # On failure restore correct state — re-trigger without the optimistic
-  # env vars so paint-all.sh falls back to aerospace's real focused
-  # workspace.
-  command -v sketchybar >/dev/null 2>&1 \
-    && sketchybar --trigger workspace_changed >/dev/null 2>&1 || true
   osascript -e "display notification \"aerospace workspace $name failed\" with title \"ws\""
   exit 1
 }
