@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import Foundation
 import SwiftUI
 
@@ -80,15 +81,25 @@ do {
     )
     document = CheatsheetDocument(
         banner: [.init(k: "ERR", v: "cheatsheet.json not loadable")],
-        columns: [.init(sections: [errorSection])]
+        views: [
+            .init(
+                id: "error",
+                label: "Error",
+                key: "1",
+                columns: [.init(sections: ["error"]), .init(sections: []), .init(sections: [])]
+            )
+        ],
+        sections: ["error": errorSection]
     )
 }
+
+let state = CheatsheetState(document: document)
 
 let formatter = DateFormatter()
 formatter.dateFormat = "HH:mm"
 let timestamp = formatter.string(from: Date())
 
-let view = CheatsheetView(document: document, timestamp: timestamp)
+let view = CheatsheetView(state: state, timestamp: timestamp)
 
 // Pick the focused display so the HUD opens where the user is looking.
 let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
@@ -142,11 +153,46 @@ window.makeKeyAndOrderFront(nil as NSResponder?)
 NSApp.activate(ignoringOtherApps: true)
 window.makeKeyAndOrderFront(nil as NSResponder?)
 
-// MARK: - Dismissal: SIGTERM only (via Hyper key toggle)
+// MARK: - Keyboard input
 //
-// The ONLY way to close the cheatsheet is pressing Caps+; (Hyper key),
-// which runs `ws-cheatsheet --toggle` and sends SIGTERM to this process.
-// No Esc, no focus loss dismissal, no clicking elsewhere.
+// Local event monitor catches keyDown while the HUD is the key window:
+//   - Number keys 1..N → jump to the matching lens
+//   - Tab / Shift-Tab  → cycle through lenses
+//   - Esc              → close (same path as SIGTERM)
+// Other keys pass through unchanged (returning the event lets the system
+// beep convention apply, but for borderless HUD windows nothing else
+// listens — the practical effect is that other keys do nothing).
+
+let keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+    // Esc — keyCode 53.
+    if event.keyCode == 53 {
+        terminate()
+    }
+    // Tab — keyCode 48. Shift-Tab goes backwards.
+    if event.keyCode == 48 {
+        if event.modifierFlags.contains(.shift) {
+            state.previousLens()
+        } else {
+            state.nextLens()
+        }
+        return nil
+    }
+    // Lens jump by key character (digits 1..9, or any single char
+    // matching a lens's `key` field).
+    if let chars = event.charactersIgnoringModifiers, !chars.isEmpty {
+        if state.selectLens(byKey: chars) {
+            return nil
+        }
+    }
+    return event
+}
+_ = keyMonitor
+
+// MARK: - Dismissal: SIGTERM (via Hyper key toggle) or Esc
+//
+// Caps+/ (Hyper key) runs `ws-cheatsheet --toggle` which sends SIGTERM
+// to this process. Inside the HUD, Esc terminates directly via the key
+// monitor above.
 
 class AppController: NSObject, NSWindowDelegate, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -215,5 +261,47 @@ final class CheatsheetWindow: NSWindow {
         } else {
             super.setFrame(frameRect, display: displayFlag, animate: animateFlag)
         }
+    }
+}
+
+// MARK: - CheatsheetState (observable)
+//
+// Holds the loaded document + the current lens index. Mutating
+// `currentIndex` triggers a SwiftUI rerender of CheatsheetView via the
+// @ObservedObject binding.
+
+final class CheatsheetState: ObservableObject {
+    let document: CheatsheetDocument
+    @Published var currentIndex: Int = 0
+
+    init(document: CheatsheetDocument) {
+        self.document = document
+    }
+
+    var currentLens: CheatsheetDocument.Lens {
+        document.views[currentIndex]
+    }
+
+    /// Jump to the lens whose `key` matches the given character(s).
+    /// Returns true on a match so the caller can consume the event.
+    @discardableResult
+    func selectLens(byKey key: String) -> Bool {
+        guard let idx = document.views.firstIndex(where: { $0.key == key }) else {
+            return false
+        }
+        if idx != currentIndex {
+            currentIndex = idx
+        }
+        return true
+    }
+
+    func nextLens() {
+        guard !document.views.isEmpty else { return }
+        currentIndex = (currentIndex + 1) % document.views.count
+    }
+
+    func previousLens() {
+        guard !document.views.isEmpty else { return }
+        currentIndex = (currentIndex - 1 + document.views.count) % document.views.count
     }
 }

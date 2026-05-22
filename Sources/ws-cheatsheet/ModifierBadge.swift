@@ -31,19 +31,22 @@ enum ModifierFamily {
 
 struct ModifierBadge: View {
     let family: ModifierFamily
+    var size: CGFloat = 5
 
-    init(_ family: ModifierFamily) {
+    init(_ family: ModifierFamily, size: CGFloat = 5) {
         self.family = family
+        self.size = size
     }
 
-    init(forChord chord: String) {
+    init(forChord chord: String, size: CGFloat = 5) {
         self.family = ModifierFamily.classify(chord)
+        self.size = size
     }
 
     var body: some View {
         Circle()
             .fill(family.color)
-            .frame(width: 5, height: 5)
+            .frame(width: size, height: size)
             .opacity(family == .raw ? 0.55 : 0.95)
     }
 }
