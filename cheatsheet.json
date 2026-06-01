@@ -47,35 +47,33 @@
   ],
   "sections": {
     "windows-focus": {
-      "title": "Windows · Focus / Float / Close",
+      "title": "Windows · Focus / Move / Close",
       "rows": [
         ["caps + h j k l", "focus neighbour  ←  ↓  ↑  →"],
-        ["caps + a",       "focus last window (alternate)"],
-        ["caps + c",       "cycle windows (fuzzy: every window, every space · tab cycles · ↵ jumps)"],
-        ["caps + d",       "move to next display (wraps)"],
+        ["caps + y u i o", "swap window  ←  ↓  ↑  →  (move in tree)"],
+        ["caps + c",       "change application (fuzzy by app + title · tab cycles · ↵ jumps)"],
+        ["caps + d",       "move window to next display (wraps)"],
         ["caps + v",       "toggle float ↔ tile"],
+        ["caps + r",       "flatten + rotate workspace tree"],
         ["caps + x",       "close window"],
         ["caps + z",       "fullscreen toggle (zoom)"]
       ],
       "family": "system",
       "sub":   "AeroSpace · Hyper (⌃⌥⌘⇧) held",
-      "idea":  "hjkl focuses, a flips to last; c picks any window, x kills the focused one."
+      "idea":  "hjkl focuses, yuio swaps in the tree, d moves to the next display, c picks any app, x kills."
     },
     "submodes": {
-      "title": "Sub-modes · Move / Service",
+      "title": "Service drawer",
       "rows": [
-        ["caps + m → h j k l", "MOVE mode: move window ←  ↓  ↑  →  (esc exits)"],
-        ["caps + s → r",       "flatten + rotate workspace tree"],
-        ["caps + s → b",       "balance sizes"],
-        ["caps + s → f",       "toggle float ↔ tile"],
-        ["caps + s → h j k l", "join-with neighbour  ←  ↓  ↑  →"],
         ["caps + s → - / =",   "resize -50 / +50  (stays in mode)"],
+        ["caps + s → b",       "balance sizes"],
         ["caps + s → ⌫",       "close all windows but current"],
-        ["caps + s → ⏎",       "reload aerospace config"]
+        ["caps + s → ⏎",       "reload aerospace config"],
+        ["caps + s → esc",     "exit"]
       ],
       "family": "system",
-      "sub":   "AeroSpace mode.move · mode.service",
-      "idea":  "caps + m enters move mode (hjkl moves, esc exits). caps + s is the service drawer for rare ops; resize stays in mode for repeat taps."
+      "sub":   "AeroSpace mode.service",
+      "idea":  "Rare ops live here. Resize stays in mode for repeat taps; everything else exits on commit."
     },
     "workspaces": {
       "title": "Workspaces · Go / Follow / Edit",
