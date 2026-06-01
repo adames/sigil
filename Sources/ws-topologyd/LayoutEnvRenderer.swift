@@ -4,10 +4,9 @@ import Foundation
 import LayoutPolicy
 
 /// Renders `~/.cache/workspace/layout.env` — a shell-sourceable view of the
-/// per-display layout policy, designed for jq-less consumption by the
-/// SketchyBar plugins. Keys are stable so `notch-detect.sh`,
-/// `per-display-pills.sh`, and `recenter.sh` can `source` it and read the
-/// values directly.
+/// per-display layout policy, designed for jq-less consumption by shell
+/// scripts. Keys are stable so `notch-detect.sh` and `recenter.sh` can
+/// `source` it and read the values directly.
 enum LayoutEnvRenderer {
     static func render(
         snapshot: TopologySnapshot,
