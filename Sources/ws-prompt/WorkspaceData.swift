@@ -1,6 +1,6 @@
 import Foundation
 
-/// Read-side model for the focus / send prompts and the manage overlay's
+/// Read-side model for the focus / send prompts and the edit overlay's
 /// target picker. Carries only the fields the overlay needs to render a
 /// list and resolve a typed query.
 ///

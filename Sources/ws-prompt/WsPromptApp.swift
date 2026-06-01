@@ -24,7 +24,7 @@ final class WsPromptApp {
 
     // Strong refs so the runtime keeps everything alive.
     private let promptController: PromptController?
-    private let manageController: ManageController?
+    private let editController: EditController?
     private let workspaces: [Workspace]
     private let focusedIndex: Int?
     private var eventMonitorToken: Any?
@@ -38,7 +38,7 @@ final class WsPromptApp {
             .appendingPathComponent(".cache/workspace/ws-prompt.\(mode.rawValue).pid")
 
         let workspaces = service.loadWorkspaces()
-        // Snapshot at overlay open — ManageController uses it for the
+        // Snapshot at overlay open — EditController uses it for the
         // current-workspace marker and re-resolves any edited row.
         let focusedIndex = service.focusedSpaceIndex()
         self.workspaces = workspaces
@@ -64,21 +64,21 @@ final class WsPromptApp {
         case .focus, .send:
             let ctl = PromptController(mode: mode, workspaces: workspaces)
             self.promptController = ctl
-            self.manageController = nil
+            self.editController = nil
             win.contentView = NSHostingView(rootView: PromptView(controller: ctl))
-        case .manage:
-            let ctl = ManageController(
+        case .edit:
+            let ctl = EditController(
                 workspaces: workspaces, focusedIndex: focusedIndex, service: service
             )
-            self.manageController = ctl
+            self.editController = ctl
             self.promptController = nil
-            win.contentView = NSHostingView(rootView: ManageView(controller: ctl))
+            win.contentView = NSHostingView(rootView: EditView(controller: ctl))
         }
 
         // Wire the controller's "command succeeded" callback to the
         // App's terminate path. Set after all stored properties exist
         // so `self` is fully initialized when the closure captures it.
-        manageController?.onTerminate = { [weak self] in self?.terminate() }
+        editController?.onTerminate = { [weak self] in self?.terminate() }
     }
 
     // MARK: - Lifecycle
@@ -86,7 +86,7 @@ final class WsPromptApp {
     func run() {
         // Single-instance toggle: a second invocation of the same chord
         // dismisses the open instance and exits. Per-mode PID files so
-        // a stuck focus prompt doesn't block manage.
+        // a stuck focus prompt doesn't block edit.
         if let existing = readExistingPID() {
             kill(existing, SIGTERM)
             exit(0)
@@ -152,7 +152,7 @@ final class WsPromptApp {
     private func dispatch(_ key: PromptKey) {
         switch mode {
         case .focus, .send:  dispatchFocusOrSend(key)
-        case .manage:        dispatchManage(key)
+        case .edit:        dispatchEdit(key)
         }
     }
 
@@ -170,8 +170,8 @@ final class WsPromptApp {
         }
     }
 
-    private func dispatchManage(_ key: PromptKey) {
-        guard let ctl = manageController else { return }
+    private func dispatchEdit(_ key: PromptKey) {
+        guard let ctl = editController else { return }
         switch ctl.handle(key) {
         case .idle:        return
         case .terminate:   terminate()

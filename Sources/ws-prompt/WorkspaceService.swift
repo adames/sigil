@@ -2,13 +2,13 @@ import Foundation
 
 /// Outcome of a long-running command (ws / aerospace). `output` is stdout +
 /// stderr concatenated because the ws CLI writes its `ok`/`err` helpers
-/// to stderr; the manage overlay surfaces all of it in the result panel.
+/// to stderr; the edit overlay surfaces all of it in the result panel.
 struct CommandResult: Equatable {
     let success: Bool
     let output: String
 }
 
-/// One entry in the SF Symbol catalog. Used by the manage
+/// One entry in the SF Symbol catalog. Used by the edit
 /// overlay's icon picker to fuzzy-search and preview icons.
 /// Nerd Font mapping available for cross-platform use via separate adapter.
 struct IconCatalogEntry: Equatable {
@@ -42,7 +42,7 @@ protocol WorkspaceService {
     func runWs(args: [String], completion: @escaping (CommandResult) -> Void)
     // Note: `runYabai` and `runAdd` were retired in the aerospace
     // migration (Phase 5). AeroSpace declares workspaces statically in
-    // aerospace.toml — there's no runtime create/destroy. The manage
+    // aerospace.toml — there's no runtime create/destroy. The edit
     // overlay's add / destroy verbs now route through a synthesized
     // CommandResult that surfaces the edit-then-reload help text in the
     // result panel. Identity edits (rename / icon / color) still go

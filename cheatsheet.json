@@ -51,14 +51,15 @@
       "rows": [
         ["caps + h j k l", "focus neighbour  ←  ↓  ↑  →"],
         ["caps + a",       "focus last window (alternate)"],
-        ["caps + c",       "close window"],
+        ["caps + c",       "cycle windows (fuzzy: every window, every space · tab cycles · ↵ jumps)"],
         ["caps + d",       "move to next display (wraps)"],
         ["caps + v",       "toggle float ↔ tile"],
+        ["caps + x",       "close window"],
         ["caps + z",       "fullscreen toggle (zoom)"]
       ],
       "family": "system",
       "sub":   "AeroSpace · Hyper (⌃⌥⌘⇧) held",
-      "idea":  "hjkl focuses, a flips to last; v floats, z zooms, c kills. Move and rare ops live in sub-modes (m, s)."
+      "idea":  "hjkl focuses, a flips to last; c picks any window, x kills the focused one."
     },
     "submodes": {
       "title": "Sub-modes · Move / Service",
@@ -77,19 +78,18 @@
       "idea":  "caps + m enters move mode (hjkl moves, esc exits). caps + s is the service drawer for rare ops; resize stays in mode for repeat taps."
     },
     "workspaces": {
-      "title": "Workspaces · Cycle / Focus / Send",
+      "title": "Workspaces · Go / Follow / Edit",
       "rows": [
         ["caps + n / p",  "prev / next workspace (wraps)"],
         ["caps + tab",    "last / recent workspace"],
-        ["caps + 1 … 0",  "focus workspace 1..10"],
-        ["caps + e",      "change workspace (fuzzy: every window, every space)"],
-        ["caps + f",      "focus workspace prompt"],
-        ["caps + g",      "send window to workspace"],
-        ["caps + w",      "manage workspace (rename / icon / color)"]
+        ["caps + 1 … 0",  "go to workspace 1..10"],
+        ["caps + g",      "go to workspace (prompt)"],
+        ["caps + f",      "follow — send focused window + travel with it"],
+        ["caps + e",      "edit workspace (rename / icon / color)"]
       ],
       "family": "system",
       "sub":   "AeroSpace · ws-focus · ws-prompt",
-      "idea":  "Cycle with n/p, jump by digit, or fuzzy-search every window with the e/f/g/w overlays."
+      "idea":  "Digits or g jump; f sends the window and you go with it; e renames / re-icons."
     },
     "launchers": {
       "title": "Launchers",

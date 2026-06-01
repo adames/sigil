@@ -1,12 +1,12 @@
 import SwiftUI
 import WsUI
 
-/// Binds directly to `ManageController`'s `@Published var stage`. No
+/// Binds directly to `EditController`'s `@Published var stage`. No
 /// separate view-model — the controller is the model. Workspace list is
 /// a snapshot taken at overlay open (the controller's `workspaces` is a
 /// `let`), so the view reads it directly through the controller.
-struct ManageView: View {
-    @ObservedObject var controller: ManageController
+struct EditView: View {
+    @ObservedObject var controller: EditController
 
     var body: some View {
         // Fill the full hosting view so the VStack's default `.center`
@@ -110,7 +110,7 @@ struct ManageView: View {
             // Show the spelled-out default for the next slot so ↵ on an
             // empty buffer has an obvious effect ("ok, that one's named
             // `one`/`two`/…").
-            let defaultName = ManageController.defaultName(forSlot: controller.workspaces.count + 1)
+            let defaultName = EditController.defaultName(forSlot: controller.workspaces.count + 1)
             textEntry(prompt: "new workspace name (default: \(defaultName))", buffer: buf)
         case .addIcon(_, let buf):                     textEntry(prompt: "icon (empty = stop.fill · type to filter SF Symbols)", buffer: buf)
         case .renameTarget(let f, let s, _):           targetPicker(filter: f, sel: s)

@@ -3,11 +3,11 @@ import SwiftUI
 import WsUI
 
 /// Three prompts the overlay can render. Picked from the first CLI arg.
-/// focus/send share the PromptController state machine here; manage has
-/// its own multi-stage controller (ManageController) since the flow is
+/// focus/send share the PromptController state machine here; edit has
+/// its own multi-stage controller (EditController) since the flow is
 /// substantially richer (verb → target → payload → confirm → result).
 enum PromptMode: String {
-    case focus, send, manage
+    case focus, send, edit
 }
 
 /// A single input event the controller understands. Modeled as a closed

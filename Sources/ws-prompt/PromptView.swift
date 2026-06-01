@@ -68,13 +68,13 @@ struct PromptView: View {
     }
 
     private var title: String {
-        // PromptView is only instantiated for focus/send; manage uses
-        // ManageView. The .manage arms here exist only to satisfy
+        // PromptView is only instantiated for focus/send; edit uses
+        // EditView. The .edit arms here exist only to satisfy
         // exhaustiveness — they're never rendered.
         switch controller.mode {
         case .focus:  return "focus workspace"
         case .send:   return "send window"
-        case .manage: return ""
+        case .edit: return ""
         }
     }
 
@@ -96,14 +96,14 @@ struct PromptView: View {
         switch controller.mode {
         case .focus:  return "FOCUS"
         case .send:   return "SEND"
-        case .manage: return ""
+        case .edit: return ""
         }
     }
     private var modeChipColor: Color {
         switch controller.mode {
         case .focus:  return Catppuccin.blue   // navigate → blue (matches Hyper family)
         case .send:   return Catppuccin.green  // move-and-follow → green
-        case .manage: return Catppuccin.maroon // unused (ManageView renders manage)
+        case .edit: return Catppuccin.maroon // unused (EditView renders edit)
         }
     }
 
@@ -216,8 +216,8 @@ struct PromptView: View {
             return "1–0 focuses · letters fuzzy-match · ↵ commits · tab cycles · esc cancels"
         case .send:
             return "1–0 sends + follows · letters fuzzy-match · ↵ commits · tab cycles · esc cancels"
-        case .manage:
-            return ""  // unreachable — ManageView owns the manage rendering
+        case .edit:
+            return ""  // unreachable — EditView owns the edit rendering
         }
     }
 }

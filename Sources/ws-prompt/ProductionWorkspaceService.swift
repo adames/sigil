@@ -100,7 +100,7 @@ final class ProductionWorkspaceService: WorkspaceService {
 
     // Phase 5: runYabai + runAdd retired. AeroSpace can't create or
     // destroy workspaces at runtime; ws-prompt's add / destroy verbs
-    // surface a help message instead (see ManageController's
+    // surface a help message instead (see EditController's
     // aerospaceMutationHelp). Read-only aerospace queries that survive
     // until Phase 6 use querySpaceCountSync below.
 

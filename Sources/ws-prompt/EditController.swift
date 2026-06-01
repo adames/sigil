@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 import WsUI
 
-/// Where the manage overlay is in its multi-step flow. Each stage owns
+/// Where the edit overlay is in its multi-step flow. Each stage owns
 /// the data it needs to render and to transition forward. Esc always
 /// drops back one stage; from `verbPicker` Esc cancels the overlay.
 ///
@@ -11,7 +11,7 @@ import WsUI
 /// directly to that slot (fast path: open prompt, press `5`, you're
 /// renaming slot 5). On → digits join the filter buffer so 11+ can be
 /// reached after an initial letter or backspace-erasure.
-enum ManageStage: Equatable {
+enum EditStage: Equatable {
     case verbPicker
     case addName(buffer: String)
     case addIcon(name: String, buffer: String)
@@ -30,17 +30,17 @@ enum ManageStage: Equatable {
     case result(title: String, body: String, success: Bool)
 }
 
-/// What ManageController.handle returns. `.idle` means the view should
+/// What EditController.handle returns. `.idle` means the view should
 /// re-render but no further action is required from the host. `.terminate`
 /// closes the overlay. Command execution is no longer surfaced through
 /// this enum — the controller drives commands directly via its injected
 /// `WorkspaceService` and re-renders when their completions land.
-enum ManageAction: Equatable {
+enum EditAction: Equatable {
     case idle
     case terminate
 }
 
-/// Multi-stage state machine for the manage overlay.
+/// Multi-stage state machine for the edit overlay.
 ///
 /// Holds its own state (`stage`) as a `@Published` so SwiftUI views bind
 /// directly to the controller — no separate view-model. Side effects
@@ -49,8 +49,8 @@ enum ManageAction: Equatable {
 /// transition with no Process spawning. Once a command completes the
 /// controller flips itself to `.result(...)` on the main queue and the
 /// view re-renders.
-final class ManageController: ObservableObject {
-    @Published private(set) var stage: ManageStage = .verbPicker
+final class EditController: ObservableObject {
+    @Published private(set) var stage: EditStage = .verbPicker
 
     let workspaces: [Workspace]
     private let service: WorkspaceService
@@ -113,7 +113,7 @@ final class ManageController: ObservableObject {
     /// Drive the state machine. One key in, one Action out. Side effects
     /// are scheduled via `service` — the action only reports whether the
     /// host should terminate or just re-render.
-    func handle(_ key: PromptKey) -> ManageAction {
+    func handle(_ key: PromptKey) -> EditAction {
         switch stage {
         case .verbPicker:                       return handleVerbPicker(key)
         case .addName(let buf):                 return handleAddName(key, buf: buf)
@@ -143,7 +143,7 @@ final class ManageController: ObservableObject {
 
     // MARK: - Verb picker
 
-    private func handleVerbPicker(_ key: PromptKey) -> ManageAction {
+    private func handleVerbPicker(_ key: PromptKey) -> EditAction {
         switch key {
         case .escape:                return .terminate
         case .char("a"), .char("A"):
@@ -172,7 +172,7 @@ final class ManageController: ObservableObject {
 
     // MARK: - Add
 
-    private func handleAddName(_ key: PromptKey, buf: String) -> ManageAction {
+    private func handleAddName(_ key: PromptKey, buf: String) -> EditAction {
         switch key {
         case .escape:                stage = .verbPicker; return .idle
         case .backspace:
@@ -224,7 +224,7 @@ final class ManageController: ObservableObject {
         return "ws\(slot)"
     }
 
-    private func handleAddIcon(_ key: PromptKey, name: String, buf: String) -> ManageAction {
+    private func handleAddIcon(_ key: PromptKey, name: String, buf: String) -> EditAction {
         switch key {
         case .escape:                stage = .addName(buffer: name); return .idle
         case .backspace:
@@ -251,7 +251,7 @@ final class ManageController: ObservableObject {
     // MARK: - Rename
 
     private func handleRenameTarget(_ key: PromptKey, filter: String, sel: Int,
-                                    inQueryMode: Bool) -> ManageAction {
+                                    inQueryMode: Bool) -> EditAction {
         switch key {
         case .escape: stage = .verbPicker; return .idle
         case .enter:
@@ -294,7 +294,7 @@ final class ManageController: ObservableObject {
         }
     }
 
-    private func commitRename(slot: Int) -> ManageAction {
+    private func commitRename(slot: Int) -> EditAction {
         guard let ws = workspaces.first(where: { $0.index == slot }) else {
             stage = .result(title: "rename: rejected",
                             body: "slot \(slot) does not exist", success: false)
@@ -305,7 +305,7 @@ final class ManageController: ObservableObject {
     }
 
     private func handleRenameNewName(_ key: PromptKey, slot: Int, slotName: String,
-                                     buf: String) -> ManageAction {
+                                     buf: String) -> EditAction {
         switch key {
         case .escape:
             stage = .renameTarget(filter: "", selection: focusedSelection, inQueryMode: false)
@@ -335,7 +335,7 @@ final class ManageController: ObservableObject {
     // MARK: - Destroy
 
     private func handleDestroyTarget(_ key: PromptKey, filter: String, sel: Int,
-                                     inQueryMode: Bool) -> ManageAction {
+                                     inQueryMode: Bool) -> EditAction {
         switch key {
         case .escape: stage = .verbPicker; return .idle
         case .enter:
@@ -375,7 +375,7 @@ final class ManageController: ObservableObject {
         }
     }
 
-    private func commitDestroy(slot: Int) -> ManageAction {
+    private func commitDestroy(slot: Int) -> EditAction {
         guard let ws = workspaces.first(where: { $0.index == slot }) else {
             stage = .result(title: "destroy: rejected",
                             body: "slot \(slot) does not exist", success: false)
@@ -386,7 +386,7 @@ final class ManageController: ObservableObject {
     }
 
     private func handleDestroyConfirm(_ key: PromptKey, slot: Int,
-                                      slotName: String) -> ManageAction {
+                                      slotName: String) -> EditAction {
         switch key {
         case .escape:                return .terminate
         case .char("d"), .char("D"), .char("y"), .char("Y"), .enter:
@@ -417,7 +417,7 @@ final class ManageController: ObservableObject {
     // Commit dispatches `ws icon SLOT NAME`.
 
     private func handleIconTarget(_ key: PromptKey, filter: String, sel: Int,
-                                  inQueryMode: Bool) -> ManageAction {
+                                  inQueryMode: Bool) -> EditAction {
         switch key {
         case .escape: stage = .verbPicker; return .idle
         case .enter:
@@ -458,7 +458,7 @@ final class ManageController: ObservableObject {
         }
     }
 
-    private func commitIconTarget(slot: Int) -> ManageAction {
+    private func commitIconTarget(slot: Int) -> EditAction {
         guard let ws = workspaces.first(where: { $0.index == slot }) else {
             stage = .result(title: "icon: rejected",
                             body: "slot \(slot) does not exist", success: false)
@@ -482,7 +482,7 @@ final class ManageController: ObservableObject {
     var iconCatalogCached: [IconCatalogEntry] { catalog() }
 
     private func handleIconPick(_ key: PromptKey, slot: Int, slotName: String,
-                                filter: String, sel: Int) -> ManageAction {
+                                filter: String, sel: Int) -> EditAction {
         let matches = FuzzyMatch.filter(catalog(), query: filter, keyPath: { $0.sfName })
         switch key {
         case .escape:
@@ -518,7 +518,7 @@ final class ManageController: ObservableObject {
 
     // MARK: - Layout
 
-    private func handleLayoutVerb(_ key: PromptKey) -> ManageAction {
+    private func handleLayoutVerb(_ key: PromptKey) -> EditAction {
         switch key {
         case .escape:                stage = .verbPicker; return .idle
         case .char("s"), .char("S"): stage = .layoutSaveName(buffer: ""); return .idle
@@ -545,7 +545,7 @@ final class ManageController: ObservableObject {
         }
     }
 
-    private func handleLayoutSaveName(_ key: PromptKey, buf: String) -> ManageAction {
+    private func handleLayoutSaveName(_ key: PromptKey, buf: String) -> EditAction {
         switch key {
         case .escape:                stage = .layoutVerb; return .idle
         case .backspace:
@@ -571,7 +571,7 @@ final class ManageController: ObservableObject {
     enum LayoutPickMode { case load, delete }
 
     private func handleLayoutPick(_ key: PromptKey, snapshots: [String], filter: String,
-                                  sel: Int, mode: LayoutPickMode) -> ManageAction {
+                                  sel: Int, mode: LayoutPickMode) -> EditAction {
         let matches = FuzzyMatch.filter(snapshots, query: filter, keyPath: { $0 })
         switch key {
         case .escape:                stage = .layoutVerb; return .idle
@@ -607,7 +607,7 @@ final class ManageController: ObservableObject {
         }
     }
 
-    private func handleLayoutDeleteConfirm(_ key: PromptKey, name: String) -> ManageAction {
+    private func handleLayoutDeleteConfirm(_ key: PromptKey, name: String) -> EditAction {
         switch key {
         case .escape:                return .terminate
         case .char("d"), .char("D"), .char("y"), .char("Y"), .enter:
@@ -662,7 +662,7 @@ final class ManageController: ObservableObject {
     }
 
     private func layoutPickStage(mode: LayoutPickMode, snaps: [String],
-                                 filter: String, sel: Int) -> ManageStage {
+                                 filter: String, sel: Int) -> EditStage {
         switch mode {
         case .load:   return .layoutLoadPick(snapshots: snaps, filter: filter, selection: sel)
         case .delete: return .layoutDeletePick(snapshots: snaps, filter: filter, selection: sel)

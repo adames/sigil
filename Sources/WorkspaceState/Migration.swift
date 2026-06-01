@@ -105,7 +105,12 @@ public enum Migration {
         if let colon = key.firstIndex(of: ":") {
             let uuid = String(key[..<colon])
             let name = String(key[key.index(after: colon)...])
-            return (0, uuid + "\u{1F}" + name, key)
+            // Numeric workspaceNames must sort by value, not lexically —
+            // otherwise "10" < "2" puts ws10 between ws1 and ws2 and the
+            // digit chords get scrambled. Zero-pad to a width comfortably
+            // beyond any plausible workspace count.
+            let sortName = Int(name).map { String(format: "%09d", $0) } ?? name
+            return (0, uuid + "\u{1F}" + sortName, key)
         }
         return (1, key, key)
     }
