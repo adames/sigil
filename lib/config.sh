@@ -22,10 +22,11 @@ WORKSPACE_TOPOLOGY_FILE="topology.json"
 WORKSPACE_LAYOUT_ENV="layout.env"
 WORKSPACE_CURRENT_ENV="current.env"
 
-# AeroSpace binary path. Empty if the cask isn't installed — callers
-# (lib/window-manager.sh) check `[[ -x "$WORKSPACE_WM_BIN" ]]` and
+# AeroSpace binary path. Overridable (tests point it at a stub; users with
+# a nonstandard install can pin it). Empty if the resolved path isn't
+# executable — callers (lib/window-manager.sh) check `[[ -x … ]]` and
 # fail-soft when absent.
-WORKSPACE_WM_BIN="/opt/homebrew/bin/aerospace"
+: "${WORKSPACE_WM_BIN:=/opt/homebrew/bin/aerospace}"
 [[ -x "$WORKSPACE_WM_BIN" ]] || WORKSPACE_WM_BIN=""
 
 # Derived values

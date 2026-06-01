@@ -44,8 +44,8 @@ system settings to toggle. Re-run when validating a release.
 
 | # | Scenario | Setup | Expected |
 |---|---|---|---|
-| 18 | Slot count > 10 overflow | `ws add` until 11 slots | Inside `Caps+f` focus overlay, digits `1..0` address slots 1..10 directly; reach slot 11+ via name typing + ↵ (all-numeric query addresses slot index) |
-| 19 | New slot is reachable immediately | Run `ws add foo` | `Caps+f` focus overlay can target the new slot without a reload (aerospace bindings are static, not generated per slot) |
+| 18 | Workspace count > 10 overflow | Declare 11 workspaces in `aerospace.toml` + `aerospace reload-config` | Inside `Caps+f` focus overlay, digits `1..0` address the first 10 directly; reach the 11th via name typing + ↵ |
+| 19 | New workspace is reachable immediately | Add a workspace to `aerospace.toml` + reload, then `ws name <N> foo` | `Caps+f` focus overlay can target it without further reload (aerospace bindings are static, not generated per slot) |
 
 ## Performance
 
