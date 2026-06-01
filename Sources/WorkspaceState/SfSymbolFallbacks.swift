@@ -1,9 +1,6 @@
 import Foundation
 
 public enum SfSymbolFallbacks {
-    /// Best-effort SF Symbol mapping for the user's current 10 slot names.
-    /// Used during v1 → v2 migration when no explicit fallback exists. Names
-    /// not in the map fall through to `defaultSymbol`.
     static let table: [String: String] = [
         "stream":  "play.fill",
         "hub":     "square.grid.2x2",

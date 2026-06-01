@@ -1,55 +1,18 @@
 import Foundation
 
-/// Abstraction over the window manager. AeroSpace is the only real
-/// backend post-migration; `WindowManagerKind` keeps `.none` as the
-/// degenerate case for tests and for explicit-disable setups, and stays
-/// declared as an enum so a third implementation could slot in without
-/// touching call sites.
+/// AeroSpace is the only real backend; `.none` covers tests and machines
+/// where aerospace isn't installed.
 public protocol WindowManager {
-    /// The type of window manager (aerospace, none)
     static var kind: WindowManagerKind { get }
-
-    /// Path to the window manager binary
     var binaryPath: String { get }
 
-    // MARK: - Space Operations
-
-    /// Focus the workspace identified by `target` — shells to
-    /// `aerospace workspace <workspaceName>`.
     func focusSpace(target: WorkspaceTarget) throws
-
-    /// Send the focused window to the workspace identified by `target`,
-    /// optionally following it.
     func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws
-
-    /// Get the currently focused workspace, or nil if no window manager.
     func focusedSpace() throws -> WorkspaceTarget?
-
-    /// Get the currently focused space's per-display ordinal (1-based).
-    /// Convenience for consumers (ws-prompt index renderers) still wired
-    /// to ordinals.
     func focusedSpaceIndex() throws -> Int?
-
-    // MARK: - Window Operations
-
-    /// Focus the window with the given ID
     func focusWindow(id: Int) throws
-
-    // MARK: - Read-side queries
-
-    /// Snapshot of every display the window manager knows about.
-    /// Consumers use this for the `display index ↔ frame` mapping
-    /// (autohide's per-display trigger band).
     func queryDisplays() throws -> [DisplayInfo]
-
-    /// Snapshot of every window visible to the window manager. Order is
-    /// the window manager's order; consumers filter / re-sort.
     func queryWindows() throws -> [WindowInfo]
-
-    /// Snapshot of every space (index + owning display). The
-    /// (index, display) tuple is the source of truth for "which space
-    /// lives on which display" used by the manage overlay's optimistic
-    /// pre-paint.
     func querySpaces() throws -> [SpaceInfo]
 }
 
@@ -58,7 +21,6 @@ public enum WindowManagerKind: String, Sendable {
     case none
 }
 
-/// Errors that can occur during window manager operations
 public enum WindowManagerError: Error {
     case binaryNotFound(String)
     case commandFailed(String)
@@ -67,19 +29,6 @@ public enum WindowManagerError: Error {
     case unavailable
 }
 
-// MARK: - Wire shapes
-//
-// Plain value types the window manager returns from the read-side
-// queries above. Modeled minimally — only fields current consumers
-// read. AerospaceWindowManager constructs them directly via memberwise
-// inits after parsing aerospace's JSON; nothing decodes these structs
-// from JSON, so they're not Codable. Add a field when a consumer needs
-// one; don't speculate.
-
-/// One display, identified by its window-manager index plus its CG
-/// frame. `displayUUID` is the CG-stable identifier
-/// (`CGDisplayCreateUUIDFromDisplayID`) — AerospaceWindowManager fills
-/// it in from the bridged CG lookup.
 public struct DisplayInfo: Sendable {
     public let index: Int
     public let frame: Frame
@@ -104,8 +53,6 @@ public struct DisplayInfo: Sendable {
     }
 }
 
-/// One window, with the fields the picker uses to render rows and the
-/// flags it filters by.
 public struct WindowInfo: Sendable {
     public let id: Int
     public let app: String
@@ -134,11 +81,6 @@ public struct WindowInfo: Sendable {
     }
 }
 
-/// One workspace. Identity is the `(displayUUID, workspaceName)` tuple;
-/// `index` is a per-display ordinal (1-based) and `display` is the
-/// aerospace monitor ordinal that workspace lives on. Both ordinals
-/// are synthesized at query time and shouldn't be held across
-/// reorderings.
 public struct SpaceInfo: Sendable {
     public let index: Int
     public let display: Int
@@ -158,10 +100,7 @@ public struct SpaceInfo: Sendable {
     }
 }
 
-/// Composite key identifying a workspace: `(displayUUID, workspaceName)`.
-/// `displayUUID` is the CoreGraphics UUID from
-/// `CGDisplayCreateUUIDFromDisplayID` — stable across reboots and
-/// hot-plug. `workspaceName` is the aerospace workspace identifier.
+/// Stable workspace identity: CG display UUID + aerospace workspace name.
 public struct WorkspaceTarget: Hashable, Sendable {
     public let displayUUID: String
     public let workspaceName: String

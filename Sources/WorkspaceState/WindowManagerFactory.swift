@@ -1,10 +1,6 @@
 import Foundation
 
-/// Factory for the WindowManager backend. AeroSpace is the only real
-/// implementation; `NoOpWindowManager` covers tests + setups where the
-/// daemon isn't installed.
 public enum WindowManagerFactory {
-    /// Aerospace when its binary is on disk; no-op otherwise.
     public static func create() -> WindowManager {
         switch configuredKind() {
         case .aerospace:
@@ -14,8 +10,6 @@ public enum WindowManagerFactory {
         }
     }
 
-    /// Pick the active backend. Aerospace when the binary exists on
-    /// disk; no-op otherwise.
     public static func configuredKind() -> WindowManagerKind {
         let aerospacePaths = [
             "/opt/homebrew/bin/aerospace",
@@ -28,7 +22,6 @@ public enum WindowManagerFactory {
     }
 }
 
-/// No-op window manager for when no window manager is available.
 public final class NoOpWindowManager: WindowManager {
     public static let kind: WindowManagerKind = .none
     public let binaryPath: String = ""

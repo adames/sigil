@@ -605,9 +605,8 @@ cmd_icon() {
 }
 
 cmd_migrate() {
-  # Thin delegate to ws-topology — the v3 validator + canonical
-  # re-renderer. Dry-run by default; --apply rewrites in place. v1/v2
-  # inputs are rejected (no upgrade path post-aerospace).
+  # Thin delegate to ws-topology — validates v3 and re-renders canonically.
+  # Dry-run by default; --apply rewrites in place.
   if ! command -v ws-topology >/dev/null 2>&1; then
     err "ws-topology not on PATH (build + symlink from ~/.config/workspace/topology)"
     exit 1
@@ -662,10 +661,8 @@ EOF_REFRESH_HELP
 
 # ── host overlay management ─────────────────────────────────────────────
 # Per-host workspace identity: ~/.config/workspace/spaces.<hostname>.json
-# overrides ~/.config/workspace/spaces.json on this machine. Both files
-# are valid v2 configs; the overlay simply takes precedence when present.
-# Useful for divergent slot identities between machines (the M3 Max and
-# the M1 13" may want different slot 8 names, for instance).
+# overrides ~/.config/workspace/spaces.json on this machine.
+# Useful for divergent identities between machines.
 
 _host_short() { hostname -s 2>/dev/null || echo unknown; }
 _host_file()  { printf '%s/.config/workspace/spaces.%s.json' "$HOME" "$1"; }

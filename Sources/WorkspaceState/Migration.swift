@@ -25,12 +25,7 @@ public struct MigrationResult: Equatable {
 }
 
 /// spaces.json v3 validator + canonical pretty-printer.
-///
-/// The v1 → v2 and v2 → v3 transformation code was retired after the
-/// AeroSpace migration shipped. `migrate(jsonData:)` is now a validator:
-/// it requires version == currentVersion (v3), re-renders the JSON with
-/// deterministic key ordering, and returns the canonical bytes. v1 or v2
-/// inputs throw `.unsupportedVersion(_)`.
+/// Rejects anything that isn't v3; the transformation paths for v1/v2 were retired.
 public enum Migration {
     public static let currentVersion = 3
     public static let defaultNerdFontFamily = "JetBrainsMono Nerd Font"
@@ -61,11 +56,6 @@ public enum Migration {
     }
 
     // MARK: - IconSpec helpers
-    //
-    // The `deriveIconSpec(fromLegacy:name:)` builder retired with the
-    // v1/v2 transformation paths — under v3 every slot ships its own
-    // iconSpec object directly. `encode(spec:)` survives because the
-    // store's writer still serializes WorkspaceSlot → JSON through it.
 
     public static func encode(spec: IconSpec) -> [String: Any] {
         var dict: [String: Any] = [
