@@ -93,7 +93,7 @@ Fixes #123
 
 Examples:
 - `ws-prompt: Add support for Aerospace window manager`
-- `cli: Fix race condition in ws add`
+- `cli: Fix race condition in ws name`
 - `topology: Optimize display change detection`
 
 ## Code Style

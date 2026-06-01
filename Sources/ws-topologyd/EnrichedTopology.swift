@@ -5,9 +5,8 @@ import LayoutPolicy
 
 /// The on-disk payload of `~/.cache/workspace/topology.json` — combines the
 /// raw display snapshot, the derived layout policy set, and the accessibility
-/// state into one document. Consumers (SketchyBar plugins, ensure-spaces,
-/// the recenter shell script) read either this JSON or the flattened
-/// `layout.env` companion.
+/// state into one document. Consumers (ensure-spaces, the recenter shell
+/// script) read either this JSON or the flattened `layout.env` companion.
 struct EnrichedTopology: Codable {
     let topology: TopologySnapshot
     let policies: LayoutPolicySet
