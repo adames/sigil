@@ -23,8 +23,8 @@ cd ~/.config/workspace
 
 | Binary | What it does | Trigger |
 |--------|--------------|---------|
-| ws-prompt | Focus/send/manage workspace overlay | caps + f, caps + g, caps + w |
-| ws-picker | Fuzzy find window across workspaces | caps + e |
+| ws-prompt | Focus / send (follow) / edit workspace overlay | caps + g, caps + f, caps + e |
+| ws-picker | Fuzzy find window across workspaces (tab cycles, ↵ jumps) | caps + c |
 | ws-cheatsheet | Key reference HUD with **4 lenses** (AeroSpace · Terminal · Vim · Neovim). Tap `1`/`2`/`3`/`4` or `tab` to switch, `esc` to close. | caps + / |
 | ws-topologyd | Display detection daemon | Auto-start |
 | ws-snap | Snap floating windows | `ws-snap left\|right\|max\|center` (CLI) |
