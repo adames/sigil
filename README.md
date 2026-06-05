@@ -19,7 +19,7 @@ cd ~/.config/workspace && ./install.sh
 
 | Binary | What it does | Trigger |
 |--------|--------------|---------|
-| ws-prompt | Focus / send (follow) / edit workspace overlay | caps + g, caps + f, caps + e |
+| ws-prompt | Focus / send (follow) overlay — number-only | caps + g, caps + f |
 | ws-picker | Fuzzy find window across workspaces (tab cycles, ↵ jumps) | caps + c |
 | ws-cheatsheet | Key reference HUD with 4 lenses (AeroSpace · Terminal · Vim · Neovim). `1`/`2`/`3`/`4` or `tab` to switch, `esc` to close. | caps + / |
 | ws-topologyd | Display detection daemon | Auto-start |

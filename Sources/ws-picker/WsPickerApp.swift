@@ -50,7 +50,7 @@ final class WsPickerApp {
     // MARK: - Lifecycle
 
     func run() {
-        // Single-instance toggle: a second Caps+e while the picker is
+        // Single-instance toggle: a second Caps+c while the picker is
         // open closes it. Same pattern as ws-prompt — one PID file
         // distinct from any prompt PID file so the two overlays don't
         // collide.

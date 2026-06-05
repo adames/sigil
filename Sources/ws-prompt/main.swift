@@ -1,14 +1,13 @@
 import Foundation
 
-// ws-prompt <focus|send|edit> [--simulate-keys "<keys>"]
+// ws-prompt <focus|send> [--simulate-keys "<keys>"]
 //
 // The runtime is split across:
 //
-//   PromptController     — focus/send state machine (pure-ish; ObservableObject)
-//   EditController     — edit state machine (multi-stage; ObservableObject)
-//   WorkspaceService     — single seam to aerospace / ws CLI / file system
-//   WsPromptApp          — AppKit window + key dispatch + lifecycle
-//   PromptView/EditView — SwiftUI rendering bound to the controllers
+//   PromptController  — focus/send state machine (pure-ish; ObservableObject)
+//   WorkspaceService  — single seam to aerospace / ws CLI / file system
+//   WsPromptApp       — AppKit window + key dispatch + lifecycle
+//   PromptView        — SwiftUI rendering bound to the controller
 //
 // This file just parses argv, picks production vs. simulate path, and
 // hands off.
@@ -17,23 +16,16 @@ let rawArgs = Array(CommandLine.arguments.dropFirst())
 
 func usage() -> Never {
     FileHandle.standardError.write(Data(
-        "usage: ws-prompt <focus|send|edit> [--simulate-keys \"<keys>\"]\n".utf8))
+        "usage: ws-prompt <focus|send> [--simulate-keys \"<keys>\"]\n".utf8))
     exit(2)
 }
 
 guard let modeArg = rawArgs.first, let mode = PromptMode(rawValue: modeArg) else { usage() }
 
 // Optional --simulate-keys "<keys>" → headless smoke harness for the
-// focus/send state machine. Manage is too stateful (Process side
-// effects + completion handlers) for a useful one-shot sim, so reject
-// the flag for edit explicitly.
+// focus/send state machine.
 if let i = rawArgs.firstIndex(of: "--simulate-keys"), i + 1 < rawArgs.count {
     let keys = rawArgs[i + 1]
-    guard mode != .edit else {
-        FileHandle.standardError.write(Data(
-            "ws-prompt: --simulate-keys is not supported in edit mode\n".utf8))
-        exit(2)
-    }
     let service = ProductionWorkspaceService()
     let controller = PromptController(mode: mode, workspaces: service.loadWorkspaces())
     let result = controller.simulate(KeySequenceParser.parse(keys))

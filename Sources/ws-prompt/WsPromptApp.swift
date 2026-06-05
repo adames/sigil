@@ -5,10 +5,10 @@ import SwiftUI
 /// Top-level AppKit + key-dispatch shell for ws-prompt. Owns the
 /// borderless overlay window, the NSEvent monitor token, the SIGTERM
 /// signal source, the PID-file single-instance lock, and the
-/// controller(s) for the chosen mode.
+/// PromptController for the chosen mode.
 ///
 /// Lifecycle:
-///   init(mode:, service:)  → builds controllers + window
+///   init(mode:, service:)  → builds controller + window
 ///   run()                  → blocks on NSApp.run()
 ///   terminate()            → removes PID file, removes NSEvent
 ///                            monitor, terminates NSApp
@@ -23,10 +23,7 @@ final class WsPromptApp {
     private let pidPath: URL
 
     // Strong refs so the runtime keeps everything alive.
-    private let promptController: PromptController?
-    private let editController: EditController?
-    private let workspaces: [Workspace]
-    private let focusedIndex: Int?
+    private let promptController: PromptController
     private var eventMonitorToken: Any?
     private var windowDelegate: WindowDelegate?
     private var signalSource: DispatchSourceSignal?
@@ -38,11 +35,6 @@ final class WsPromptApp {
             .appendingPathComponent(".cache/workspace/ws-prompt.\(mode.rawValue).pid")
 
         let workspaces = service.loadWorkspaces()
-        // Snapshot at overlay open — EditController uses it for the
-        // current-workspace marker and re-resolves any edited row.
-        let focusedIndex = service.focusedSpaceIndex()
-        self.workspaces = workspaces
-        self.focusedIndex = focusedIndex
 
         let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
         let win = PromptWindow(
@@ -59,34 +51,17 @@ final class WsPromptApp {
         win.isReleasedWhenClosed = false
         self.window = win
 
-        // Build the right controller pair and content view for the mode.
-        switch mode {
-        case .focus, .send:
-            let ctl = PromptController(mode: mode, workspaces: workspaces)
-            self.promptController = ctl
-            self.editController = nil
-            win.contentView = NSHostingView(rootView: PromptView(controller: ctl))
-        case .edit:
-            let ctl = EditController(
-                workspaces: workspaces, focusedIndex: focusedIndex, service: service
-            )
-            self.editController = ctl
-            self.promptController = nil
-            win.contentView = NSHostingView(rootView: EditView(controller: ctl))
-        }
-
-        // Wire the controller's "command succeeded" callback to the
-        // App's terminate path. Set after all stored properties exist
-        // so `self` is fully initialized when the closure captures it.
-        editController?.onTerminate = { [weak self] in self?.terminate() }
+        let ctl = PromptController(mode: mode, workspaces: workspaces)
+        self.promptController = ctl
+        win.contentView = NSHostingView(rootView: PromptView(controller: ctl))
     }
 
     // MARK: - Lifecycle
 
     func run() {
         // Single-instance toggle: a second invocation of the same chord
-        // dismisses the open instance and exits. Per-mode PID files so
-        // a stuck focus prompt doesn't block edit.
+        // dismisses the open instance and exits. Per-mode PID files so a
+        // stuck focus prompt doesn't block send.
         if let existing = readExistingPID() {
             kill(existing, SIGTERM)
             exit(0)
@@ -123,8 +98,8 @@ final class WsPromptApp {
     // MARK: - Key dispatch
 
     /// Local key monitor — runs on the main queue, sees every keyDown
-    /// while we're the key window. We swallow the event (return nil)
-    /// to keep it from leaking into the foreground app.
+    /// while we're the key window. We swallow the event (return nil) to
+    /// keep it from leaking into the foreground app.
     private func installKeyMonitor() {
         eventMonitorToken = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
@@ -135,46 +110,28 @@ final class WsPromptApp {
     }
 
     private func decodeKey(_ event: NSEvent) -> PromptKey? {
-        let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         switch event.keyCode {
         case 53:  return .escape      // kVK_Escape
-        case 36:  return .enter       // kVK_Return
-        case 48:  return mods.contains(.shift) ? .backTab : .tab   // kVK_Tab
-        case 51:  return .backspace   // kVK_Delete
         default:
-            // `charactersIgnoringModifiers` strips most modifiers but
-            // keeps Shift, so Shift+L still resolves to "L".
+            // Any other key resolves to its character; the controller
+            // commits on digits and ignores the rest.
             guard let s = event.charactersIgnoringModifiers, let c = s.first else { return nil }
             return .char(c)
         }
     }
 
     private func dispatch(_ key: PromptKey) {
-        switch mode {
-        case .focus, .send:  dispatchFocusOrSend(key)
-        case .edit:        dispatchEdit(key)
-        }
-    }
-
-    private func dispatchFocusOrSend(_ key: PromptKey) {
-        guard let ctl = promptController else { return }
-        switch ctl.handle(key) {
-        case .idle, .refilter:           return
-        case .cancel:                    terminate()
+        switch promptController.handle(key) {
+        case .idle:
+            return
+        case .cancel:
+            terminate()
         case .commitFocus(let slot):
             service.spawnFocus(slot: slot)
             terminate()
         case .commitSend(let slot):
             service.spawnSend(slot: slot)
             terminate()
-        }
-    }
-
-    private func dispatchEdit(_ key: PromptKey) {
-        guard let ctl = editController else { return }
-        switch ctl.handle(key) {
-        case .idle:        return
-        case .terminate:   terminate()
         }
     }
 

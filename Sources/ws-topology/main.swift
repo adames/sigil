@@ -306,7 +306,7 @@ enum AerospaceFragment {
             }
             lines.append("# Send-window digit bindings (Caps+Shift+N) intentionally absent —")
             lines.append("# Hyperkey collapses Caps+Shift+digit into Caps+digit (same chord).")
-            lines.append("# Use Caps+g (ws-prompt send) to send a window to a specific workspace.")
+            lines.append("# Use Caps+f (ws-prompt send) to send a window to a specific workspace.")
         }
         lines.append(closeFence)
         return lines.joined(separator: "\n") + "\n"

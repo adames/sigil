@@ -1,8 +1,7 @@
 import Foundation
 
-/// Read-side model for the focus / send prompts and the edit overlay's
-/// target picker. Carries only the fields the overlay needs to render a
-/// list and resolve a typed query.
+/// Read-side model for the focus / send prompts. Carries only the fields
+/// the overlay needs to render the workspace list.
 ///
 /// Sourcing the workspace list — joining aerospace's live workspaces
 /// with spaces.json identity entries — lives in `WorkspaceService`,

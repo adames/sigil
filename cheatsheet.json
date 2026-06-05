@@ -76,18 +76,17 @@
       "idea":  "Rare ops live here. Resize stays in mode for repeat taps; everything else exits on commit."
     },
     "workspaces": {
-      "title": "Workspaces · Go / Follow / Edit",
+      "title": "Workspaces · Go / Follow",
       "rows": [
         ["caps + n / p",  "prev / next workspace (wraps)"],
         ["caps + tab",    "last / recent workspace"],
         ["caps + 1 … 0",  "go to workspace 1..10"],
-        ["caps + g",      "go to workspace (prompt)"],
-        ["caps + f",      "follow — send focused window + travel with it"],
-        ["caps + e",      "edit workspace (rename / icon / color)"]
+        ["caps + g",      "go to workspace (digit picks slot)"],
+        ["caps + f",      "follow — send focused window to slot + travel with it"]
       ],
       "family": "system",
       "sub":   "AeroSpace · ws-focus · ws-prompt",
-      "idea":  "Digits or g jump; f sends the window and you go with it; e renames / re-icons."
+      "idea":  "Digits or g jump; f sends the window and you go with it. Number-only — set names / icons with the ws CLI."
     },
     "launchers": {
       "title": "Launchers",

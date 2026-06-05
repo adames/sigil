@@ -3,14 +3,10 @@ import Foundation
 /// Token format for `--simulate-keys`:
 ///
 ///   plain letters / digits   →  .char(c)
-///   <CR>                     →  .enter
 ///   <ESC>                    →  .escape
-///   <TAB>                    →  .tab
-///   <S-TAB>                  →  .backTab
-///   <BS>                     →  .backspace
 ///
 /// Anything else falls through as a literal char. Designed for the bash
-/// test harness, which builds key strings like "home<CR>" or "x<BS>11<CR>".
+/// test harness, which builds key strings like "3" or "9<ESC>".
 enum KeySequenceParser {
     static func parse(_ raw: String) -> [PromptKey] {
         var out: [PromptKey] = []
@@ -20,11 +16,7 @@ enum KeySequenceParser {
                 if let close = raw[i...].firstIndex(of: ">") {
                     let token = String(raw[raw.index(after: i)..<close]).uppercased()
                     switch token {
-                    case "CR":    out.append(.enter)
                     case "ESC":   out.append(.escape)
-                    case "TAB":   out.append(.tab)
-                    case "S-TAB": out.append(.backTab)
-                    case "BS":    out.append(.backspace)
                     default:
                         // Unknown token — emit the literal "<token>" so a
                         // typo is loud rather than silently dropped.
@@ -41,16 +33,13 @@ enum KeySequenceParser {
     }
 }
 
-/// Prints the final action in a stable, grep-friendly format and
-/// returns the exit code. The bash tests assert against this output.
+/// Prints the final action in a stable, grep-friendly format and returns
+/// the exit code. The bash tests assert against this output.
 enum SimulateReporter {
     static func print(action: PromptAction, mode: PromptMode) -> Int32 {
         switch action {
         case .idle:
             Swift.print("action=idle mode=\(mode.rawValue)")
-            return 0
-        case .refilter(let q, let m):
-            Swift.print("action=refilter mode=\(mode.rawValue) query=\(q) matches=\(m.map(String.init).joined(separator: ","))")
             return 0
         case .commitFocus(let slot):
             Swift.print("action=commit mode=focus helper=ws-focus arg=\(slot)")

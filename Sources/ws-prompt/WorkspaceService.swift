@@ -1,52 +1,15 @@
 import Foundation
 
-/// Outcome of a long-running command (ws / aerospace). `output` is stdout +
-/// stderr concatenated because the ws CLI writes its `ok`/`err` helpers
-/// to stderr; the edit overlay surfaces all of it in the result panel.
-struct CommandResult: Equatable {
-    let success: Bool
-    let output: String
-}
-
-/// One entry in the SF Symbol catalog. Used by the edit
-/// overlay's icon picker to fuzzy-search and preview icons.
-/// Nerd Font mapping available for cross-platform use via separate adapter.
-struct IconCatalogEntry: Equatable {
-    let sfName: String   // "play.fill"
-    let glyph: String    // Deprecated: was Nerd Font codepoint, now empty
-}
-
-/// The single seam between the controllers and the outside world.
+/// The single seam between the controller and the outside world.
 ///
 /// Everything that talks to aerospace, the `ws` CLI, or the file system
 /// goes through this protocol — `Process()` invocations, reads of
-/// `~/.config/workspace/spaces.json` and `~/.config/workspace/lib/sf-to-nerd.json`,
-/// invocations of helper scripts. The production implementation
-/// (`ProductionWorkspaceService`) does the real thing; tests inject a
-/// fake that records calls and returns canned data.
-///
-/// Sync methods read state at the moment of call. Command methods run
-/// on a background queue and fire `completion` on the main queue, so
-/// callers can update SwiftUI state without dispatch boilerplate.
+/// `~/.config/workspace/spaces.json`, invocations of helper scripts. The
+/// production implementation (`ProductionWorkspaceService`) does the real
+/// thing; tests inject a fake that records calls and returns canned data.
 protocol WorkspaceService {
     // MARK: Sync reads
     func loadWorkspaces() -> [Workspace]
-    func focusedSpaceIndex() -> Int?
-    func listSnapshots() -> [String]
-    func iconResolvable(_ name: String) -> Bool
-    /// SF Symbol catalog. Previously mapped to Nerd Font for
-    /// cross-platform use; now stores SF names directly.
-    func iconCatalog() -> [IconCatalogEntry]
-
-    // MARK: Async commands (capture stdout+stderr; complete on main queue)
-    func runWs(args: [String], completion: @escaping (CommandResult) -> Void)
-    // Note: `runYabai` and `runAdd` were retired in the aerospace
-    // migration (Phase 5). AeroSpace declares workspaces statically in
-    // aerospace.toml — there's no runtime create/destroy. The edit
-    // overlay's add / destroy verbs now route through a synthesized
-    // CommandResult that surfaces the edit-then-reload help text in the
-    // result panel. Identity edits (rename / icon / color) still go
-    // through `runWs` because they only touch spaces.json.
 
     // MARK: Fire-and-forget helpers (focus/send don't show a panel)
     func spawnFocus(slot: Int)

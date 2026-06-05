@@ -4,22 +4,18 @@ import WsUI
 // Visual vocabulary (palette, typography, pill geometry) lives in
 // WsUI/DesignSystem.swift — see `Catppuccin` and `PromptStyle`.
 
-/// Binds directly to `PromptController`'s `@Published` state — no
-/// separate view-model. The view re-renders whenever query / selection
-/// changes; `currentMatches()` recomputes the filter on each render
-/// (cheap for <20 workspaces).
+/// Number-only workspace switcher. Lists the live workspaces so you can
+/// see which digit maps to which; a digit commits (see PromptController)
+/// and esc cancels. No query field, no selection — modeled on AeroSpace's
+/// numeric workspace switch.
 struct PromptView: View {
     @ObservedObject var controller: PromptController
 
-    /// Match list pulled lazily — controllers don't store this, the
-    /// view just asks for it each render via the fuzzy filter.
-    private var matches: [Workspace] { controller.currentMatches() }
+    private var workspaces: [Workspace] { controller.workspaces }
 
     var body: some View {
         // Fill the full hosting view so the VStack's default `.center`
-        // alignment centers the card horizontally on screen. Without
-        // maxWidth/maxHeight the ZStack shrinks to the card's 520pt and
-        // NSHostingView pins it to the top-leading corner.
+        // alignment centers the card horizontally on screen.
         ZStack {
             // No background scrim. The borderless window is transparent
             // (isOpaque=false in WsPromptApp); the card's own opaque
@@ -37,7 +33,6 @@ struct PromptView: View {
     private var card: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
-            queryField
             listRows
             hint
         }
@@ -68,13 +63,9 @@ struct PromptView: View {
     }
 
     private var title: String {
-        // PromptView is only instantiated for focus/send; edit uses
-        // EditView. The .edit arms here exist only to satisfy
-        // exhaustiveness — they're never rendered.
         switch controller.mode {
         case .focus:  return "focus workspace"
         case .send:   return "send window"
-        case .edit: return ""
         }
     }
 
@@ -96,50 +87,13 @@ struct PromptView: View {
         switch controller.mode {
         case .focus:  return "FOCUS"
         case .send:   return "SEND"
-        case .edit: return ""
         }
     }
     private var modeChipColor: Color {
         switch controller.mode {
         case .focus:  return Catppuccin.blue   // navigate → blue (matches Hyper family)
         case .send:   return Catppuccin.green  // move-and-follow → green
-        case .edit: return Catppuccin.maroon // unused (EditView renders edit)
         }
-    }
-
-    // MARK: - Query field
-
-    private var queryField: some View {
-        HStack(spacing: 8) {
-            Image(systemName: controller.mode == .focus ? "arrow.right" : "paperplane.fill")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(modeChipColor)
-                .frame(width: 14)
-            Text(displayQuery)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(controller.query.isEmpty ? Catppuccin.overlay0 : Catppuccin.text)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Text("↵")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(Catppuccin.overlay0)
-        }
-        .padding(.horizontal, 12)
-        .frame(height: 30)
-        .background(
-            RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                .fill(Catppuccin.base.opacity(0.6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                        .strokeBorder(Catppuccin.surface0.opacity(0.8), lineWidth: 1)
-                )
-        )
-    }
-
-    private var displayQuery: String {
-        if controller.query.isEmpty {
-            return "1–9 / 0 commits · letters search · ↵"
-        }
-        return controller.query
     }
 
     // MARK: - Workspace list
@@ -147,11 +101,11 @@ struct PromptView: View {
     private var listRows: some View {
         ScrollView {
             VStack(spacing: 4) {
-                ForEach(Array(matches.enumerated()), id: \.offset) { (idx, ws) in
-                    workspaceRow(ws: ws, selected: idx == controller.selection)
+                ForEach(Array(workspaces.enumerated()), id: \.offset) { (_, ws) in
+                    workspaceRow(ws: ws)
                 }
-                if matches.isEmpty {
-                    Text("no matching workspaces")
+                if workspaces.isEmpty {
+                    Text("no workspaces")
                         .font(.system(size: 11))
                         .foregroundColor(Catppuccin.overlay0)
                         .frame(maxWidth: .infinity)
@@ -162,43 +116,44 @@ struct PromptView: View {
         .frame(maxHeight: 360)
     }
 
-    /// One workspace row, styled as a chip:
-    ///   - Selected → filled with slot color, dark catppuccin text.
-    ///   - Unselected → transparent fill, slot-color border + text.
-    private func workspaceRow(ws: Workspace, selected: Bool) -> some View {
+    /// One workspace row, styled as a chip: the slot digit, optional icon,
+    /// and name. `0` labels slot 10 to match the commit digit.
+    private func workspaceRow(ws: Workspace) -> some View {
         let slot = Color(hex: ws.color) ?? Catppuccin.overlay1
-        let textColor: Color = selected ? Catppuccin.base : Catppuccin.text
-        let glyphColor: Color = selected ? Catppuccin.base : slot
         return HStack(spacing: 10) {
-            // Pill identity zone: "<digit> <glyph>" — same single-string
-            // shape paint-all.sh writes to a real pill (`icon_text`).
             HStack(spacing: 6) {
-                Text(String(ws.index))
+                Text(digitLabel(ws.index))
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(glyphColor)
+                    .foregroundColor(slot)
                 if let icon = ws.icon, !icon.isEmpty {
                     Image(systemName: icon)
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(glyphColor)
+                        .foregroundColor(slot)
                 }
             }
             .frame(width: 56, alignment: .leading)
 
             Text(ws.name)
                 .font(.system(size: 12))
-                .foregroundColor(textColor)
+                .foregroundColor(Catppuccin.text)
             Spacer()
         }
         .padding(.horizontal, 10)
         .frame(height: PromptStyle.pillHeight + 6)
         .background(
             RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                .fill(selected ? slot : Color.clear)
+                .fill(Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                        .strokeBorder(slot.opacity(selected ? 1 : 0.55), lineWidth: 1.5)
+                        .strokeBorder(slot.opacity(0.55), lineWidth: 1.5)
                 )
         )
+    }
+
+    /// Slot 10 commits on `0`, so show `0` for index 10; everything else
+    /// shows its own number. Slots past 10 have no digit chord.
+    private func digitLabel(_ index: Int) -> String {
+        index == 10 ? "0" : String(index)
     }
 
     // MARK: - Hint
@@ -212,12 +167,8 @@ struct PromptView: View {
 
     private var hintText: String {
         switch controller.mode {
-        case .focus:
-            return "1–0 focuses · letters fuzzy-match · ↵ commits · tab cycles · esc cancels"
-        case .send:
-            return "1–0 sends + follows · letters fuzzy-match · ↵ commits · tab cycles · esc cancels"
-        case .edit:
-            return ""  // unreachable — EditView owns the edit rendering
+        case .focus:  return "1–0 focuses · esc cancels"
+        case .send:   return "1–0 sends + follows · esc cancels"
         }
     }
 }
