@@ -28,9 +28,6 @@ struct IconCodepointTests {
 
 @Suite("IconResolver — surface + override + fallback chain")
 struct IconResolverTests {
-    let fontsWithNerd: Set<String>    = ["JetBrainsMono Nerd Font"]
-    let fontsWithoutNerd: Set<String> = ["Helvetica"]
-
     func sfExists(_ name: String) -> Bool { name != "missing.symbol" }
 
     @Test func override_wins_when_kind_resolves_on_surface() {
@@ -42,7 +39,6 @@ struct IconResolverTests {
         )
         let r = IconResolver.resolve(
             spec: spec,
-            availableFonts: fontsWithoutNerd,
             targetSurface: .nativeAppKit,
             sfSymbolExists: sfExists(_:)
         )
@@ -58,7 +54,6 @@ struct IconResolverTests {
         )
         let r = IconResolver.resolve(
             spec: spec,
-            availableFonts: fontsWithNerd,
             targetSurface: .nativeAppKit,
             sfSymbolExists: sfExists(_:)
         )
@@ -76,7 +71,6 @@ struct IconResolverTests {
         )
         let r = IconResolver.resolve(
             spec: spec,
-            availableFonts: fontsWithNerd,
             targetSurface: .textBased,
             sfSymbolExists: sfExists(_:)
         )
@@ -94,7 +88,6 @@ struct IconResolverTests {
         )
         let r = IconResolver.resolve(
             spec: spec,
-            availableFonts: fontsWithoutNerd,
             targetSurface: .textBased,
             sfSymbolExists: { _ in false }
         )
@@ -113,7 +106,6 @@ struct IconResolverTests {
         )
         let r = IconResolver.resolve(
             spec: spec,
-            availableFonts: fontsWithNerd,
             targetSurface: .nativeAppKit,
             sfSymbolExists: sfExists(_:)
         )
@@ -125,7 +117,6 @@ struct IconResolverTests {
         let spec = IconSpec(kind: .none)
         let r = IconResolver.resolve(
             spec: spec,
-            availableFonts: fontsWithNerd,
             targetSurface: .nativeAppKit,
             sfSymbolExists: sfExists(_:)
         )

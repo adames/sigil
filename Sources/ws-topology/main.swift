@@ -230,10 +230,8 @@ func cmdResolveIcon(args: [String]) -> Int32 {
         return 1
     }
 
-    let availableFonts = AvailableFonts.current()
     let resolved = IconResolver.resolve(
         spec: slot.iconSpec,
-        availableFonts: availableFonts,
         targetSurface: surface,
         sfSymbolExists: SfSymbolAvailability.exists(_:)
     )
@@ -252,12 +250,6 @@ func cmdResolveIcon(args: [String]) -> Int32 {
 }
 
 // MARK: - Supporting helpers
-
-enum AvailableFonts {
-    static func current() -> Set<String> {
-        Set(NSFontManager.shared.availableFontFamilies)
-    }
-}
 
 enum SfSymbolAvailability {
     static func exists(_ name: String) -> Bool {

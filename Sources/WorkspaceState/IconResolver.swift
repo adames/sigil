@@ -32,7 +32,6 @@ public enum IconResolver {
     /// resolution — the stored `kind` already encodes the user's choice.
     public static func resolve(
         spec: IconSpec,
-        availableFonts: Set<String>,
         targetSurface: IconTargetSurface,
         sfSymbolExists: (String) -> Bool = { _ in true }
     ) -> ResolvedIcon {
