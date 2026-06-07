@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import SwiftUI
+import WsUI
 
 /// Top-level AppKit + key-dispatch shell for ws-prompt. Owns the
 /// borderless overlay window, the NSEvent monitor token, the SIGTERM
@@ -19,25 +20,26 @@ import SwiftUI
 final class WsPromptApp {
     private let mode: PromptMode
     private let service: WorkspaceService
-    private let window: PromptWindow
-    private let pidPath: URL
+    private let window: KeyableWindow
+    private let pidLock: PIDLock
 
     // Strong refs so the runtime keeps everything alive.
     private let promptController: PromptController
     private var eventMonitorToken: Any?
-    private var windowDelegate: WindowDelegate?
+    private var windowDelegate: BlurDismissDelegate?
     private var signalSource: DispatchSourceSignal?
 
     init(mode: PromptMode, service: WorkspaceService) {
         self.mode = mode
         self.service = service
-        self.pidPath = FileManager.default.homeDirectoryForCurrentUser
+        let pidPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".cache/workspace/ws-prompt.\(mode.rawValue).pid")
+        self.pidLock = PIDLock(path: pidPath)
 
         let workspaces = service.loadWorkspaces()
 
         let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
-        let win = PromptWindow(
+        let win = KeyableWindow(
             contentRect: screen.frame,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
@@ -62,16 +64,16 @@ final class WsPromptApp {
         // Single-instance toggle: a second invocation of the same chord
         // dismisses the open instance and exits. Per-mode PID files so a
         // stuck focus prompt doesn't block send.
-        if let existing = readExistingPID() {
+        if let existing = pidLock.runningPID() {
             kill(existing, SIGTERM)
             exit(0)
         }
-        writePID()
+        pidLock.acquire()
 
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
-        let delegate = WindowDelegate { [weak self] in self?.terminate() }
+        let delegate = BlurDismissDelegate { [weak self] in self?.terminate() }
         windowDelegate = delegate
         window.delegate = delegate
 
@@ -79,7 +81,7 @@ final class WsPromptApp {
         NSApp.activate(ignoringOtherApps: true)
 
         installKeyMonitor()
-        installSignalHandler()
+        signalSource = installSignalHandler(SIGTERM) { [weak self] in self?.terminate() }
 
         app.run()
     }
@@ -90,7 +92,7 @@ final class WsPromptApp {
             eventMonitorToken = nil
         }
         signalSource?.cancel()
-        try? FileManager.default.removeItem(at: pidPath)
+        pidLock.release()
         NSApp.terminate(nil)
         exit(0)
     }
@@ -131,49 +133,4 @@ final class WsPromptApp {
             terminate()
         }
     }
-
-    // MARK: - Signals + PID
-
-    private func installSignalHandler() {
-        // SIGTERM from a second `--toggle` invocation: close cleanly.
-        // libdispatch handles the signal; ignore the default action.
-        let source = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
-        source.setEventHandler { [weak self] in self?.terminate() }
-        source.resume()
-        signal(SIGTERM, SIG_IGN)
-        signalSource = source
-    }
-
-    private func readExistingPID() -> Int32? {
-        guard let data = try? Data(contentsOf: pidPath),
-              let str = String(data: data, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-              let pid = Int32(str), kill(pid, 0) == 0
-        else { return nil }
-        return pid
-    }
-
-    private func writePID() {
-        let dir = pidPath.deletingLastPathComponent()
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        try? "\(getpid())".write(to: pidPath, atomically: true, encoding: .utf8)
-    }
-}
-
-// MARK: - Helper types
-
-/// NSWindow subclass with `canBecomeKey = true` — required for a
-/// borderless window to receive keyDown events.
-final class PromptWindow: NSWindow {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
-/// Routes window-delegate events (specifically `windowDidResignKey` —
-/// blur cancels) back into the App via a closure. Decoupling lets the
-/// App own the cancel policy without making it an NSObject subclass.
-final class WindowDelegate: NSObject, NSWindowDelegate {
-    private let onBlur: () -> Void
-    init(onBlur: @escaping () -> Void) { self.onBlur = onBlur }
-    func windowDidResignKey(_ notification: Notification) { onBlur() }
 }
