@@ -126,9 +126,6 @@ final class WsPromptApp {
             return
         case .cancel:
             terminate()
-        case .commitFocus(let slot):
-            service.spawnFocus(slot: slot)
-            terminate()
         case .commitSend(let slot):
             service.spawnSend(slot: slot)
             terminate()

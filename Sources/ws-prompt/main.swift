@@ -1,29 +1,30 @@
 import Foundation
 
-// ws-prompt <focus|send> [--simulate-keys "<keys>"]
+// ws-prompt send [--simulate-keys "<keys>"]
 //
 // The runtime is split across:
 //
-//   PromptController  — focus/send state machine (pure-ish; ObservableObject)
+//   PromptController  — send (follow) state machine (pure-ish; ObservableObject)
 //   WorkspaceService  — single seam to aerospace / ws CLI / file system
 //   WsPromptApp       — AppKit window + key dispatch + lifecycle
 //   PromptView        — SwiftUI rendering bound to the controller
 //
 // This file just parses argv, picks production vs. simulate path, and
-// hands off.
+// hands off. `send` is the only mode — the old `focus`/"go" prompt was
+// removed (AeroSpace's Caps+1…0 covers workspace focus).
 
 let rawArgs = Array(CommandLine.arguments.dropFirst())
 
 func usage() -> Never {
     FileHandle.standardError.write(Data(
-        "usage: ws-prompt <focus|send> [--simulate-keys \"<keys>\"]\n".utf8))
+        "usage: ws-prompt <send> [--simulate-keys \"<keys>\"]\n".utf8))
     exit(2)
 }
 
 guard let modeArg = rawArgs.first, let mode = PromptMode(rawValue: modeArg) else { usage() }
 
 // Optional --simulate-keys "<keys>" → headless smoke harness for the
-// focus/send state machine.
+// send state machine.
 if let i = rawArgs.firstIndex(of: "--simulate-keys"), i + 1 < rawArgs.count {
     let keys = rawArgs[i + 1]
     let service = ProductionWorkspaceService()

@@ -47,11 +47,10 @@
   ],
   "sections": {
     "windows-focus": {
-      "title": "Windows · Focus / Move / Close",
+      "title": "Windows",
       "rows": [
         ["caps + h j k l", "focus neighbour  ←  ↓  ↑  →"],
         ["caps + y u i o", "swap window  ←  ↓  ↑  →  (move in tree)"],
-        ["caps + c",       "change application (fuzzy by app + title · tab cycles · ↵ jumps)"],
         ["caps + d",       "move window to next display (wraps)"],
         ["caps + v",       "toggle float ↔ tile"],
         ["caps + r",       "flatten + rotate workspace tree"],
@@ -60,7 +59,7 @@
       ],
       "family": "system",
       "sub":   "AeroSpace · Hyper (⌃⌥⌘⇧) held",
-      "idea":  "hjkl focuses, yuio swaps in the tree, d moves to the next display, c picks any app, x kills."
+      "idea":  "hjkl focuses, yuio swaps in the tree, d moves to the next display, x kills."
     },
     "submodes": {
       "title": "Service drawer",
@@ -76,17 +75,17 @@
       "idea":  "Rare ops live here. Resize stays in mode for repeat taps; everything else exits on commit."
     },
     "workspaces": {
-      "title": "Workspaces · Go / Follow",
+      "title": "Workspaces",
       "rows": [
         ["caps + n / p",  "prev / next workspace (wraps)"],
         ["caps + tab",    "last / recent workspace"],
         ["caps + 1 … 0",  "go to workspace 1..10"],
-        ["caps + g",      "go to workspace (digit picks slot)"],
-        ["caps + f",      "follow — send focused window to slot + travel with it"]
+        ["caps + f",      "follow — send focused window to slot + travel with it"],
+        ["caps + c",      "change application — search by app · tab cycles · ↵"]
       ],
       "family": "system",
-      "sub":   "AeroSpace · ws-focus · ws-prompt",
-      "idea":  "Digits or g jump; f sends the window and you go with it. Number-only — set names / icons with the ws CLI."
+      "sub":   "AeroSpace · ws-focus · ws-prompt · ws-picker",
+      "idea":  "Digits focus a workspace; f sends the window and you go with it; c jumps to any app's window."
     },
     "launchers": {
       "title": "Launchers",

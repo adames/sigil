@@ -41,9 +41,6 @@ enum SimulateReporter {
         case .idle:
             Swift.print("action=idle mode=\(mode.rawValue)")
             return 0
-        case .commitFocus(let slot):
-            Swift.print("action=commit mode=focus helper=ws-focus arg=\(slot)")
-            return 0
         case .commitSend(let slot):
             Swift.print("action=commit mode=send helper=ws-send-follow arg=\(slot)")
             return 0

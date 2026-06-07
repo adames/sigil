@@ -4,10 +4,10 @@ import WsUI
 // Visual vocabulary (palette, typography, pill geometry) lives in
 // WsUI/DesignSystem.swift — see `Catppuccin` and `PromptStyle`.
 
-/// Number-only workspace switcher. Lists the live workspaces so you can
-/// see which digit maps to which; a digit commits (see PromptController)
-/// and esc cancels. No query field, no selection — modeled on AeroSpace's
-/// numeric workspace switch.
+/// Number-only workspace switcher for the send (follow) prompt. Lists the
+/// live workspaces so you can see which digit maps to which; a digit
+/// commits (see PromptController) and esc cancels. No query field, no
+/// selection — modeled on AeroSpace's numeric workspace switch.
 struct PromptView: View {
     @ObservedObject var controller: PromptController
 
@@ -54,7 +54,7 @@ struct PromptView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Text(title)
+            Text("send window")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(Catppuccin.text)
             Spacer()
@@ -62,38 +62,18 @@ struct PromptView: View {
         }
     }
 
-    private var title: String {
-        switch controller.mode {
-        case .focus:  return "focus workspace"
-        case .send:   return "send window"
-        }
-    }
-
     /// Mode chip — fixed corner, 22pt tall, full-color fill, dark
-    /// catppuccin text.
+    /// catppuccin text. Green = move-and-follow.
     private var modeChip: some View {
-        Text(modeChipLabel)
+        Text("SEND")
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(Catppuccin.base)
             .padding(.horizontal, 10)
             .frame(height: PromptStyle.pillHeight)
             .background(
                 RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                    .fill(modeChipColor)
+                    .fill(Catppuccin.green)
             )
-    }
-
-    private var modeChipLabel: String {
-        switch controller.mode {
-        case .focus:  return "FOCUS"
-        case .send:   return "SEND"
-        }
-    }
-    private var modeChipColor: Color {
-        switch controller.mode {
-        case .focus:  return Catppuccin.blue   // navigate → blue (matches Hyper family)
-        case .send:   return Catppuccin.green  // move-and-follow → green
-        }
     }
 
     // MARK: - Workspace list
@@ -159,16 +139,9 @@ struct PromptView: View {
     // MARK: - Hint
 
     private var hint: some View {
-        Text(hintText)
+        Text("1–0 sends + follows · esc cancels")
             .font(.system(size: 10, weight: .medium))
             .foregroundColor(Catppuccin.overlay0)
             .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var hintText: String {
-        switch controller.mode {
-        case .focus:  return "1–0 focuses · esc cancels"
-        case .send:   return "1–0 sends + follows · esc cancels"
-        }
     }
 }

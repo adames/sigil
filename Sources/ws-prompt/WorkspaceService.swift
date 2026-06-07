@@ -11,7 +11,6 @@ protocol WorkspaceService {
     // MARK: Sync reads
     func loadWorkspaces() -> [Workspace]
 
-    // MARK: Fire-and-forget helpers (focus/send don't show a panel)
-    func spawnFocus(slot: Int)
+    // MARK: Fire-and-forget helper (no panel — spawns ws-send-follow)
     func spawnSend(slot: Int)
 }

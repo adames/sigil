@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import WsUI
 
-/// SwiftUI overlay for the **change workspace** prompt (binary: ws-picker).
+/// SwiftUI overlay for the **change application** prompt (binary: ws-picker).
 /// Lists every visible window across every space; selecting one focuses
 /// that window, which aerospace follows by jumping to its space. Visual
 /// contract matches ws-prompt's PromptView so the workspace-prompt suite
@@ -55,7 +55,7 @@ struct PickerView: View {
 
     private var header: some View {
         HStack(spacing: 10) {
-            Text("change workspace")
+            Text("change application")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(Catppuccin.text)
             Spacer()

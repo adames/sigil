@@ -50,10 +50,9 @@ final class ProductionWorkspaceService: WorkspaceService {
         }
     }
 
-    // MARK: - Fire-and-forget helpers
+    // MARK: - Fire-and-forget helper
 
-    func spawnFocus(slot: Int) { spawnHelper(name: "ws-focus", arg: String(slot)) }
-    func spawnSend(slot: Int)  { spawnHelper(name: "ws-send-follow", arg: String(slot)) }
+    func spawnSend(slot: Int) { spawnHelper(name: "ws-send-follow", arg: String(slot)) }
 
     // MARK: - Internals
 
