@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import SwiftUI
+import WsUI
 
 /// AppKit shell for ws-picker. Mirrors ws-prompt's WsPromptApp:
 ///   - Borderless modalPanel overlay that joins all spaces
@@ -14,24 +15,25 @@ import SwiftUI
 /// end-to-end via the bash harness.
 final class WsPickerApp {
     private let source: WindowSource
-    private let window: PickerWindow
+    private let window: KeyableWindow
     private let controller: PickerController
-    private let pidPath: URL
+    private let pidLock: PIDLock
 
     private var eventMonitorToken: Any?
-    private var windowDelegate: WindowDelegate?
+    private var windowDelegate: BlurDismissDelegate?
     private var signalSource: DispatchSourceSignal?
 
     init(source: WindowSource) {
         self.source = source
-        self.pidPath = FileManager.default.homeDirectoryForCurrentUser
+        let pidPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".cache/workspace/ws-picker.pid")
+        self.pidLock = PIDLock(path: pidPath)
 
         let items = source.loadWindows()
         self.controller = PickerController(items: items)
 
         let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
-        let win = PickerWindow(
+        let win = KeyableWindow(
             contentRect: screen.frame,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
@@ -54,16 +56,16 @@ final class WsPickerApp {
         // open closes it. Same pattern as ws-prompt — one PID file
         // distinct from any prompt PID file so the two overlays don't
         // collide.
-        if let existing = readExistingPID() {
+        if let existing = pidLock.runningPID() {
             kill(existing, SIGTERM)
             exit(0)
         }
-        writePID()
+        pidLock.acquire()
 
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
-        let delegate = WindowDelegate { [weak self] in self?.terminate() }
+        let delegate = BlurDismissDelegate { [weak self] in self?.terminate() }
         windowDelegate = delegate
         window.delegate = delegate
 
@@ -71,7 +73,7 @@ final class WsPickerApp {
         NSApp.activate(ignoringOtherApps: true)
 
         installKeyMonitor()
-        installSignalHandler()
+        signalSource = installSignalHandler(SIGTERM) { [weak self] in self?.terminate() }
 
         app.run()
     }
@@ -82,7 +84,7 @@ final class WsPickerApp {
             eventMonitorToken = nil
         }
         signalSource?.cancel()
-        try? FileManager.default.removeItem(at: pidPath)
+        pidLock.release()
         NSApp.terminate(nil)
         exit(0)
     }
@@ -120,42 +122,4 @@ final class WsPickerApp {
             terminate()
         }
     }
-
-    // MARK: - Signals + PID
-
-    private func installSignalHandler() {
-        let dispatch = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
-        dispatch.setEventHandler { [weak self] in self?.terminate() }
-        dispatch.resume()
-        signal(SIGTERM, SIG_IGN)
-        signalSource = dispatch
-    }
-
-    private func readExistingPID() -> Int32? {
-        guard let data = try? Data(contentsOf: pidPath),
-              let str = String(data: data, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines),
-              let pid = Int32(str), kill(pid, 0) == 0
-        else { return nil }
-        return pid
-    }
-
-    private func writePID() {
-        let dir = pidPath.deletingLastPathComponent()
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        try? "\(getpid())".write(to: pidPath, atomically: true, encoding: .utf8)
-    }
-}
-
-// MARK: - Helper types
-
-final class PickerWindow: NSWindow {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
-final class WindowDelegate: NSObject, NSWindowDelegate {
-    private let onBlur: () -> Void
-    init(onBlur: @escaping () -> Void) { self.onBlur = onBlur }
-    func windowDidResignKey(_ notification: Notification) { onBlur() }
 }
