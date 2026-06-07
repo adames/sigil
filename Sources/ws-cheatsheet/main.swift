@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import Foundation
 import SwiftUI
+import WsUI
 
 // MARK: - Single-instance toggle via PID file
 //
@@ -21,26 +22,9 @@ let pidPath = FileManager.default
 let args = Array(CommandLine.arguments.dropFirst())
 let isToggle = args.contains("--toggle")
 
-func readExistingPID() -> Int32? {
-    guard let data = try? Data(contentsOf: pidPath),
-          let str = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
-          let pid = Int32(str) else { return nil }
-    // kill(pid, 0) returns 0 if the process exists, -1 otherwise.
-    if kill(pid, 0) == 0 { return pid }
-    return nil
-}
+let pidLock = PIDLock(path: pidPath)
 
-func writePID() {
-    let dir = pidPath.deletingLastPathComponent()
-    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-    try? "\(getpid())".write(to: pidPath, atomically: true, encoding: .utf8)
-}
-
-func removePID() {
-    try? FileManager.default.removeItem(at: pidPath)
-}
-
-if let existing = readExistingPID() {
+if let existing = pidLock.runningPID() {
     if isToggle {
         // Tell the existing instance to close + clean up.
         kill(existing, SIGTERM)
@@ -53,7 +37,7 @@ if let existing = readExistingPID() {
     }
 }
 
-writePID()
+pidLock.acquire()
 
 // MARK: - App + window
 //
@@ -207,14 +191,6 @@ window.delegate = controller
 NSApp.delegate = controller
 
 // SIGTERM closes us cleanly (sent by toggle).
-func installSignalHandler(_ sig: Int32, action: @escaping () -> Void) -> DispatchSourceSignal {
-    let src = DispatchSource.makeSignalSource(signal: sig, queue: .main)
-    src.setEventHandler(handler: action)
-    src.resume()
-    signal(sig, SIG_IGN)
-    return src
-}
-
 let termSource = installSignalHandler(SIGTERM) {
     terminate()
 }
@@ -222,7 +198,7 @@ let termSource = installSignalHandler(SIGTERM) {
 _ = termSource
 
 func terminate() -> Never {
-    removePID()
+    pidLock.release()
     NSApp.terminate(nil)
     exit(0)
 }
@@ -238,12 +214,12 @@ atexit {
 
 app.run()
 
-// MARK: - NSWindow subclass that can become key (required for keyDown delivery
-// to a borderless window) and refuses external resize attempts.
-final class CheatsheetWindow: NSWindow {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-
+// MARK: - CheatsheetWindow
+//
+// KeyableWindow that also clamps every external setFrame back to the
+// screen rect — NSHostingView auto-sizing / AeroSpace / errant SwiftUI
+// passes can otherwise push the HUD off-screen (see lockedFrame).
+final class CheatsheetWindow: KeyableWindow {
     /// When non-nil, all `setFrame` calls are clamped to this rect. We arm
     /// it after the window is shown so the initial layout still works but
     /// later resize requests (from NSHostingView auto-sizing, AeroSpace,
