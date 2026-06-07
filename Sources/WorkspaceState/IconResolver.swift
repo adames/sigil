@@ -22,42 +22,35 @@ public struct ResolvedIcon: Equatable, Sendable {
 }
 
 public enum IconResolver {
-    /// Apply the documented fallback chain:
-    ///   1. userOverridden (if it resolves on this surface)
-    ///   2. SF Symbol on native surfaces (kind == .sfSymbol with valid name)
-    ///   3. fallbackSfSymbol on native surfaces
-    ///   4. fallbackText
-    ///   5. .empty
+    /// Apply the fallback chain, first match wins:
+    ///   1. the spec's own kind, if it resolves on this surface
+    ///      (sfSymbol by name on native; text)
+    ///   2. fallbackSfSymbol on native surfaces
+    ///   3. fallbackText
+    ///   4. .empty
+    /// `spec.userOverridden` is persisted with the spec but doesn't affect
+    /// resolution — the stored `kind` already encodes the user's choice.
     public static func resolve(
         spec: IconSpec,
         availableFonts: Set<String>,
         targetSurface: IconTargetSurface,
         sfSymbolExists: (String) -> Bool = { _ in true }
     ) -> ResolvedIcon {
-        // 1. User override has first dibs
-        if spec.userOverridden,
-           let r = directResolve(spec: spec,
+        // 1. The spec's own kind, if it resolves.
+        if let r = directResolve(spec: spec,
                                  targetSurface: targetSurface,
                                  sfSymbolExists: sfSymbolExists) {
             return r
         }
 
-        // 2: the spec's own kind, if it resolves.
-        if !spec.userOverridden,
-           let r = directResolve(spec: spec,
-                                 targetSurface: targetSurface,
-                                 sfSymbolExists: sfSymbolExists) {
-            return r
-        }
-
-        // 4. fallbackSfSymbol on native surfaces.
+        // 2. fallbackSfSymbol on native surfaces.
         if targetSurface == .nativeAppKit,
            let name = spec.fallbackSfSymbol,
            sfSymbolExists(name) {
             return ResolvedIcon(kind: .sfSymbol, value: name)
         }
 
-        // 5. fallbackText.
+        // 3. fallbackText.
         if let text = spec.fallbackText, !text.isEmpty {
             return ResolvedIcon(kind: .text, value: text)
         }
