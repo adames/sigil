@@ -39,16 +39,15 @@ step() { printf '\033[36m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m!!\033[0m %s\n' "$*" >&2; }
 err()  { printf '\033[31m✗\033[0m %s\n'   "$*" >&2; }
 
-# Detect a version-skewed Command Line Tools install...
+# Bail early if the Swift toolchain isn't ready yet (e.g. the Command Line
+# Tools installer hasn't finished) — otherwise the build fails with a
+# noisier, less actionable error.
 check_swift_pm_health() {
   command -v swift >/dev/null 2>&1 || return 0
-
-  local active iface_path iface_ver active_major iface_major dev_dir version_out
-  if ! version_out=$(swift --version 2>/dev/null); then
+  if ! swift --version >/dev/null 2>&1; then
     err "Swift toolchain not ready (Command Line Tools installer hasn't finished)."
     return 2
   fi
-  # ... rest of health check
   return 0
 }
 
