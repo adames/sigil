@@ -53,13 +53,6 @@ public struct Catppuccin {
 // MARK: - Shape + typography tokens
 
 public struct PromptStyle {
-    /// SF Symbols for all icons — native Apple icon system.
-    public static let iconFont: Font = .system(size: 16, weight: .medium)
-
-    public static func icon(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .medium)
-    }
-
     public static let pillCorner: CGFloat = 6
     public static let pillHeight: CGFloat = 22
     public static let cardCorner: CGFloat = 10
