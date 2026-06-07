@@ -6,7 +6,9 @@ import Foundation
 /// goes through this protocol — `Process()` invocations, reads of
 /// `~/.config/workspace/spaces.json`, invocations of helper scripts. The
 /// production implementation (`ProductionWorkspaceService`) does the real
-/// thing; tests inject a fake that records calls and returns canned data.
+/// thing; the boundary keeps WsPromptApp decoupled from that I/O (and
+/// substitutable in principle). The end-to-end path is covered by the
+/// bash harness (test-cascade.sh), not a Swift mock.
 protocol WorkspaceService {
     // MARK: Sync reads
     func loadWorkspaces() -> [Workspace]

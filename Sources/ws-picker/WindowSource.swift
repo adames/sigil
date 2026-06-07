@@ -3,8 +3,9 @@ import WorkspaceState
 
 /// Single seam between the picker and the window manager. Sync read at
 /// overlay open; async fire-and-forget focus on commit. Mirrors
-/// ws-prompt's `WorkspaceService` protocol — one boundary, one place
-/// to mock.
+/// ws-prompt's `WorkspaceService` — one boundary that keeps the picker
+/// decoupled from aerospace I/O. The live path is covered by the bash
+/// harness, not a Swift mock.
 protocol WindowSource {
     func loadWindows() -> [WindowItem]
     func focus(windowID: Int)
