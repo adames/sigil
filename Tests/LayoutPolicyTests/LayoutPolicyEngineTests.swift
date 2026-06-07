@@ -14,9 +14,11 @@ struct NotchedBuiltInTests {
         #expect(policy.shouldUseAuxiliaryTopAreas)
         #expect(policy.topOrnamentRegion == display.auxiliaryTopLeftArea)
         #expect(policy.barHeightPoints == 26)
-        // 720pt aux width / ~38pt pill = ~18 visible slots possible. Clamp ≥ 1.
-        #expect(policy.maxVisibleSlots >= 1)
-        #expect(policy.maxVisibleSlots <= 19)
+        // Pills fill BOTH aux regions, split around the notch (see the
+        // engine's notched branch): combined usable width = auxLeft +
+        // auxRight = 720 + 720 = 1440pt; at the ~38pt retina pill that is
+        // floor(1440 / 38) = 37 slots.
+        #expect(policy.maxVisibleSlots == 37)
     }
 }
 
