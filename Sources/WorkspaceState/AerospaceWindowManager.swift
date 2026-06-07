@@ -22,8 +22,6 @@ import CoreGraphics
 /// create/destroy isn't supported. ws-prompt surfaces an edit-then-
 /// reload help message for those flows.
 public final class AerospaceWindowManager: WindowManager {
-    public static let kind: WindowManagerKind = .aerospace
-
     public let binaryPath: String
 
     public init(binaryPath: String? = nil) {

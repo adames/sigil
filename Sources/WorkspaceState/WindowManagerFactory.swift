@@ -1,31 +1,23 @@
 import Foundation
 
 public enum WindowManagerFactory {
+    /// AeroSpace when its binary is installed, otherwise a no-op manager so
+    /// callers degrade gracefully on machines without it.
     public static func create() -> WindowManager {
-        switch configuredKind() {
-        case .aerospace:
-            return AerospaceWindowManager(binaryPath: WindowManagerConfig.binaryPath)
-        case .none:
-            return NoOpWindowManager()
-        }
-    }
-
-    public static func configuredKind() -> WindowManagerKind {
         let aerospacePaths = [
             "/opt/homebrew/bin/aerospace",
             "/usr/local/bin/aerospace",
         ]
-        for path in aerospacePaths where FileManager.default.fileExists(atPath: path) {
-            return .aerospace
+        let aerospaceInstalled = aerospacePaths.contains {
+            FileManager.default.fileExists(atPath: $0)
         }
-        return .none
+        return aerospaceInstalled
+            ? AerospaceWindowManager(binaryPath: WindowManagerConfig.binaryPath)
+            : NoOpWindowManager()
     }
 }
 
 public final class NoOpWindowManager: WindowManager {
-    public static let kind: WindowManagerKind = .none
-    public let binaryPath: String = ""
-
     public init() {}
 
     public func focusSpace(target: WorkspaceTarget) throws {

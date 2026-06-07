@@ -1,11 +1,8 @@
 import Foundation
 
-/// AeroSpace is the only real backend; `.none` covers tests and machines
+/// AeroSpace is the only real backend; `NoOpWindowManager` covers machines
 /// where aerospace isn't installed.
 public protocol WindowManager {
-    static var kind: WindowManagerKind { get }
-    var binaryPath: String { get }
-
     func focusSpace(target: WorkspaceTarget) throws
     func sendWindowToSpace(target: WorkspaceTarget, follow: Bool) throws
     func focusedSpace() throws -> WorkspaceTarget?
@@ -16,16 +13,9 @@ public protocol WindowManager {
     func querySpaces() throws -> [SpaceInfo]
 }
 
-public enum WindowManagerKind: String, Sendable {
-    case aerospace
-    case none
-}
-
 public enum WindowManagerError: Error {
-    case binaryNotFound(String)
     case commandFailed(String)
     case parseError(String)
-    case notImplemented(String)
     case unavailable
 }
 
