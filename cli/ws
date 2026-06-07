@@ -465,31 +465,31 @@ cmd_name() {
 # user-supplied. Use `ws theme NAME` to change the palette; per-slot
 # overrides are no longer part of the CLI surface.
 
-# Icon handling: SF Symbols are stored directly by name.
-# Nerd Font support is available for cross-platform use but SF Symbols
-# are the default on macOS for native AppKit/SwiftUI rendering.
-# Derive icon from a single argument. Sets:
-#   _ICON_SF_NAME   — SF Symbol name (e.g. "play.fill") or empty
+# Curated SF Symbols offered by the icon picker + `ws icon search`. SF
+# Symbols are stored by name and render natively in the AppKit/SwiftUI
+# overlays on macOS.
+readonly WS_ICON_SYMBOLS=(
+  "house.fill" "globe" "terminal.fill" "chevron.left.forwardslash.chevron.right"
+  "brain.head.profile" "cpu.fill" "arrow.triangle.branch" "envelope.fill"
+  "bubble.left.fill" "music.note" "play.rectangle.fill" "doc.text.fill"
+  "cloud.fill" "shippingbox.fill" "cylinder.split.1x2.fill" "lock.fill"
+  "gearshape.fill" "calendar" "cart.fill" "at" "gamecontroller.fill"
+  "photo.fill" "paintbrush.fill" "newspaper.fill" "heart.fill" "map.fill"
+  "chart.line.uptrend.xyaxis" "checkmark.seal.fill" "hammer.fill" "magnifyingglass"
+  "bell.fill" "bookmark.fill" "folder.fill" "tray.fill" "archivebox.fill"
+  "paperplane.fill" "link" "person.fill" "person.2.fill" "moon.fill" "sun.max.fill"
+  "star.fill" "flag.fill" "tag.fill" "bolt.fill" "flame.fill" "drop.fill"
+  "wifi" "battery.100" "display" "keyboard" "mouse" "printer.fill"
+)
+
 # Interactive fzf icon picker. Prints the selected SF Symbol name to
-# stdout. Returns non-zero (and prints nothing) if cancelled or fzf
-# isn't available. Reused by `ws icon <slot>` and `ws add`.
+# stdout; returns non-zero (printing nothing) if cancelled or fzf isn't
+# available. Used by `ws icon <slot>` when no glyph is passed.
 _pick_icon_fzf() {
   local prompt="${1:-icon> }"
   have fzf || return 1
   local picked
-  # Curated SF Symbols for common workspace types
-  picked=$(printf '%s\n' \
-    "house.fill" "globe" "terminal.fill" "chevron.left.forwardslash.chevron.right" \
-    "brain.head.profile" "cpu.fill" "arrow.triangle.branch" "envelope.fill" \
-    "bubble.left.fill" "music.note" "play.rectangle.fill" "doc.text.fill" \
-    "cloud.fill" "shippingbox.fill" "cylinder.split.1x2.fill" "lock.fill" \
-    "gearshape.fill" "calendar" "cart.fill" "at" "gamecontroller.fill" \
-    "photo.fill" "paintbrush.fill" "newspaper.fill" "heart.fill" "map.fill" \
-    "chart.line.uptrend.xyaxis" "checkmark.seal.fill" "hammer.fill" "magnifyingglass" \
-    "bell.fill" "bookmark.fill" "folder.fill" "tray.fill" "archivebox.fill" \
-    "paperplane.fill" "link" "person.fill" "person.2.fill" "moon.fill" "sun.max.fill" \
-    "star.fill" "flag.fill" "tag.fill" "bolt.fill" "flame.fill" "drop.fill" \
-    "wifi" "battery.100" "display" "keyboard" "mouse" "printer.fill" \
+  picked=$(printf '%s\n' "${WS_ICON_SYMBOLS[@]}" \
   | fzf --prompt="$prompt" \
         --header="ENTER: apply · ESC: cancel · Type to filter SF Symbols" \
         --reverse --height=40%)
@@ -497,6 +497,11 @@ _pick_icon_fzf() {
   printf '%s' "$picked"
 }
 
+# Resolve a single icon argument. An SF Symbol identifier is stored by
+# name; anything else is treated as a literal glyph and encoded as a
+# codepoint escape. Sets:
+#   _ICON_SF_NAME   — SF Symbol name, or empty
+#   _ICON_ESCAPED   — \uXXXX / \u{X..} escape for a literal glyph, or empty
 _resolve_icon_input() {
   local input="$1"
   _ICON_ESCAPED=""
@@ -536,19 +541,7 @@ cmd_icon() {
   if [[ "${1:-}" == "search" ]]; then
     shift
     local q="${1:-}"
-    # Curated SF Symbols for workspace icons
-    printf '%s\n' \
-      "house.fill" "globe" "terminal.fill" "chevron.left.forwardslash.chevron.right" \
-      "brain.head.profile" "cpu.fill" "arrow.triangle.branch" "envelope.fill" \
-      "bubble.left.fill" "music.note" "play.rectangle.fill" "doc.text.fill" \
-      "cloud.fill" "shippingbox.fill" "cylinder.split.1x2.fill" "lock.fill" \
-      "gearshape.fill" "calendar" "cart.fill" "at" "gamecontroller.fill" \
-      "photo.fill" "paintbrush.fill" "newspaper.fill" "heart.fill" "map.fill" \
-      "chart.line.uptrend.xyaxis" "checkmark.seal.fill" "hammer.fill" "magnifyingglass" \
-      "bell.fill" "bookmark.fill" "folder.fill" "tray.fill" "archivebox.fill" \
-      "paperplane.fill" "link" "person.fill" "person.2.fill" "moon.fill" "sun.max.fill" \
-      "star.fill" "flag.fill" "tag.fill" "bolt.fill" "flame.fill" "drop.fill" \
-      "wifi" "battery.100" "display" "keyboard" "mouse" "printer.fill" \
+    printf '%s\n' "${WS_ICON_SYMBOLS[@]}" \
     | { [[ -n "$q" ]] && grep -i "$q" || cat; } \
     | while read -r name; do
         printf '  %s\n' "$name"
