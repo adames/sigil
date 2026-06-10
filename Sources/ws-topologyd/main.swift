@@ -8,8 +8,10 @@ import OSLog
 import WorkspaceState
 
 // The daemon needs NSScreen access, which requires a WindowServer connection.
-// `LSUIElement=true` (set in the LaunchAgent plist) + `.accessory` activation
-// policy keeps the process out of the Dock and command-tab.
+// The `.accessory` activation policy keeps the process out of the Dock and
+// command-tab. (A bare launchd binary has no app bundle, so there is no
+// Info.plist for `LSUIElement` to live in; the activation policy alone does
+// the work.)
 let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 
@@ -20,10 +22,19 @@ app.run()
 
 final class TopologyDaemon: @unchecked Sendable {
     let cacheDir: URL
-    private lazy var coalescer: ReconfigCoalescer = ReconfigCoalescer { [weak self] in
+    // The coalescer invokes `onFire` on the queue it is given. It must be the
+    // main queue here: `publish()` uses `MainActor.assumeIsolated` (NSScreen is
+    // main-thread-only), which traps — SIGTRAP, masked by launchd's KeepAlive
+    // as a crash-loop — if the fire path runs anywhere else.
+    private lazy var coalescer: ReconfigCoalescer = ReconfigCoalescer(queue: .main) { [weak self] in
         self?.publish()
     }
-    private var lastTopologyJSON: String?
+    // Dedupe state for the published files. Snapshot/policies are stored with
+    // `capturedAt` normalized so the comparison tracks topology facts, not the
+    // wall clock (a raw JSON compare would differ on every capture).
+    private var lastSnapshot: TopologySnapshot?
+    private var lastPolicies: LayoutPolicySet?
+    private var lastAccessibility: AccessibilityState?
     private var lastLayoutEnv: String?
 
     init() {
@@ -80,23 +91,37 @@ final class TopologyDaemon: @unchecked Sendable {
             increaseContrast: access.increaseContrast
         )
 
-        do {
-            let json = try CacheEncoding.encode(EnrichedTopology(
-                topology: snapshot,
-                policies: policies,
-                accessibility: access
-            ))
-            if json != lastTopologyJSON {
+        var didRewriteFile = false
+
+        // Compare with capturedAt pinned to a sentinel; the written JSON keeps
+        // the real timestamps. nil last-values force the initial publish.
+        var comparableSnapshot = snapshot
+        comparableSnapshot.capturedAt = .distantPast
+        var comparablePolicies = policies
+        comparablePolicies.capturedAt = .distantPast
+
+        if comparableSnapshot != lastSnapshot
+            || comparablePolicies != lastPolicies
+            || access != lastAccessibility {
+            do {
+                let json = try CacheEncoding.encode(EnrichedTopology(
+                    topology: snapshot,
+                    policies: policies,
+                    accessibility: access
+                ))
                 try CacheEncoding.atomicWrite(
                     json,
                     to: cacheDir.appendingPathComponent("topology.json")
                 )
-                lastTopologyJSON = json
+                lastSnapshot = comparableSnapshot
+                lastPolicies = comparablePolicies
+                lastAccessibility = access
+                didRewriteFile = true
                 TopologyLog.topology.info("topology.json updated: \(snapshot.displays.count, privacy: .public) display(s)")
                 logDiff(snapshot: snapshot, policies: policies)
+            } catch {
+                TopologyLog.topology.error("topology.json encode failed: \(String(describing: error), privacy: .public)")
             }
-        } catch {
-            TopologyLog.topology.error("topology.json encode failed: \(String(describing: error), privacy: .public)")
         }
 
         let env = LayoutEnvRenderer.render(
@@ -111,12 +136,17 @@ final class TopologyDaemon: @unchecked Sendable {
                     to: cacheDir.appendingPathComponent("layout.env")
                 )
                 lastLayoutEnv = env
+                didRewriteFile = true
             } catch {
                 TopologyLog.topology.error("layout.env write failed: \(String(describing: error), privacy: .public)")
             }
         }
 
-        firePostMutateHook()
+        // Consumers re-read on the hook; firing without a rewrite would churn
+        // them for nothing.
+        if didRewriteFile {
+            firePostMutateHook()
+        }
     }
 
     private func logDiff(snapshot: TopologySnapshot, policies: LayoutPolicySet) {

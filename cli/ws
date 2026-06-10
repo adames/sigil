@@ -41,10 +41,15 @@ if [[ -r "$HOME/.config/workspace/lib/config.sh" ]]; then
   source "$HOME/.config/workspace/lib/config.sh"
 fi
 
-# Source window manager abstraction layer
+# Source window manager abstraction layer. Stubs (WM never available, no
+# workspaces) keep the CLI usable on machines without the runtime lib —
+# callers already fall back to spaces.json when the WM is unreachable.
 if [[ -r "$HOME/.config/workspace/lib/window-manager.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/window-manager.sh"
+else
+  _wm_available() { return 1; }
+  wm_query_spaces() { :; }
 fi
 
 # Resolve WS_CONFIG via the per-host overlay helper (falls back to the
@@ -108,13 +113,22 @@ _count() { jq '.spaces | length' "$WS_CONFIG"; }
 # Canonical jq sort-key for a composite spaces key — mirrors
 # Migration.spacesSortKey (Sources/WorkspaceState/Migration.swift): composite
 # keys `<displayUUID>:<workspaceName>` group by displayUUID, then by
-# workspaceName lexically (U+001F separator); non-composite keys (invalid
-# under v3) sort last. Shared by `_ws_names` and `WS_NORMALIZE_JQ` so the
-# on-disk order matches what the Swift renderer emits. `.` is the key string.
+# workspaceName (U+001F separator; all-digit names zero-pad to width 9 so
+# "10" sorts after "2", matching Swift's %09d); non-composite keys (invalid
+# under v3) sort last. Shared by `_ws_names`, `WS_NORMALIZE_JQ` and
+# `cmd_theme` so the on-disk order matches what the Swift renderer emits.
+# `.` is the key string.
 readonly WS_KEY_SORT_JQ='
   def _ws_sortkey:
     (index(":")) as $c
-    | if $c then [0, (.[:$c]) + "" + (.[$c+1:]), .]
+    | if $c then
+        (.[$c+1:]) as $n
+        | [0,
+           (.[:$c]) + "\u001f"
+             + (if ($n | test("^[0-9]+$")) and ($n | length) < 9
+                then "000000000"[0:9 - ($n | length)] + $n
+                else $n end),
+           .]
       else [1, ., .] end;
 '
 
@@ -139,8 +153,9 @@ _ws_names() {
 # .workspaceName matches (any displayUUID prefix), else the `_unassigned`
 # wildcard sentinel. The shell can't compute a CG display UUID
 # (CGDisplayCreateUUIDFromDisplayID is Swift-only), so new identity
-# overlays land under _unassigned; the Swift side rebinds the real UUID
-# when it resolves the workspace to a monitor.
+# overlays land under _unassigned; readers join by workspaceName when the
+# UUID doesn't match (see ws-prompt's identity index), so the sentinel
+# never needs rewriting.
 _key_for_ws() {
   local w="$1" existing
   existing=$(jq -r --arg w "$w" '
@@ -152,18 +167,22 @@ _key_for_ws() {
 
 # Full default v3 slot object for a workspaceName, emitted compact for
 # --argjson seeding on first write. Color is a neutral placeholder until
-# `ws theme` paints it (colors are theme-driven, never per-slot).
+# `ws theme` paints it (colors are theme-driven, never per-slot). The name
+# placeholder is `ws<NAME>` (same derivation as stableLogicalLabel), never
+# the bare workspaceName: aerospace names are numeric and identity names
+# must not start with a digit (_validate_name_format) — `ws name`
+# overwrites the placeholder, seed-via-`ws icon` keeps it.
 _seed_json() {
-  jq -cn --arg w "$1" '{
-    name: $w,
+  jq -cn --arg w "$1" '("ws" + $w) as $label | {
+    name: $label,
     color: "#cdd6f4",
     iconSpec: {
       kind: "none",
       fallbackSfSymbol: "stop.fill",
-      fallbackText: ($w[0:2] | ascii_upcase),
+      fallbackText: ($label[0:2] | ascii_upcase),
       userOverridden: false
     },
-    stableLogicalLabel: ("ws" + $w),
+    stableLogicalLabel: $label,
     displayUUID: "_unassigned",
     workspaceName: $w
   }'
@@ -208,11 +227,12 @@ _validate_color() {
   [[ "$1" =~ ^#[0-9a-fA-F]{6}$ ]] || { err "color must be #RRGGBB (got: $1)"; exit 2; }
 }
 
-# Reject a name that starts with a digit. The ws-prompt overlay uses
-# "first key is a digit → commit slot N" as its single-digit fast
-# path; an all-numeric query (reachable via backspace-erasure) is
-# resolved as a literal slot index. That contract only holds if names
-# can never begin with a digit, so we enforce it at write time.
+# Reject a name that starts with a digit. Two contracts depend on it:
+# _resolve_ws tries the input as an aerospace workspace name (numeric,
+# e.g. `2`) before identity-name lookup, and the ws-prompt overlay is
+# digit-only — a digit commits its slot immediately. Both stay
+# unambiguous only if identity names can never begin with a digit, so
+# we enforce it at write time.
 _validate_name_format() {
   local name="$1"
   [[ -n "$name" ]] || { err "name cannot be empty"; exit 2; }
@@ -264,11 +284,33 @@ readonly WS_NORMALIZE_JQ="$WS_KEY_SORT_JQ"'
   )
 '
 
+# _commit_staging <staging>  — install a validated staging file at
+# $WS_CONFIG. Two contracts an unadorned `mv -f` would break:
+#   • mktemp files are 0600, but spaces.json is read by every cascade
+#     consumer — loosen to 644 before the swap.
+#   • WS_CONFIG may be a symlink (the multi-machine sync setup described
+#     in lib/resolve-config.sh); mv would replace the link with a regular
+#     file, so resolve to the real path first (manual loop — macOS bash
+#     3.2 has no `readlink -f`; hop cap guards against link cycles).
+_commit_staging() {
+  local staging="$1" dest="$WS_CONFIG" hops=0 target
+  while [[ -L "$dest" && $hops -lt 8 ]]; do
+    target=$(readlink "$dest") || break
+    [[ "$target" == /* ]] || target="$(dirname "$dest")/$target"
+    dest="$target"
+    hops=$((hops + 1))
+  done
+  chmod 644 "$staging"
+  mv -f "$staging" "$dest"
+}
+
 # _write <jq-program> [jq-args...]  — atomic mktemp + jq + normalize + validate + mv.
 _write() {
   local prog="$1"; shift
   local config_staging; config_staging=$(mktemp) || { err "mktemp failed"; exit 1; }
-  if ! jq "$@" "$prog" "$WS_CONFIG" | jq "$WS_NORMALIZE_JQ" > "$config_staging" 2>/dev/null; then
+  # pipefail (subshell-scoped) so a first-stage jq failure isn't masked by
+  # the normalize stage exiting 0 on empty input.
+  if ! (set -o pipefail; jq "$@" "$prog" "$WS_CONFIG" | jq "$WS_NORMALIZE_JQ" > "$config_staging") 2>/dev/null; then
     rm -f "$config_staging"
     err "jq transformation failed"
     exit 1
@@ -278,14 +320,17 @@ _write() {
     err "produced invalid JSON (refusing to write)"
     exit 1
   fi
-  mv -f "$config_staging" "$WS_CONFIG"
+  _commit_staging "$config_staging"
 }
 
-# Truecolor swatch helper. Uses the shared ws_hex_to_rgb parser.
+# Truecolor swatch helper. Uses the shared ws_hex_to_rgb parser. Always
+# invoked inside $(…), where stdout is a pipe and `[[ -t 1 ]]` is false by
+# construction — so the tty/NO_COLOR decision lives in WS_TTY, computed by
+# the caller (cmd_status) against the real stdout before any substitution.
 _swatch() {
   local r g b
   read -r r g b < <(ws_hex_to_rgb "$1")
-  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  if (( ${WS_TTY:-0} )); then
     printf '\033[38;2;%d;%d;%dm▓▓▓\033[0m' "$r" "$g" "$b"
   else
     printf '   '
@@ -359,7 +404,9 @@ EXIT CODES
 
 Hotkey note: aerospace.toml binds Caps+1..0 to the first 10 workspaces
 (regenerated by `ws-topology emit-aerospace --write`). Workspaces beyond
-ten have no digit chord; reach them via `Caps+f` then type the name.
+ten have no digit chord — the Caps+f send prompt is digit-only too; reach
+them via the Caps+c window picker's fuzzy search, or `aerospace workspace
+NAME` from a shell.
 EOF_HELP
 }
 
@@ -371,6 +418,10 @@ cmd_status() {
     jq '.spaces' "$WS_CONFIG"
     return
   fi
+  # Color-ability for _swatch: decided here, against the real stdout,
+  # because _swatch itself only ever runs inside $(…) (see its comment).
+  WS_TTY=0
+  [[ -t 1 && -z "${NO_COLOR:-}" ]] && WS_TTY=1
   # Existence is WM-owned: enumerate aerospace's workspaces (falling back
   # to spaces.json workspaceNames when the WM is down) and overlay each
   # one's identity, keyed by workspaceName. Uncustomized workspaces render
@@ -440,10 +491,16 @@ cmd_themes() {
       names+=("$(basename "$f" .json)")
     done
   fi
+  # Branch on emptiness: `printf '%s\n' "${names[@]:-}"` degenerates to a
+  # single blank line, which --json would faithfully render as [""].
   if (( json )); then
-    printf '%s\n' "${names[@]:-}" | jq -R . | jq -s .
-  else
-    printf '%s\n' "${names[@]:-}"
+    if (( ${#names[@]} > 0 )); then
+      printf '%s\n' "${names[@]}" | jq -R . | jq -s .
+    else
+      printf '[]\n'
+    fi
+  elif (( ${#names[@]} > 0 )); then
+    printf '%s\n' "${names[@]}"
   fi
 }
 
@@ -550,10 +607,10 @@ cmd_icon() {
   fi
 
   if [[ $# -lt 1 || $# -gt 2 ]]; then
-    err "usage: ws icon <SLOT_OR_NAME> [SF_SYMBOL_NAME]"
+    err "usage: ws icon <SLOT_OR_NAME> [SF_SYMBOL_NAME_OR_GLYPH]"
     err "       ws icon search <term>"
-    err "   (omit SF_SYMBOL_NAME for an interactive fzf picker)"
-    err "   examples: ws icon 1 house.fill   ws icon web globe"
+    err "   (omit the icon argument for an interactive fzf picker)"
+    err "   examples: ws icon 1 house.fill   ws icon web globe   ws icon 2 ★"
     exit 2
   fi
   local w; w=$(_resolve_ws "$1") || exit $?
@@ -569,14 +626,23 @@ cmd_icon() {
 
   _resolve_icon_input "$arg"
 
-  # Decide kind: sfSymbol if we identified an SF name, else "none" (cleared).
+  # Decide kind: sfSymbol if we identified an SF name, nerdFont if the
+  # input encoded as a literal glyph. Neither → usage error; never write
+  # kind="none" here — that would silently destroy an existing icon.
   # userOverridden=true on explicit edit.
-  local kind="none"
+  local kind=""
   if [[ -n "$_ICON_SF_NAME" ]]; then
     kind="sfSymbol"
+  elif [[ -n "$_ICON_ESCAPED" ]]; then
+    kind="nerdFont"
+  else
+    err "could not resolve icon '$arg' (pass an SF Symbol name or a literal glyph)"
+    exit 2
   fi
   # Seed the slot if it has no identity overlay yet, then rebuild iconSpec
   # (preserving fallback fields; synthesizing them from name when absent).
+  # The nerdFont write mirrors cmd_theme's iconSpec shape (codepoint escape
+  # + Migration.defaultNerdFontFamily).
   local key; key=$(_key_for_ws "$w")
   local seed; seed=$(_seed_json "$w")
   _write '
@@ -590,9 +656,11 @@ cmd_icon() {
             userOverridden: true
           }
           + (if $sf != "" then {symbolName: $sf} else {} end)
+          + (if $esc != "" then {codepoint: $esc, fontFamily: "JetBrainsMono Nerd Font"} else {} end)
         )
     )
-  ' --arg k "$key" --arg kind "$kind" --arg sf "$_ICON_SF_NAME" --argjson seed "$seed"
+  ' --arg k "$key" --arg kind "$kind" --arg sf "$_ICON_SF_NAME" \
+    --arg esc "$_ICON_ESCAPED" --argjson seed "$seed"
   _fire_post icon "$w"
   _fire_cascade
 }
@@ -738,7 +806,13 @@ cmd_layout() {
       [[ "$1" =~ ^[A-Za-z0-9._-]+$ ]] || { err "layout name must be [A-Za-z0-9._-]+"; exit 2; }
       local dest="$layouts_dir/$1.json"
       local layout_staging; layout_staging=$(mktemp) || { err "mktemp failed"; exit 1; }
-      cp "$WS_CONFIG" "$layout_staging" && mv -f "$layout_staging" "$dest"
+      if ! cp "$WS_CONFIG" "$layout_staging" \
+         || ! chmod 644 "$layout_staging" \
+         || ! mv -f "$layout_staging" "$dest"; then
+        rm -f "$layout_staging"
+        err "failed to save layout: $dest"
+        exit 1
+      fi
       ok "saved layout ${dest/#$HOME/~}"
       ;;
     load)
@@ -764,7 +838,12 @@ cmd_layout() {
         || { warn "aborted"; exit 1; }
 
       local layout_staging; layout_staging=$(mktemp) || { err "mktemp failed"; exit 1; }
-      cp "$src" "$layout_staging" && mv -f "$layout_staging" "$WS_CONFIG"
+      if ! cp "$src" "$layout_staging"; then
+        rm -f "$layout_staging"
+        err "failed to stage layout: $src"
+        exit 1
+      fi
+      _commit_staging "$layout_staging"
       _fire_post layout "$name"
       _fire_cascade
       ;;
@@ -834,8 +913,10 @@ cmd_theme() {
   # to get the same `\uXXXX`/`\u{XXXXX}` form spaces.json uses.
   local theme_icons_json="[]"
   if (( with_icons )); then
-    local raw_icons=()
-    mapfile -t raw_icons < <(jq -r '.icons // [] | .[]' "$theme_file")
+    local raw_icons=() raw_line
+    while IFS= read -r raw_line; do
+      raw_icons+=("$raw_line")
+    done < <(jq -r '.icons // [] | .[]' "$theme_file")
     local escaped=()
     local raw
     for raw in "${raw_icons[@]}"; do
@@ -892,8 +973,12 @@ cmd_theme() {
 
 cmd_edit() {
   _require_config
-  local editor="${EDITOR:-vi}"
-  "$editor" "$WS_CONFIG"
+  # $EDITOR may carry flags ("code --wait"); split into words rather than
+  # invoking the whole string as one command name.
+  local editor_argv=()
+  read -ra editor_argv <<<"${EDITOR:-vi}"
+  (( ${#editor_argv[@]} > 0 )) || editor_argv=(vi)
+  "${editor_argv[@]}" "$WS_CONFIG"
   if ! jq -e . "$WS_CONFIG" >/dev/null 2>&1; then
     err "spaces.json is now malformed; refusing to fire cascade (fix the file or run 'ws reset')"
     exit 1
@@ -911,7 +996,7 @@ cmd_reset() {
   local defaults_staging; defaults_staging=$(mktemp) || { err "mktemp failed"; exit 1; }
   cp -f "$WS_DEFAULTS" "$defaults_staging"
   jq -e . "$defaults_staging" >/dev/null 2>&1 || { rm -f "$defaults_staging"; err "defaults file is malformed"; exit 1; }
-  mv -f "$defaults_staging" "$WS_CONFIG"
+  _commit_staging "$defaults_staging"
   _fire_post reset
   _fire_cascade
 }

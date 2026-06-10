@@ -28,6 +28,8 @@ struct AerospaceWindowManagerJSONTests {
     }
 
     @Test func list_workspaces_all() throws {
+        // monitor-name is present in aerospace's output but not decoded —
+        // nothing downstream consumes it.
         let json = #"""
         [
           {"workspace": "1", "monitor-id": 1, "monitor-name": "Built-in"},
@@ -97,6 +99,35 @@ struct AerospaceWindowManagerJSONTests {
                 [AerospaceMonitor].self, from: junk, label: "test"
             )
         }
+    }
+
+    /// The wire-type projection: workspace name and monitor carry
+    /// through; app falls back name → bundle-id → "Unknown".
+    @Test func window_projection_preserves_workspace_and_fallbacks() throws {
+        let json = #"""
+        [
+          {
+            "window-id": 12345,
+            "app-name": "Safari",
+            "window-title": "Sigil — GitHub",
+            "workspace": "code",
+            "monitor-id": 2
+          },
+          {"window-id": 1, "app-bundle-id": "com.example.tool"},
+          {"window-id": 2}
+        ]
+        """#
+        let infos = try AerospaceWindowManager.decodeOrThrow(
+            [AerospaceWindow].self, from: json, label: "test"
+        ).map(AerospaceWindowManager.windowInfo(from:))
+
+        #expect(infos[0].workspace == "code")
+        #expect(infos[0].display == 2)
+        #expect(infos[0].title == "Sigil — GitHub")
+        #expect(infos[1].app == "com.example.tool")
+        #expect(infos[2].app == "Unknown")
+        #expect(infos[2].workspace == "")
+        #expect(infos[2].display == 1, "missing monitor-id defaults to 1")
     }
 
     /// uuidForMonitor returns "" when the AeroSpace monitor-id isn't in

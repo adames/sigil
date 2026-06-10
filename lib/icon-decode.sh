@@ -21,6 +21,9 @@ ws_decode_icon() {
     printf "\\U${padded}"
   else
     local hex="${esc#\\u}"
+    # Gate before interpolating into the printf format — exactly four hex
+    # digits, same validated-input discipline as the \u{…} branch above.
+    [[ "$hex" =~ ^[0-9a-fA-F]{4}$ ]] || return 0
     printf "\\u${hex}"
   fi
 }

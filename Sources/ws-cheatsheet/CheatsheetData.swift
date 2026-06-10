@@ -56,14 +56,11 @@ struct CheatsheetDocument: Decodable {
     }
 
     /// One vertical column in a lens. References sections by id; the
-    /// renderer resolves them via `CheatsheetDocument.resolve(view:)`.
-    struct Column: Decodable, Identifiable {
+    /// renderer never iterates `Column` directly — it resolves through
+    /// `CheatsheetDocument.resolve(view:)` into `ResolvedColumn`, which
+    /// carries the `ForEach` identity.
+    struct Column: Decodable {
         let sections: [String]
-
-        /// Identity for `ForEach`. Stable per (lens, column-index) — the
-        /// first section id doubles as the column id. Empty columns get
-        /// a UUID so SwiftUI's diffing still works.
-        var id: String { sections.first ?? UUID().uuidString }
 
         init(sections: [String]) {
             self.sections = sections
@@ -88,9 +85,10 @@ struct CheatsheetDocument: Decodable {
         /// what the section is about before showing the keys.
         let idea: String?
 
-        /// Opt-in to a non-table body. Currently the only recognized
-        /// value is `"keyboard"`, routed through `SpatialKeyboardView`
-        /// (vim motion section).
+        /// Opt-in to a non-table body. The only recognized value is
+        /// `"keyboard"`, which routes the section through
+        /// `SpatialKeyboardView`. No shipped section sets it today —
+        /// the hook is available to any data that opts in.
         let customLayout: String?
 
         var id: String { title }

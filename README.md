@@ -15,6 +15,8 @@ Workspace management for macOS. SwiftUI overlays on top of AeroSpace.
 cd ~/.config/workspace && ./install.sh
 ```
 
+`install.sh` builds the Swift binaries and symlinks them — plus the `ws` shell CLI (`ws-focus`, `ws-send-follow` too) — into `~/.local/bin` (`$WORKSPACE_BIN_DIR`).
+
 ## Binaries
 
 | Binary | What it does | Trigger |
@@ -50,20 +52,21 @@ Visual styling is Catppuccin Mocha. Family colors: **system → blue**, **termin
 ```bash
 ws-topology dump          # Display info as JSON
 ws-topology layout        # Layout policy as JSON
-ws-topology emit-aerospace  # Regenerate aerospace.toml workspace block
+ws-topology emit-aerospace --write  # Regenerate aerospace.toml workspace block
+                                    # (dry-run to stdout without --write)
 
 ws host init              # Create per-host spaces overlay
 ws host reset             # Remove per-host overlay
 ws icon <name> "house"    # Set workspace icon
 ws name <name> "work"     # Rename workspace
-ws theme <name> <theme>   # Apply color theme
+ws theme <theme> [--with-icons]  # Apply palette across all workspaces
 ```
 
 ## Multi-machine
 
 `spaces.json` is the shared default; `spaces.<hostname>.json` takes precedence when present (`ws host init` to fork, `ws host reset` to remove). Display topology adapts automatically — `ws-topologyd` rewrites `layout.env` on plug/unplug/mirror/clamshell events.
 
-`aerospace.toml` is shared. The sigil-fenced block (`# >>> sigil generated >>>`) re-emits on `ws-topology emit-aerospace` from the current machine's spaces.json.
+`aerospace.toml` is shared. The sigil-fenced block (`# >>> sigil generated >>>`) re-emits on `ws-topology emit-aerospace --write` from the current machine's spaces.json (without `--write` the block prints to stdout, nothing is touched).
 
 ## License
 

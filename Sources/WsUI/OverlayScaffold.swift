@@ -1,4 +1,5 @@
 import AppKit
+import Darwin
 import Foundation
 
 // MARK: - Overlay app scaffolding
@@ -34,14 +35,42 @@ public struct PIDLock {
     public init(path: URL) { self.path = path }
 
     /// PID currently holding the lock, or nil if the file is absent or
-    /// points at a dead process (`kill(pid, 0)` probes liveness).
+    /// stale. Stale covers two cases: the process is gone (`kill(pid, 0)`
+    /// probes liveness), or — after a crash/reboot left the file behind —
+    /// the kernel recycled the PID for some unrelated process. The second
+    /// check matters because callers SIGTERM whatever we return; identity
+    /// is verified against the executable name before the PID is treated
+    /// as ours, and a stale file is removed on sight.
     public func runningPID() -> Int32? {
         guard let data = try? Data(contentsOf: path),
               let str = String(data: data, encoding: .utf8)?
                 .trimmingCharacters(in: .whitespacesAndNewlines),
-              let pid = Int32(str), kill(pid, 0) == 0
+              let pid = Int32(str)
         else { return nil }
+        guard kill(pid, 0) == 0, holdsExpectedExecutable(pid) else {
+            try? FileManager.default.removeItem(at: path)
+            return nil
+        }
         return pid
+    }
+
+    /// True when `pid`'s executable matches the overlay this lock guards.
+    /// The pidfile is named after its overlay ("ws-picker.pid",
+    /// "ws-prompt.main.pid", "cheatsheet.pid"), so the filename's first
+    /// dot-separated stem says which binary to expect. A suffix match —
+    /// not equality — covers "cheatsheet" naming the `ws-cheatsheet`
+    /// executable.
+    private func holdsExpectedExecutable(_ pid: Int32) -> Bool {
+        guard let stem = path.lastPathComponent.split(separator: ".").first
+        else { return false }
+        var buf = [CChar](repeating: 0, count: 4 * Int(MAXPATHLEN))
+        let len = proc_pidpath(pid, &buf, UInt32(buf.count))
+        guard len > 0 else { return false }
+        let exePath = String(
+            decoding: buf[..<Int(len)].map { UInt8(bitPattern: $0) },
+            as: UTF8.self
+        )
+        return URL(fileURLWithPath: exePath).lastPathComponent.hasSuffix(stem)
     }
 
     public func acquire() {

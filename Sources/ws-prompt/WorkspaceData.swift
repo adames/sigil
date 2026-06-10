@@ -8,11 +8,11 @@ import Foundation
 /// not here. This file is just the data shape.
 struct Workspace: Equatable {
     let index: Int          // 1-based ordinal within the workspace list
-    let display: Int        // aerospace monitor ordinal this workspace lives on
     let name: String        // user-given name or "ws<index>" fallback
     let color: String       // "#RRGGBB"
-    let icon: String?       // resolved glyph (Nerd Font codepoint or SF Symbol name)
+    let icon: String?       // resolved glyph (Nerd Font glyph or SF Symbol name)
     let iconKind: IconKind  // disambiguates how to render `icon`
+    let iconFontFamily: String?  // set for .nerdFont — the font that owns the glyph
 
     enum IconKind { case none, sfSymbol, nerdFont }
 }

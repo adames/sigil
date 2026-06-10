@@ -77,7 +77,10 @@ final class PromptController: ObservableObject {
         // stays visually contiguous (1…9, 0). Caller gated on isNumber, so
         // the Int() unwrap is total.
         let slot = (c == "0") ? 10 : Int(String(c))!
-        guard slot >= 1, slot <= max(workspaces.last?.index ?? 0, 10) else {
+        // Workspace indices are contiguous 1…count, so this rejects any
+        // digit with no listed workspace. ws-send-follow re-validates,
+        // but cancelling here skips spawning a helper that can only fail.
+        guard slot <= workspaces.count else {
             return .cancel
         }
         return .commitSend(slot: slot)

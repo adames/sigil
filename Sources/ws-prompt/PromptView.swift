@@ -105,11 +105,7 @@ struct PromptView: View {
                 Text(digitLabel(ws.index))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(slot)
-                if let icon = ws.icon, !icon.isEmpty {
-                    Image(systemName: icon)
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(slot)
-                }
+                iconView(ws: ws, tint: slot)
             }
             .frame(width: 56, alignment: .leading)
 
@@ -134,6 +130,28 @@ struct PromptView: View {
     /// shows its own number. Slots past 10 have no digit chord.
     private func digitLabel(_ index: Int) -> String {
         index == 10 ? "0" : String(index)
+    }
+
+    /// `icon` is either an SF Symbol name or a Nerd Font glyph —
+    /// `iconKind` says which. A Nerd Font glyph through
+    /// `Image(systemName:)` resolves to nothing, so it renders as text
+    /// in the font that owns the codepoint.
+    @ViewBuilder
+    private func iconView(ws: Workspace, tint: Color) -> some View {
+        if let icon = ws.icon, !icon.isEmpty {
+            switch ws.iconKind {
+            case .sfSymbol:
+                Image(systemName: icon)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(tint)
+            case .nerdFont:
+                Text(icon)
+                    .font(.custom(ws.iconFontFamily ?? "", size: 12))
+                    .foregroundColor(tint)
+            case .none:
+                EmptyView()
+            }
+        }
     }
 
     // MARK: - Hint

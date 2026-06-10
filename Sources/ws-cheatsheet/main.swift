@@ -48,23 +48,22 @@ pidLock.acquire()
 let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 
-// Load the document. If the file is missing or malformed, show a single
-// error card rather than crashing — the user can fix the JSON and reopen.
-let document: CheatsheetDocument
-do {
-    document = try CheatsheetLoader.load()
-} catch {
+// Load the document. If the file is missing, malformed, or has no views
+// (an empty `"views": []` decodes fine but leaves nothing to render —
+// CheatsheetState.currentLens would trap), show a single error card
+// rather than crashing — the user can fix the JSON and reopen.
+func errorDocument(reason: String) -> CheatsheetDocument {
     let errorSection = CheatsheetDocument.Section(
         title: "Error",
         rows: [
             ["path", CheatsheetLoader.defaultPath.path],
-            ["reason", "\(error)"],
+            ["reason", reason],
         ],
         color: "#ef4444",
         sub: "ws-cheatsheet — load failure"
     )
-    document = CheatsheetDocument(
-        banner: [.init(k: "ERR", v: "cheatsheet.json not loadable")],
+    return CheatsheetDocument(
+        banner: [.init(k: "ERR", v: "cheatsheet.json not usable")],
         views: [
             .init(
                 id: "error",
@@ -75,6 +74,16 @@ do {
         ],
         sections: ["error": errorSection]
     )
+}
+
+let document: CheatsheetDocument
+do {
+    let loaded = try CheatsheetLoader.load()
+    document = loaded.views.isEmpty
+        ? errorDocument(reason: "\"views\" is empty — the HUD needs at least one view")
+        : loaded
+} catch {
+    document = errorDocument(reason: "\(error)")
 }
 
 let state = CheatsheetState(document: document)
@@ -92,10 +101,12 @@ let view = CheatsheetView(state: state, timestamp: timestamp)
 let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
 let frame = screen.visibleFrame
 
-// Use .nonactivatingPanel to stay out of Dock but still become key
+// Borderless overlay. KeyableWindow forces key/main so keyDown reaches
+// the local monitor; staying out of the Dock / cmd-tab comes from the
+// `.accessory` activation policy above, not the style mask.
 let window = CheatsheetWindow(
     contentRect: frame,
-    styleMask: [.borderless, .nonactivatingPanel],
+    styleMask: [.borderless],
     backing: .buffered,
     defer: false
 )
@@ -203,13 +214,12 @@ func terminate() -> Never {
     exit(0)
 }
 
-// CleanUp guard: if the process gets killed via SIGINT etc, remove the
-// pidfile so the next invocation sees a clean state.
+// Cleanup guard: if the process dies via a path that skips `terminate()`
+// (SIGINT etc.), remove the pidfile so the next invocation sees a clean
+// state. `atexit` takes a C function pointer that can't capture context,
+// but `pidLock` is file-scope, so referencing it here is not a capture.
 atexit {
-    try? FileManager.default.removeItem(
-        at: FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".cache/workspace/cheatsheet.pid")
-    )
+    pidLock.release()
 }
 
 app.run()

@@ -18,13 +18,14 @@ import Foundation
 // Usage:
 //   ws-snap left | right | max | center
 //
-// Geometry fractions are identical to the previous Lua version so the
-// muscle memory carries over.
+// Geometry fractions apply to the screen's visible frame (menu bar and
+// Dock excluded), matching the previous Lua version's screen:frame() so
+// the muscle memory carries over.
 
 enum SnapRegion: String {
     case left, right, max, center
 
-    /// Fraction of the target screen frame: (x, y, w, h) in [0, 1].
+    /// Fraction of the target screen's visible frame: (x, y, w, h) in [0, 1].
     var fraction: (x: CGFloat, y: CGFloat, w: CGFloat, h: CGFloat) {
         switch self {
         case .left:   return (0,    0,    0.5, 1)
@@ -56,9 +57,9 @@ func snap(_ region: SnapRegion) -> Bool {
     }
 
     let f = region.fraction
-    let s = screen.frame
+    let s = screen.visibleFrame
 
-    // AppKit screen.frame is in AppKit coords (origin bottom-left of
+    // AppKit visibleFrame is in AppKit coords (origin bottom-left of
     // primary). AX expects CG coords (origin top-left of primary). We
     // convert once for the rect we're about to write.
     let target = NSRect(
@@ -120,6 +121,12 @@ func screenForWindow(_ window: AXUIElement) -> NSScreen? {
     // Use the window's current top-left to pick a screen — matches the
     // user's expectation that the snap stays on the display the window
     // is already on. Falls back to NSScreen.main on read failure.
+    //
+    // The hit test stays in CG coordinates against CGDisplayBounds: flipped
+    // to AppKit, a window flush with a screen's top edge lands exactly on
+    // frame.maxY, which NSRect.contains excludes — the lookup would fall
+    // through to the wrong screen. In CG coords that same point is the
+    // bounds' minY, which is included.
     var posRef: AnyObject?
     if AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &posRef) == .success,
        let raw = posRef {
@@ -127,13 +134,21 @@ func screenForWindow(_ window: AXUIElement) -> NSScreen? {
         let value = raw as! AXValue
         var point = CGPoint.zero
         if AXValueGetValue(value, .cgPoint, &point) {
-            let appKitPoint = cgPointToAppKit(point)
-            for s in NSScreen.screens where s.frame.contains(appKitPoint) {
-                return s
+            for s in NSScreen.screens {
+                guard let id = displayID(for: s) else { continue }
+                if CGDisplayBounds(id).contains(point) {
+                    return s
+                }
             }
         }
     }
     return NSScreen.main
+}
+
+func displayID(for screen: NSScreen) -> CGDirectDisplayID? {
+    let key = NSDeviceDescriptionKey("NSScreenNumber")
+    guard let raw = screen.deviceDescription[key] as? NSNumber else { return nil }
+    return CGDirectDisplayID(raw.uint32Value)
 }
 
 // MARK: - Coordinate conversion
@@ -146,9 +161,4 @@ func appKitRectToCG(_ rect: NSRect) -> CGRect {
     guard let primary = NSScreen.screens.first else { return rect }
     let flippedY = primary.frame.maxY - rect.origin.y - rect.size.height
     return CGRect(x: rect.origin.x, y: flippedY, width: rect.size.width, height: rect.size.height)
-}
-
-func cgPointToAppKit(_ point: CGPoint) -> CGPoint {
-    guard let primary = NSScreen.screens.first else { return point }
-    return CGPoint(x: point.x, y: primary.frame.maxY - point.y)
 }

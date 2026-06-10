@@ -4,7 +4,6 @@ public enum WorkspaceStateError: Error, CustomStringConvertible {
     case configNotFound(URL)
     case readFailed(URL, underlying: Error)
     case decodeFailed(URL, underlying: Error)
-    case writeFailed(URL, underlying: Error)
 
     public var description: String {
         switch self {
@@ -14,20 +13,17 @@ public enum WorkspaceStateError: Error, CustomStringConvertible {
             return "failed reading \(url.path): \(err)"
         case .decodeFailed(let url, let err):
             return "failed decoding \(url.path): \(err)"
-        case .writeFailed(let url, let err):
-            return "failed writing \(url.path): \(err)"
         }
     }
 }
 
-/// Reads and writes the user's `spaces.json`. v3-only (composite-key) since
-/// the AeroSpace migration shipped — v1/v2 inputs raise
-/// `MigrationError.unsupportedVersion(_)` via `Migration.migrate(jsonData:)`,
-/// which the caller is expected to surface as a doctor message.
+/// Reads the user's `spaces.json`. v3-only (composite-key) since the
+/// AeroSpace migration shipped — v1/v2 inputs raise
+/// `MigrationError.unsupportedVersion(_)`, which the caller is expected
+/// to surface as a doctor message.
 ///
-/// Atomic-mv contract matches `on-space-changed.sh`'s write idiom: write to
-/// a sibling temp file in the same directory, then `rename` over the target
-/// so readers never observe a half-written file.
+/// Read-only by design: all writes to spaces.json go through the `ws`
+/// CLI's atomic-mv idiom, never through Swift.
 public final class WorkspaceStateStore {
     public let configURL: URL
 
@@ -35,18 +31,16 @@ public final class WorkspaceStateStore {
         self.configURL = configURL
     }
 
-    public convenience init(homeRelativePath: String = ".config/workspace/spaces.json") {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        self.init(configURL: home.appendingPathComponent(homeRelativePath))
-    }
-
     public func load() throws -> WorkspaceConfig {
-        guard FileManager.default.fileExists(atPath: configURL.path) else {
-            throw WorkspaceStateError.configNotFound(configURL)
-        }
+        // Read first, classify after — an exists-check would race the
+        // CLI's atomic-rename writers.
         let data: Data
         do {
             data = try Data(contentsOf: configURL)
+        } catch let err as NSError
+            where err.domain == NSCocoaErrorDomain
+               && err.code == NSFileReadNoSuchFileError {
+            throw WorkspaceStateError.configNotFound(configURL)
         } catch {
             throw WorkspaceStateError.readFailed(configURL, underlying: error)
         }
@@ -71,7 +65,12 @@ public final class WorkspaceStateStore {
             )
         }
 
-        let version = (raw["version"] as? Int) ?? 1
+        guard let version = raw["version"] as? Int else {
+            throw WorkspaceStateError.decodeFailed(
+                configURL,
+                underlying: MigrationError.missingVersion
+            )
+        }
         guard version == Migration.currentVersion else {
             throw WorkspaceStateError.decodeFailed(
                 configURL,
@@ -101,6 +100,11 @@ public final class WorkspaceStateStore {
             let displayUUID = (dict["displayUUID"] as? String) ?? ""
             let workspaceName = (dict["workspaceName"] as? String) ?? ""
 
+            // Both identity fields are required under v3 (WorkspaceSlot's
+            // contract); a slot without them can't be matched by anything,
+            // so skip it rather than fabricate an empty identity.
+            guard !displayUUID.isEmpty, !workspaceName.isEmpty else { continue }
+
             slots.append(WorkspaceSlot(
                 name: name,
                 color: color,
@@ -128,47 +132,4 @@ public final class WorkspaceStateStore {
         )
     }
 
-    /// Atomic write: temp file in the same directory, then `rename`.
-    public func save(_ config: WorkspaceConfig) throws {
-        let payload = encodeJSON(config)
-        let dir = configURL.deletingLastPathComponent()
-        let tempURL = dir.appendingPathComponent(".spaces.json.\(UUID().uuidString)")
-
-        do {
-            try Data(payload.utf8).write(to: tempURL, options: .atomic)
-            _ = try FileManager.default.replaceItemAt(configURL, withItemAt: tempURL)
-        } catch {
-            try? FileManager.default.removeItem(at: tempURL)
-            throw WorkspaceStateError.writeFailed(configURL, underlying: error)
-        }
-    }
-
-    public func encodeJSON(_ config: WorkspaceConfig) -> String {
-        var root: [String: Any] = [
-            "version": Migration.currentVersion,
-        ]
-        if let palette = config.palette { root["palette"] = palette }
-        if let theme   = config.theme   { root["theme"]   = theme }
-
-        var spacesObj: [String: Any] = [:]
-        for slot in config.slots {
-            // v3 composite key from (displayUUID, workspaceName) — the
-            // WorkspaceTarget tuple. Both fields are required under v3;
-            // an empty value indicates a construction bug and surfaces
-            // as an invalid `:name` / `uuid:` key the renderer will
-            // faithfully output (and the loader will reject on read).
-            let key = "\(slot.displayUUID):\(slot.workspaceName)"
-            spacesObj[key] = [
-                "name":               slot.name,
-                "color":              slot.color,
-                "iconSpec":           Migration.encode(spec: slot.iconSpec),
-                "stableLogicalLabel": slot.stableLogicalLabel,
-                "displayUUID":        slot.displayUUID,
-                "workspaceName":      slot.workspaceName,
-            ] as [String: Any]
-        }
-        root["spaces"] = spacesObj
-
-        return Migration.render(root: root)
-    }
 }

@@ -40,8 +40,8 @@ enum PickerKeySequence {
     }
 }
 
-/// Stable, grep-friendly output for the simulate harness. Bash tests
-/// assert against these strings.
+/// Stable, grep-friendly output for the simulate harness. Nothing
+/// automated drives this yet — it's a manual smoke-testing hook.
 enum PickerSimReporter {
     static func print(action: PickerAction) -> Int32 {
         switch action {

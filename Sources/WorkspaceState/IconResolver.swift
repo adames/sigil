@@ -10,7 +10,6 @@ public enum IconTargetSurface: Sendable {
 public struct ResolvedIcon: Equatable, Sendable {
     public enum Kind: String, Sendable {
         case sfSymbol
-        case glyph
         case text
         case empty
     }

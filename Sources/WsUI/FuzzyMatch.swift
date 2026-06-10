@@ -1,8 +1,8 @@
 import Foundation
 
-/// Shared fuzzy / subsequence matcher used by every overlay binary in
-/// this package — ws-prompt's workspace pickers, ws-picker's window
-/// list, ws-cheatsheet's potential future search.
+/// Fuzzy / subsequence matcher for the overlay binaries. Today only
+/// ws-picker's window list consumes it; it lives in WsUI so any future
+/// overlay search shares the same ranking.
 ///
 /// `query` matches a candidate if its characters appear in order somewhere
 /// in the candidate string — not necessarily contiguously. So `hm` matches
@@ -11,19 +11,22 @@ import Foundation
 /// a few sparse keystrokes.
 public enum FuzzyMatch {
     /// Returns matched candidates sorted by tightness — earlier first match
-    /// + smaller span wins. Lowercase-insensitive. Empty query passes all
-    /// candidates through unchanged.
+    /// + smaller span wins; ties keep input order. Lowercase-insensitive.
+    /// Empty query passes all candidates through unchanged.
     public static func filter<T>(_ items: [T], query: String,
                                  keyPath: (T) -> String) -> [T] {
         guard !query.isEmpty else { return items }
         let q = query.lowercased()
-        var scored: [(T, Int)] = []
-        for item in items {
+        var scored: [(T, Int, Int)] = []
+        for (index, item) in items.enumerated() {
             if let score = subseqScore(query: q, name: keyPath(item).lowercased()) {
-                scored.append((item, score))
+                scored.append((item, score, index))
             }
         }
-        scored.sort { $0.1 < $1.1 }
+        // Tie-break on original index: `sort` makes no stability promise,
+        // and a tie order that shifts between keystrokes is visible churn
+        // in the picker list.
+        scored.sort { ($0.1, $0.2) < ($1.1, $1.2) }
         return scored.map(\.0)
     }
 

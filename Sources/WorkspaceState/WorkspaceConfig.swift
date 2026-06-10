@@ -19,32 +19,7 @@ public enum WorkspaceSystem {
         ProcessInfo.processInfo.environment["WORKSPACE_BUNDLE_PREFIX"]
             ?? "com.user.workspace"
     }()
-    public static let logSubsystem: String    = "\(bundlePrefix).topology"
-    public static let launchAgentPrefix: String = bundlePrefix
-
-    public static let homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
-
-    public static let configDirectory: URL = {
-        if let xdgConfig = ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"] {
-            return URL(fileURLWithPath: xdgConfig).appendingPathComponent("workspace")
-        }
-        return homeDirectory.appendingPathComponent(".config/workspace")
-    }()
-
-    public static let cacheDirectory: URL = {
-        if let xdgCache = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
-            return URL(fileURLWithPath: xdgCache).appendingPathComponent("workspace")
-        }
-        return homeDirectory.appendingPathComponent(".cache/workspace")
-    }()
-
-    public static let binDirectory: URL = homeDirectory.appendingPathComponent(".local/bin")
-    public static let launchAgentsDirectory: URL = homeDirectory.appendingPathComponent("Library/LaunchAgents")
-
-    public static let spacesFileName: String   = "spaces.json"
-    public static let topologyFileName: String = "topology.json"
-    public static let layoutEnvFileName: String = "layout.env"
-    public static let currentEnvFileName: String = "current.env"
+    public static let logSubsystem: String = "\(bundlePrefix).topology"
 }
 
 /// AeroSpace binary path. `AEROSPACE_BIN` env var overrides (test harnesses use this).

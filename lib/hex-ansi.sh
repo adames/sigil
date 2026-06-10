@@ -17,6 +17,9 @@
 
 ws_hex_to_rgb() {
   local hex="${1#\#}"
+  # The gate that makes the "silently emits 0 0 0" contract true — without
+  # it bad input aborts the caller's shell with an arithmetic error.
+  [[ "$hex" =~ ^[0-9a-fA-F]{6}$ ]] || { printf '0 0 0\n'; return 0; }
   local r=$(( 16#${hex:0:2} ))
   local g=$(( 16#${hex:2:2} ))
   local b=$(( 16#${hex:4:2} ))

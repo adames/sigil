@@ -30,6 +30,24 @@ struct IconCodepointTests {
 struct IconResolverTests {
     func sfExists(_ name: String) -> Bool { name != "missing.symbol" }
 
+    @Test func unavailable_sf_symbol_falls_back() {
+        // `sfExists` reports "missing.symbol" unavailable, so the spec's
+        // own kind fails direct resolution and the chain continues.
+        let spec = IconSpec(
+            kind: .sfSymbol,
+            symbolName: "missing.symbol",
+            fallbackSfSymbol: "play.fill",
+            fallbackText: "WK"
+        )
+        let r = IconResolver.resolve(
+            spec: spec,
+            targetSurface: .nativeAppKit,
+            sfSymbolExists: sfExists(_:)
+        )
+        #expect(r.kind  == .sfSymbol)
+        #expect(r.value == "play.fill")
+    }
+
     @Test func override_wins_when_kind_resolves_on_surface() {
         let spec = IconSpec(
             kind: .sfSymbol,
@@ -61,8 +79,9 @@ struct IconResolverTests {
         #expect(r.value == "play.fill")
     }
 
-    @Test func nerd_font_deprecated_returns_empty() {
-        // Nerd Font is deprecated - should return empty even on text surfaces
+    @Test func nerd_font_deprecated_falls_back_to_text() {
+        // The resolver never emits nerdFont directly (deprecated on these
+        // surfaces) — a nerdFont spec resolves through its fallbacks.
         let spec = IconSpec(
             kind: .nerdFont,
             codepoint: "\\uf0b1",
@@ -95,11 +114,12 @@ struct IconResolverTests {
         #expect(r.value == "ST")
     }
 
-    @Test func invalid_codepoint_falls_back_through_chain() {
-        // Native surface: invalid codepoint → fallback SF symbol resolves.
+    @Test func nerd_font_spec_falls_back_to_sf_symbol_on_native() {
+        // Native surface: every nerdFont spec skips direct resolution
+        // (codepoint validity is irrelevant) → fallback SF symbol wins.
         let spec = IconSpec(
             kind: .nerdFont,
-            codepoint: "\\unothex",  // malformed
+            codepoint: "\\unothex",
             fontFamily: "JetBrainsMono Nerd Font",
             fallbackSfSymbol: "play.fill",
             fallbackText: "ST"

@@ -15,8 +15,9 @@ import WsUI
 ///                            monitor, terminates NSApp
 ///
 /// External dependencies (aerospace, ws, file system) come in through
-/// `service` so the App class itself is testable in principle — though
-/// the live overlay path is exercised end-to-end via the bash harness.
+/// `service` so the App class itself is testable in principle; nothing
+/// automated drives the live overlay path today — `--simulate-keys`
+/// exists for manual smoke-testing.
 final class WsPromptApp {
     private let mode: PromptMode
     private let service: WorkspaceService

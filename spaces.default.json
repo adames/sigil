@@ -1,5 +1,6 @@
 {
-  "_doc_icon": "Optional per-slot identity overlay (name / icon). aerospace.toml owns workspace EXISTENCE — this file just adds optional metadata on top. Empty by default: bar renders bare pills for whatever aerospace declares, named ws1, ws2, … in INACTIVE_LABEL gray. Customize a slot with `ws name N <name>` or `ws icon N <glyph>`. Color is theme-driven — use `ws theme NAME` to switch the palette. Icons use Nerd Font private-use codepoints; install via: brew install --cask font-jetbrains-mono-nerd-font",
+  "_doc_icon": "Optional per-workspace identity overlay (name / icon). aerospace.toml owns workspace EXISTENCE — this file just adds optional metadata on top. Empty by default: bar renders bare pills for whatever aerospace declares, named ws1, ws2, … in INACTIVE_LABEL gray. Customize with `ws name <WS> <name>` or `ws icon <WS> <icon>` — an SF Symbol name stores kind=sfSymbol; a literal glyph stores a kind=nerdFont codepoint (as does `ws theme NAME --with-icons`). Color is theme-driven — `ws theme NAME` repaints the palette. Nerd Font glyphs render via: brew install --cask font-jetbrains-mono-nerd-font",
   "palette": "catppuccin-mocha",
-  "spaces": {}
+  "spaces": {},
+  "version": 3
 }

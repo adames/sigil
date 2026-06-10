@@ -60,8 +60,8 @@ final class PickerController: ObservableObject {
         }
     }
 
-    /// Pure helper for tests — fold a list of keys through `handle`
-    /// and return the final non-idle action.
+    /// Fold a list of keys through `handle` and return the final
+    /// non-idle action. Backs the `--simulate-keys` smoke hook.
     func simulate(_ keys: [PickerKey]) -> PickerAction {
         var last: PickerAction = .idle
         for key in keys {

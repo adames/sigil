@@ -64,7 +64,6 @@ public enum DisplayTopologyService {
 
         let density = DensityClass.classify(
             backingScaleFactor: backing,
-            framePoints: screen.frame,
             pixelSize: pixelSize,
             isBuiltIn: isBuiltIn
         )
@@ -100,17 +99,22 @@ public enum DisplayTopologyService {
     }
 }
 
-// MARK: - Density classification (re-exported here so call sites don't import LayoutPolicy)
+// MARK: - Density classification
 
 extension DensityClass {
-    /// Re-implements the same logic as `LayoutPolicy.DensityClassifier` so that
-    /// the topology service can self-classify without depending on the LayoutPolicy
-    /// module. Keep these two in sync — the test suite exercises both paths.
+    /// Native pixel width at or above which an external display counts as
+    /// retina-class (5K 27" panels are 5120x2880). 4K panels (3840 wide)
+    /// deliberately fall below into `.midExternal`.
+    static let retinaPixelWidthThreshold: CGFloat = 5120
+
+    /// Buckets by native pixel width, not a physical-PPI proxy:
+    /// `CGDisplayScreenSize` is documented as potentially estimated, so we
+    /// never reason in inches. Sub-2x backing is `.coarseExternal`; built-in
+    /// 2x panels are all retina-class; externals split at 5K.
     static func classify(
         backingScaleFactor: CGFloat,
-        framePoints: CGRect,
         pixelSize: CGSize,
-        isBuiltIn: Bool = false
+        isBuiltIn: Bool
     ) -> DensityClass {
         if backingScaleFactor < 2.0 {
             return .coarseExternal
@@ -118,11 +122,6 @@ extension DensityClass {
         if isBuiltIn {
             return .retinaLike
         }
-        guard framePoints.width > 0, pixelSize.width > 0 else {
-            return .midExternal
-        }
-        let pixelsPerPoint = pixelSize.width / framePoints.width
-        let proxy = pixelsPerPoint * 100.0 * backingScaleFactor
-        return proxy >= 200.0 ? .retinaLike : .midExternal
+        return pixelSize.width >= retinaPixelWidthThreshold ? .retinaLike : .midExternal
     }
 }

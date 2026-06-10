@@ -27,7 +27,11 @@ final class ProductionWorkspaceService: WorkspaceService {
     func loadWorkspaces() -> [Workspace] {
         // querySpaces() is the source of truth for which workspaces
         // currently exist. Identity (name / color / icon) joins from
-        // spaces.json by WorkspaceTarget (displayUUID, workspaceName).
+        // spaces.json — exact (displayUUID, workspaceName) first, then by
+        // workspaceName alone. The name fallback is load-bearing: the
+        // `ws` CLI can't compute CG display UUIDs from bash, so it keys
+        // new overlays under the `_unassigned` sentinel UUID, and an
+        // exact-only join would never see them.
         // Empty list when aerospace is unreachable — the caller treats
         // that as "no workspaces" and renders an empty pill strip.
         let liveSpaces = (try? windowManager.querySpaces()) ?? []
@@ -37,15 +41,16 @@ final class ProductionWorkspaceService: WorkspaceService {
                 displayUUID: space.displayUUID,
                 workspaceName: space.workspaceName
             )
-            let id = identities[target]
+            let id = identities.byTarget[target]
+                ?? identities.byName[space.workspaceName]
             let ordinal = position + 1
             return Workspace(
                 index: ordinal,
-                display: space.display,
                 name: id?.name ?? "ws\(ordinal)",
                 color: id?.color ?? "#7f8c8d",
                 icon: id?.icon,
-                iconKind: id?.iconKind ?? .none
+                iconKind: id?.iconKind ?? .none,
+                iconFontFamily: id?.iconFontFamily
             )
         }
     }
@@ -56,10 +61,11 @@ final class ProductionWorkspaceService: WorkspaceService {
 
     // MARK: - Internals
 
-    private struct IconSpec: Decodable {
+    private struct IconSpecRaw: Decodable {
         let kind: String?
         let codepoint: String?
         let symbolName: String?
+        let fontFamily: String?
         let fallbackSfSymbol: String?
     }
     private struct ResolvedIdentity {
@@ -67,28 +73,40 @@ final class ProductionWorkspaceService: WorkspaceService {
         let color: String?
         let icon: String?
         let iconKind: Workspace.IconKind
+        let iconFontFamily: String?
+    }
+    private struct IdentityIndex {
+        let byTarget: [WorkspaceTarget: ResolvedIdentity]
+        /// workspaceName → identity, for slots whose displayUUID doesn't
+        /// match the live one (notably the CLI's `_unassigned` sentinel).
+        /// First match in sorted-key order wins, mirroring the CLI's
+        /// any-UUID lookup in `_key_for_ws`.
+        let byName: [String: ResolvedIdentity]
     }
 
-    /// Build a `[WorkspaceTarget → ResolvedIdentity]` map from spaces.json.
-    /// Joined against `querySpaces()` in `loadWorkspaces()` so live
-    /// workspaces inherit their name / color / icon from the JSON
-    /// identity layer. Empty when the file is missing / unreadable —
-    /// callers fall back to per-position defaults.
-    private func readIdentities() -> [WorkspaceTarget: ResolvedIdentity] {
-        guard let data = try? Data(contentsOf: paths.wsConfig) else { return [:] }
+    /// Build the identity index from spaces.json. Joined against
+    /// `querySpaces()` in `loadWorkspaces()` so live workspaces inherit
+    /// their name / color / icon from the JSON identity layer. Empty when
+    /// the file is missing / unreadable — callers fall back to
+    /// per-position defaults.
+    private func readIdentities() -> IdentityIndex {
+        let empty = IdentityIndex(byTarget: [:], byName: [:])
+        guard let data = try? Data(contentsOf: paths.wsConfig) else { return empty }
         struct SlotRaw: Decodable {
             let name: String?
             let color: String?
-            let iconSpec: IconSpec?
+            let iconSpec: IconSpecRaw?
             let displayUUID: String?
             let workspaceName: String?
         }
         struct Root: Decodable { let spaces: [String: SlotRaw]? }
         guard let root = try? JSONDecoder().decode(Root.self, from: data),
-              let raw = root.spaces else { return [:] }
+              let raw = root.spaces else { return empty }
 
-        var out: [WorkspaceTarget: ResolvedIdentity] = [:]
-        for (key, value) in raw {
+        var byTarget: [WorkspaceTarget: ResolvedIdentity] = [:]
+        var byName: [String: ResolvedIdentity] = [:]
+        for key in raw.keys.sorted() {
+            let value = raw[key]!
             // v3 composite-key shape: "<uuid>:<workspaceName>". Prefer
             // explicit fields on the slot; fall back to splitting the
             // key if either is missing (defensive).
@@ -99,28 +117,43 @@ final class ProductionWorkspaceService: WorkspaceService {
 
             let kind: Workspace.IconKind
             let glyph: String?
+            let fontFamily: String?
             switch value.iconSpec?.kind {
             case "nerdFont":
-                kind = .nerdFont
-                glyph = Self.decodeCodepoint(value.iconSpec?.codepoint)
-                    ?? value.iconSpec?.fallbackSfSymbol
+                if let decoded = Self.decodeCodepoint(value.iconSpec?.codepoint) {
+                    kind = .nerdFont
+                    glyph = decoded
+                    fontFamily = value.iconSpec?.fontFamily
+                        ?? IconSpec.defaultNerdFontFamily
+                } else {
+                    // No usable codepoint — the fallback is an SF Symbol
+                    // name, so label it as one or the view would try to
+                    // render a symbol name as a Nerd Font glyph.
+                    kind = value.iconSpec?.fallbackSfSymbol == nil ? .none : .sfSymbol
+                    glyph = value.iconSpec?.fallbackSfSymbol
+                    fontFamily = nil
+                }
             case "sfSymbol":
                 kind = .sfSymbol
                 glyph = value.iconSpec?.symbolName
                     ?? value.iconSpec?.fallbackSfSymbol
+                fontFamily = nil
             default:
                 kind = .none
                 glyph = nil
+                fontFamily = nil
             }
-            let target = WorkspaceTarget(displayUUID: uuid, workspaceName: name)
-            out[target] = ResolvedIdentity(
+            let identity = ResolvedIdentity(
                 name: value.name,
                 color: value.color,
                 icon: glyph,
-                iconKind: glyph == nil ? .none : kind
+                iconKind: glyph == nil ? .none : kind,
+                iconFontFamily: fontFamily
             )
+            byTarget[WorkspaceTarget(displayUUID: uuid, workspaceName: name)] = identity
+            if byName[name] == nil { byName[name] = identity }
         }
-        return out
+        return IdentityIndex(byTarget: byTarget, byName: byName)
     }
 
     private static func splitCompositeKey(_ key: String) -> (uuid: String, name: String) {
@@ -130,22 +163,14 @@ final class ProductionWorkspaceService: WorkspaceService {
         return (uuid, name)
     }
 
+    /// Persisted codepoints are escape sequences (`\uXXXX` / `\u{…}`);
+    /// a hand-edited file may hold the literal glyph instead. Anything
+    /// else (multi-scalar strings, malformed escapes) is rejected so the
+    /// caller falls back to the SF Symbol.
     private static func decodeCodepoint(_ raw: String?) -> String? {
         guard let raw, !raw.isEmpty else { return nil }
         if raw.unicodeScalars.count == 1 { return raw }
-        if raw.hasPrefix("\\u{"), raw.hasSuffix("}") {
-            let hex = String(raw.dropFirst(3).dropLast())
-            if let v = UInt32(hex, radix: 16), let scalar = Unicode.Scalar(v) {
-                return String(scalar)
-            }
-        }
-        if raw.hasPrefix("\\u"), raw.count >= 6 {
-            let hex = String(raw.dropFirst(2).prefix(4))
-            if let v = UInt32(hex, radix: 16), let scalar = Unicode.Scalar(v) {
-                return String(scalar)
-            }
-        }
-        return raw
+        return IconCodepoint.decode(raw).map(String.init)
     }
 
     private func spawnHelper(name: String, arg: String) {

@@ -1,51 +1,34 @@
 {
-  "_doc_icon": "Optional per-slot identity overlay (name / icon). aerospace.toml owns workspace EXISTENCE — this file just adds optional metadata on top. Empty by default: bar renders bare pills for whatever aerospace declares, named ws1, ws2, … in INACTIVE_LABEL gray. Customize a slot with `ws name N <name>` or `ws icon N <glyph>`. Color is theme-driven — use `ws theme NAME` to switch the palette. Icons use Nerd Font private-use codepoints; install via: brew install --cask font-jetbrains-mono-nerd-font",
+  "_doc_icon": "Optional per-workspace identity overlay (name / icon). aerospace.toml owns workspace EXISTENCE — this file just adds optional metadata on top. Slots are keyed `<displayUUID>:<workspaceName>`; the shell writes under the `_unassigned` wildcard UUID and the Swift side rebinds the real display UUID when it resolves the workspace to a monitor. Customize with `ws name <WS> <name>` or `ws icon <WS> <icon>` — an SF Symbol name stores kind=sfSymbol; a literal glyph stores a kind=nerdFont codepoint (as does `ws theme NAME --with-icons`). Color is theme-driven — `ws theme NAME` repaints the palette. Nerd Font glyphs render via: brew install --cask font-jetbrains-mono-nerd-font",
   "palette": "catppuccin-mocha",
   "spaces": {
-    "1": {
+    "_unassigned:1": {
+      "color": "#cdd6f4",
+      "displayUUID": "_unassigned",
+      "iconSpec": {
+        "fallbackSfSymbol": "stop.fill",
+        "fallbackText": "WS",
+        "kind": "none",
+        "userOverridden": false
+      },
       "name": "main",
-      "color": "#cdd6f4",
       "stableLogicalLabel": "ws1",
+      "workspaceName": "1"
+    },
+    "_unassigned:2": {
+      "color": "#cdd6f4",
+      "displayUUID": "_unassigned",
       "iconSpec": {
-        "kind": "none",
         "fallbackSfSymbol": "stop.fill",
         "fallbackText": "WS",
-        "userOverridden": false
-      }
-    },
-    "2": {
-      "name": "dev",
-      "color": "#cdd6f4",
-      "stableLogicalLabel": "ws2",
-      "iconSpec": {
         "kind": "sfSymbol",
-        "fallbackSfSymbol": "stop.fill",
-        "fallbackText": "WS",
-        "userOverridden": true,
-        "symbolName": "terminal"
-      }
-    },
-    "3": {
-      "name": "ai",
-      "color": "#cdd6f4",
-      "stableLogicalLabel": "ws3",
-      "iconSpec": {
-        "kind": "none",
-        "fallbackSfSymbol": "stop.fill",
-        "fallbackText": "WS",
-        "userOverridden": false
-      }
-    },
-    "4": {
-      "name": "misc",
-      "color": "#cdd6f4",
-      "stableLogicalLabel": "ws4",
-      "iconSpec": {
-        "kind": "none",
-        "fallbackSfSymbol": "stop.fill",
-        "fallbackText": "WS",
-        "userOverridden": false
-      }
+        "symbolName": "terminal",
+        "userOverridden": true
+      },
+      "name": "dev",
+      "stableLogicalLabel": "ws2",
+      "workspaceName": "2"
     }
-  }
+  },
+  "version": 3
 }

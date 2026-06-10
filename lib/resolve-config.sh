@@ -15,8 +15,9 @@
 # (via `workspace host init`). All cascade consumers — the workspace
 # CLI, on-space-changed.sh, paint-all.sh — pick up the override
 # automatically because they all source this file.
-
-set -u
+#
+# No `set` options here: this file is sourced, so flipping shell options
+# would leak into every consumer. All expansions below are guarded.
 
 if [[ -z "${WS_CONFIG:-}" ]]; then
   _ws_host=$(hostname -s 2>/dev/null || echo unknown)

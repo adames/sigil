@@ -1,6 +1,6 @@
 import Foundation
 
-public enum IconKind: String, Codable, Sendable, CaseIterable {
+public enum IconKind: String, Codable, Sendable {
     case sfSymbol
     case nerdFont
     case text
@@ -34,7 +34,10 @@ public struct IconSpec: Codable, Equatable, Sendable {
         self.userOverridden = userOverridden
     }
 
-    public static let none = IconSpec(kind: .none)
+    /// The Nerd Font the system pins when a spec carries a codepoint but
+    /// no explicit `fontFamily` — matches what `ws theme --with-icons`
+    /// writes into spaces.json.
+    public static let defaultNerdFontFamily = "JetBrainsMono Nerd Font"
 }
 
 public enum IconCodepoint {

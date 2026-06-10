@@ -10,9 +10,9 @@ import WsUI
 ///   - PID-file single-instance lock under ~/.cache/workspace/
 ///   - windowDidResignKey blur dismissal
 ///
-/// External dependencies (aerospace) come in via WindowSource so the App is
-/// in principle testable, though the live overlay path is exercised
-/// end-to-end via the bash harness.
+/// External dependencies (aerospace) come in via WindowSource so the App
+/// is in principle testable; nothing automated drives the live overlay
+/// path today — `--simulate-keys` exists for manual smoke-testing.
 final class WsPickerApp {
     private let source: WindowSource
     private let window: KeyableWindow
@@ -109,6 +109,11 @@ final class WsPickerApp {
         case 51:  return .backspace
         default:
             guard let s = event.charactersIgnoringModifiers, let c = s.first else { return nil }
+            // Arrow / function / navigation keys map into the Unicode
+            // function-key range (U+F700–U+F8FF); appending those to the
+            // fuzzy query silently empties the match list.
+            guard let scalar = c.unicodeScalars.first,
+                  !(0xF700...0xF8FF).contains(scalar.value) else { return nil }
             return .char(c)
         }
     }

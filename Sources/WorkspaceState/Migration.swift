@@ -1,20 +1,22 @@
 import Foundation
 
-public enum MigrationError: Error, CustomStringConvertible {
+public enum MigrationError: Error, Equatable, CustomStringConvertible {
     case malformedJSON
     case missingSpaces
+    case missingVersion
     case unsupportedVersion(Int)
 
     public var description: String {
         switch self {
         case .malformedJSON:           return "spaces.json is not valid JSON"
         case .missingSpaces:           return "spaces.json has no `spaces` object"
+        case .missingVersion:          return "spaces.json has no integer `version` field (expected \(Migration.currentVersion))"
         case .unsupportedVersion(let v): return "unsupported spaces.json version: \(v) (only v\(Migration.currentVersion) is accepted)"
         }
     }
 }
 
-public struct MigrationResult: Equatable {
+public struct MigrationResult {
     /// The validated, canonically-rendered spaces.json output. Re-rendering
     /// produces a jq-friendly deterministic key order without semantic changes.
     public let outputJSON: String
@@ -28,7 +30,6 @@ public struct MigrationResult: Equatable {
 /// Rejects anything that isn't v3; the transformation paths for v1/v2 were retired.
 public enum Migration {
     public static let currentVersion = 3
-    public static let defaultNerdFontFamily = "JetBrainsMono Nerd Font"
 
     public static func migrate(jsonData: Data) throws -> MigrationResult {
         let parsed: Any
@@ -44,7 +45,12 @@ public enum Migration {
             throw MigrationError.malformedJSON
         }
 
-        let version = (raw["version"] as? Int) ?? 1
+        // A missing (or non-integer) `version` is its own diagnostic —
+        // defaulting it to 1 used to send users debugging a "v1 file"
+        // that never claimed to be one.
+        guard let version = raw["version"] as? Int else {
+            throw MigrationError.missingVersion
+        }
         guard version == currentVersion else {
             throw MigrationError.unsupportedVersion(version)
         }
@@ -53,21 +59,6 @@ public enum Migration {
         }
 
         return MigrationResult(outputJSON: render(root: raw))
-    }
-
-    // MARK: - IconSpec helpers
-
-    public static func encode(spec: IconSpec) -> [String: Any] {
-        var dict: [String: Any] = [
-            "kind": spec.kind.rawValue,
-            "userOverridden": spec.userOverridden,
-        ]
-        if let v = spec.symbolName        { dict["symbolName"]       = v }
-        if let v = spec.codepoint         { dict["codepoint"]        = v }
-        if let v = spec.fontFamily        { dict["fontFamily"]       = v }
-        if let v = spec.fallbackSfSymbol  { dict["fallbackSfSymbol"] = v }
-        if let v = spec.fallbackText      { dict["fallbackText"]     = v }
-        return dict
     }
 
     // MARK: - Deterministic pretty-printer
@@ -141,8 +132,13 @@ public enum Migration {
 
     static func renderValue(_ value: Any, indent: Int, currentKey: String?) -> String {
         if value is NSNull { return "null" }
-        if let b = value as? Bool { return b ? "true" : "false" }
         if let n = value as? NSNumber {
+            // Type-check CFBoolean rather than `as? Bool`: bridging casts
+            // an integer NSNumber holding 0/1 to Bool successfully, which
+            // would silently rewrite `"count": 1` as `"count": true`.
+            if CFGetTypeID(n) == CFBooleanGetTypeID() {
+                return n.boolValue ? "true" : "false"
+            }
             return numberString(n)
         }
         if let s = value as? String { return "\"\(escape(s))\"" }

@@ -20,14 +20,8 @@ public enum LayoutPolicyEngine {
         let primaryID = snapshots.first(where: \.isPrimaryMenuBarDisplay)?.id
         let fallbackID = resolveFallbackID(snapshots: snapshots, primaryID: primaryID)
 
-        let mirrorMasters = Set(snapshots.compactMap(\.mirrorMasterID))
-
         let policies: [LayoutPolicy] = snapshots.map { snapshot in
-            policy(
-                for: snapshot,
-                fallbackID: fallbackID,
-                mirrorMasters: mirrorMasters
-            )
+            policy(for: snapshot, fallbackID: fallbackID)
         }
 
         return LayoutPolicySet(
@@ -39,12 +33,12 @@ public enum LayoutPolicyEngine {
 
     static func policy(
         for snapshot: DisplaySnapshot,
-        fallbackID: CGDirectDisplayID?,
-        mirrorMasters: Set<CGDirectDisplayID>
+        fallbackID: CGDirectDisplayID?
     ) -> LayoutPolicy {
-        // Mirrored secondaries: the snapshot's mirrorMasterID points at another display.
+        // Mirrored secondaries: the snapshot's mirrorMasterID points at another display
+        // (the service maps kCGNullDirectDisplay to nil, so non-nil means mirrored).
         // We collapse: adapters skip these and let the master handle the layout.
-        if let master = snapshot.mirrorMasterID, master != 0 {
+        if snapshot.mirrorMasterID != nil {
             return LayoutPolicy(
                 displayID: snapshot.id,
                 layoutClass: .mirrorSecondary,

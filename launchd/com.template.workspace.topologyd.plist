@@ -7,7 +7,7 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>{{HOME}}/.local/bin/ws-topologyd</string>
+        <string>{{BIN_DIR}}/ws-topologyd</string>
     </array>
 
     <key>RunAtLoad</key>
@@ -38,7 +38,7 @@
         <key>HOME</key>
         <string>{{HOME}}</string>
         <key>PATH</key>
-        <string>{{HOME}}/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <string>{{BIN_DIR}}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
     </dict>
 </dict>
 </plist>

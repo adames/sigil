@@ -22,25 +22,23 @@ WORKSPACE_TOPOLOGY_FILE="topology.json"
 WORKSPACE_LAYOUT_ENV="layout.env"
 WORKSPACE_CURRENT_ENV="current.env"
 
+# Load user overrides if present. Sourced before the WM-bin validation
+# and the derived values below so a config.env override of, say,
+# WORKSPACE_WM_BIN or WORKSPACE_BUNDLE_PREFIX actually takes effect.
+if [[ -r "$WORKSPACE_CONFIG_DIR/config.env" ]]; then
+    # shellcheck source=/dev/null
+    source "$WORKSPACE_CONFIG_DIR/config.env"
+fi
+
 # AeroSpace binary path. Overridable (tests point it at a stub; users with
-# a nonstandard install can pin it). Empty if the resolved path isn't
-# executable — callers (lib/window-manager.sh) check `[[ -x … ]]` and
-# fail-soft when absent.
+# a nonstandard install can pin it via env or config.env). Empty if the
+# resolved path isn't executable — callers (lib/window-manager.sh) check
+# `[[ -x … ]]` and fail-soft when absent.
 : "${WORKSPACE_WM_BIN:=/opt/homebrew/bin/aerospace}"
 [[ -x "$WORKSPACE_WM_BIN" ]] || WORKSPACE_WM_BIN=""
 
 # Derived values
 WORKSPACE_LOG_SUBSYSTEM="${WORKSPACE_BUNDLE_PREFIX}.topology"
-
-# LaunchAgent labels
-LAUNCHAGENT_TOPOLOGY="${WORKSPACE_BUNDLE_PREFIX}.topologyd"
-LAUNCHAGENT_AUTOHIDE="${WORKSPACE_BUNDLE_PREFIX}.autohide"
-
-# Load user overrides if present
-if [[ -r "$WORKSPACE_CONFIG_DIR/config.env" ]]; then
-    # shellcheck source=/dev/null
-    source "$WORKSPACE_CONFIG_DIR/config.env"
-fi
 
 # Export all variables for child processes
 export WORKSPACE_BUNDLE_PREFIX

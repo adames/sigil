@@ -56,6 +56,7 @@ let package = Package(
         .library(name: "DisplayTopology", targets: ["DisplayTopology"]),
         .library(name: "LayoutPolicy", targets: ["LayoutPolicy"]),
         .library(name: "WorkspaceState", targets: ["WorkspaceState"]),
+        .library(name: "AerospaceEmit", targets: ["AerospaceEmit"]),
         .library(name: "AdaptersAppKit", targets: ["AdaptersAppKit"]),
         .library(name: "WsUI", targets: ["WsUI"]),
     ],
@@ -81,25 +82,20 @@ let package = Package(
             name: "WorkspaceState",
             path: "Sources/WorkspaceState"
         ),
+        // Pure renderer + merge engine for the sigil-fenced aerospace.toml
+        // regions. A library (rather than part of the ws-topology
+        // executable) so ws-topologyTests exercises the production code.
         .target(
-            name: "AdaptersAppKitObjC",
-            path: "Sources/AdaptersAppKit",
-            sources: ["ObjCBridge.m"],
-            publicHeadersPath: "include"
+            name: "AerospaceEmit",
+            path: "Sources/AerospaceEmit"
         ),
         .target(
             name: "AdaptersAppKit",
-            dependencies: ["DisplayTopology", "LayoutPolicy", "AdaptersAppKitObjC"],
-            path: "Sources/AdaptersAppKit",
-            exclude: ["ObjCBridge.m", "include"],
-            sources: [
-                "WorkspaceWindowDelegate.swift",
-                "AccessibilityProbe.swift",
-            ]
+            path: "Sources/AdaptersAppKit"
         ),
         .executableTarget(
             name: "ws-topology",
-            dependencies: ["DisplayTopology", "LayoutPolicy", "WorkspaceState"],
+            dependencies: ["AerospaceEmit", "DisplayTopology", "LayoutPolicy", "WorkspaceState"],
             path: "Sources/ws-topology"
         ),
         .executableTarget(
@@ -109,7 +105,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "ws-cheatsheet",
-            dependencies: ["DisplayTopology", "WsUI"],
+            dependencies: ["WsUI"],
             path: "Sources/ws-cheatsheet"
         ),
         .executableTarget(
@@ -153,13 +149,9 @@ let package = Package(
             swiftSettings: swiftTestingSettings,
             linkerSettings: swiftTestingLinkerSettings
         ),
-        // ws-topology is an executable target so its `AerospaceFragment`
-        // enum isn't importable. The tests mirror its small pure-function
-        // surface (merge / render) and exercise the mirror — kept here
-        // until / unless the fragment is promoted to a library target.
         .testTarget(
             name: "ws-topologyTests",
-            dependencies: [],
+            dependencies: ["AerospaceEmit"],
             path: "Tests/ws-topologyTests",
             swiftSettings: swiftTestingSettings,
             linkerSettings: swiftTestingLinkerSettings

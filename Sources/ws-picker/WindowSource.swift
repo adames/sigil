@@ -2,10 +2,10 @@ import Foundation
 import WorkspaceState
 
 /// Single seam between the picker and the window manager. Sync read at
-/// overlay open; async fire-and-forget focus on commit. Mirrors
-/// ws-prompt's `WorkspaceService` — one boundary that keeps the picker
-/// decoupled from aerospace I/O. The live path is covered by the bash
-/// harness, not a Swift mock.
+/// overlay open; synchronous focus on commit (the overlay exits right
+/// after, so blocking the main thread for one fast `aerospace focus` is
+/// fine). Mirrors ws-prompt's `WorkspaceService` — one boundary that
+/// keeps the picker decoupled from aerospace I/O.
 protocol WindowSource {
     func loadWindows() -> [WindowItem]
     func focus(windowID: Int)
@@ -20,16 +20,14 @@ final class ProductionWindowSource: WindowSource {
     }
 
     func loadWindows() -> [WindowItem] {
+        // `list-windows --all` includes minimized windows and windows on
+        // hidden workspaces; aerospace exposes no visibility bit, so the
+        // picker lists everything and lets focus pull the workspace in.
         guard let entries = try? windowManager.queryWindows() else { return [] }
-        // Drop windows the user can't visually see: minimized, on a
-        // hidden space, etc. The picker is "switch to a visible window"
-        // — exposing zombies just dilutes the fuzzy match.
-        return entries
-            .filter { $0.isVisible && !$0.isMinimized }
-            .map { WindowItem(
-                id: $0.id, app: $0.app, title: $0.title,
-                space: $0.space, display: $0.display)
-            }
+        return entries.map { WindowItem(
+            id: $0.id, app: $0.app, title: $0.title,
+            workspace: $0.workspace, display: $0.display)
+        }
     }
 
     func focus(windowID: Int) {

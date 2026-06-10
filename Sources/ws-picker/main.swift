@@ -2,9 +2,9 @@ import Foundation
 
 // ws-picker [--simulate-keys "<keys>"]
 //
-// Window-picker overlay bound to Caps+c in aerospace.toml. Lists every visible
-// aerospace window, fuzzy-filters by app + title + space, focuses the pick
-// on Enter. Runtime split:
+// Window-picker overlay bound to Caps+c in aerospace.toml. Lists every
+// aerospace window, fuzzy-filters by app + title + workspace, focuses the
+// pick on Enter. Runtime split:
 //
 //   PickerController       — state machine (pure-ish; ObservableObject)
 //   ProductionWindowSource — single seam to aerospace

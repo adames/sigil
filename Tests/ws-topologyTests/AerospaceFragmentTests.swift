@@ -1,61 +1,12 @@
+import AerospaceEmit
 import Foundation
 import Testing
-
-// `AerospaceFragment` lives inside the ws-topology executable target, not a
-// library — it's not importable directly. Mirror its small public surface
-// here as a test-local copy. The merge / render logic is pure-function, so
-// the duplication is structural-only: keep this file in lockstep with the
-// AerospaceFragment enum in Sources/ws-topology/main.swift.
-//
-// (Phase 4: ws-topology emits aerospace.toml block.)
-enum FragmentMirror {
-    static let openFence  = "# >>> sigil generated >>>"
-    static let closeFence = "# <<< sigil generated <<<"
-
-    static let assignmentOpenFence  = "# >>> sigil generated: assignments >>>"
-    static let assignmentCloseFence = "# <<< sigil generated: assignments <<<"
-
-    /// Verbatim copy of `AerospaceFragment.merge` semantics — replaces the
-    /// fenced block in-place (line-anchored: fence must be a standalone
-    /// line, not a substring inside a doc comment), or appends with a
-    /// separator newline when the fence is absent. Fence pair is
-    /// parameterised so the same engine handles either the digit-bindings
-    /// region or the workspace-assignments region.
-    static func merge(
-        block: String,
-        into existing: String,
-        openFence: String = FragmentMirror.openFence,
-        closeFence: String = FragmentMirror.closeFence
-    ) -> String {
-        let cleanBlock = block.hasSuffix("\n") ? String(block.dropLast()) : block
-
-        var lines = existing.components(separatedBy: "\n")
-        let hadTrailingNewline = existing.hasSuffix("\n")
-        if hadTrailingNewline, lines.last == "" { lines.removeLast() }
-
-        let openIdx = lines.firstIndex(where: { $0.trimmingCharacters(in: .whitespaces) == openFence })
-        let closeIdx: Int? = openIdx.flatMap { o in
-            lines[(o + 1)...].firstIndex(where: { $0.trimmingCharacters(in: .whitespaces) == closeFence })
-        }
-
-        if let o = openIdx, let c = closeIdx {
-            let blockLines = cleanBlock.components(separatedBy: "\n")
-            lines.replaceSubrange(o...c, with: blockLines)
-            var out = lines.joined(separator: "\n")
-            if hadTrailingNewline || !out.hasSuffix("\n") { out += "\n" }
-            return out
-        }
-
-        let needsSeparator = !existing.isEmpty && !existing.hasSuffix("\n")
-        return existing + (needsSeparator ? "\n" : "") + cleanBlock + "\n"
-    }
-}
 
 @Suite("AerospaceFragment.merge — sentinel-fenced block writer")
 struct AerospaceFragmentMergeTests {
 
-    @Test func append_to_empty_file() {
-        let merged = FragmentMirror.merge(
+    @Test func append_to_empty_file() throws {
+        let merged = try AerospaceFragment.merge(
             block: "# >>> sigil generated >>>\n[mode.main.binding]\n# <<< sigil generated <<<\n",
             into: ""
         )
@@ -64,7 +15,7 @@ struct AerospaceFragmentMergeTests {
         #expect(merged.hasSuffix("# <<< sigil generated <<<\n"))
     }
 
-    @Test func append_to_user_owned_toml_with_no_fence() {
+    @Test func append_to_user_owned_toml_with_no_fence() throws {
         let existing = """
         gaps.outer.top = 26
 
@@ -78,7 +29,7 @@ struct AerospaceFragmentMergeTests {
         cmd-alt-ctrl-shift-1 = 'workspace 1'
         # <<< sigil generated <<<
         """
-        let merged = FragmentMirror.merge(block: block, into: existing)
+        let merged = try AerospaceFragment.merge(block: block, into: existing)
         // User content preserved verbatim
         #expect(merged.contains("gaps.outer.top = 26"))
         #expect(merged.contains(#""1" = 1"#))
@@ -88,7 +39,7 @@ struct AerospaceFragmentMergeTests {
                 merged.range(of: "[workspace-to-monitor-force-assignment]")!.lowerBound)
     }
 
-    @Test func replace_existing_fenced_block_in_place() {
+    @Test func replace_existing_fenced_block_in_place() throws {
         let existing = """
         gaps.outer.top = 26
 
@@ -105,7 +56,7 @@ struct AerospaceFragmentMergeTests {
         NEW BLOCK CONTENT
         # <<< sigil generated <<<
         """
-        let merged = FragmentMirror.merge(block: block, into: existing)
+        let merged = try AerospaceFragment.merge(block: block, into: existing)
         #expect(!merged.contains("OLD BLOCK CONTENT"))
         #expect(!merged.contains("TO BE REPLACED"))
         #expect(merged.contains("NEW BLOCK CONTENT"))
@@ -115,7 +66,7 @@ struct AerospaceFragmentMergeTests {
         #expect(merged.contains(#"key = "value""#))
     }
 
-    @Test func idempotent_under_repeated_merge() {
+    @Test func idempotent_under_repeated_merge() throws {
         let existing = """
         # >>> sigil generated >>>
         cmd-alt-ctrl-shift-1 = 'workspace 1'
@@ -126,36 +77,52 @@ struct AerospaceFragmentMergeTests {
         cmd-alt-ctrl-shift-1 = 'workspace 1'
         # <<< sigil generated <<<
         """
-        let once  = FragmentMirror.merge(block: block, into: existing)
-        let twice = FragmentMirror.merge(block: block, into: once)
+        let once  = try AerospaceFragment.merge(block: block, into: existing)
+        let twice = try AerospaceFragment.merge(block: block, into: once)
         #expect(once == twice, "double-merge should be a no-op")
     }
 
-    @Test func append_separates_with_newline_when_existing_lacks_trailing_newline() {
+    @Test func append_separates_with_newline_when_existing_lacks_trailing_newline() throws {
         let existing = "gaps.outer.top = 26"   // no trailing \n
         let block = """
         # >>> sigil generated >>>
         x
         # <<< sigil generated <<<
         """
-        let merged = FragmentMirror.merge(block: block, into: existing)
+        let merged = try AerospaceFragment.merge(block: block, into: existing)
         // Should NOT smush "gaps.outer.top = 26# >>> sigil generated >>>"
         #expect(merged.contains("gaps.outer.top = 26\n# >>> sigil generated >>>"))
     }
 
-    /// Regression: the merge writer's prior substring-based search would
-    /// snag any line that contained the fence string — including a header
-    /// comment that documented the fence by name (e.g. `# The block
-    /// between \`# >>> sigil generated >>>\` and \`# <<< sigil generated
-    /// <<<\` is owned by sigil`). That misplaced match clobbered the
-    /// entire file between the doc comment and the real bottom fence.
-    /// The fix is line-anchored matching — fence must be a standalone
-    /// line. This test pins that contract.
+    /// Regression: appending below an orphaned open fence used to pair
+    /// the orphan with the appended block's close fence on the NEXT
+    /// merge, clobbering every user line in between. The merge now
+    /// refuses the damaged file instead.
+    @Test func orphaned_open_fence_throws_instead_of_appending() {
+        let existing = """
+        # >>> sigil generated >>>
+        old content whose close fence a hand-edit deleted
+
+        [user-section]
+        key = "value"
+        """
+        let block = """
+        # >>> sigil generated >>>
+        NEW
+        # <<< sigil generated <<<
+        """
+        #expect(throws: AerospaceFragment.MergeError.unterminatedFence(
+            open: AerospaceFragment.openFence
+        )) {
+            _ = try AerospaceFragment.merge(block: block, into: existing)
+        }
+    }
+
     /// The assignment fence uses a distinct fence pair so the merge can
     /// update the `[workspace-to-monitor-force-assignment]` block
     /// independently of the digit bindings. Verifies the parametrised
     /// merge writes into the right region and leaves the other untouched.
-    @Test func assignment_fence_merges_independently_of_bindings_fence() {
+    @Test func assignment_fence_merges_independently_of_bindings_fence() throws {
         let existing = """
         # >>> sigil generated: assignments >>>
         OLD ASSIGN
@@ -172,11 +139,11 @@ struct AerospaceFragmentMergeTests {
         "main" = 1
         # <<< sigil generated: assignments <<<
         """
-        let merged = FragmentMirror.merge(
+        let merged = try AerospaceFragment.merge(
             block: newAssign,
             into: existing,
-            openFence: FragmentMirror.assignmentOpenFence,
-            closeFence: FragmentMirror.assignmentCloseFence
+            openFence: AerospaceFragment.assignmentOpenFence,
+            closeFence: AerospaceFragment.assignmentCloseFence
         )
         // Assignment region rewritten
         #expect(!merged.contains("OLD ASSIGN"))
@@ -188,7 +155,7 @@ struct AerospaceFragmentMergeTests {
 
     /// Belt-and-braces: re-merging the same assignment block produces no
     /// change. Pins the idempotency contract for the second fence pair.
-    @Test func assignment_fence_is_idempotent() {
+    @Test func assignment_fence_is_idempotent() throws {
         let existing = """
         # >>> sigil generated: assignments >>>
         [workspace-to-monitor-force-assignment]
@@ -196,20 +163,20 @@ struct AerospaceFragmentMergeTests {
         # <<< sigil generated: assignments <<<
         """
         let block = existing
-        let once  = FragmentMirror.merge(
+        let once  = try AerospaceFragment.merge(
             block: block, into: existing,
-            openFence: FragmentMirror.assignmentOpenFence,
-            closeFence: FragmentMirror.assignmentCloseFence
+            openFence: AerospaceFragment.assignmentOpenFence,
+            closeFence: AerospaceFragment.assignmentCloseFence
         )
-        let twice = FragmentMirror.merge(
+        let twice = try AerospaceFragment.merge(
             block: block, into: once,
-            openFence: FragmentMirror.assignmentOpenFence,
-            closeFence: FragmentMirror.assignmentCloseFence
+            openFence: AerospaceFragment.assignmentOpenFence,
+            closeFence: AerospaceFragment.assignmentCloseFence
         )
         #expect(once == twice, "double-merge of assignment block should be a no-op")
     }
 
-    @Test func doc_comment_referencing_fence_by_name_is_ignored() {
+    @Test func doc_comment_referencing_fence_by_name_is_ignored() throws {
         let existing = """
         # AeroSpace configuration
         #
@@ -234,7 +201,7 @@ struct AerospaceFragmentMergeTests {
         NEW
         # <<< sigil generated <<<
         """
-        let merged = FragmentMirror.merge(block: block, into: existing)
+        let merged = try AerospaceFragment.merge(block: block, into: existing)
         // User content survives. The substring "# >>> sigil generated >>>"
         // appears TWICE in the doc comment + once at the real fence open;
         // only the real fence open should be matched.
@@ -246,5 +213,54 @@ struct AerospaceFragmentMergeTests {
         #expect(merged.contains("NEW"))
         #expect(!merged.contains("# placeholder"),
                 "real fenced placeholder block should be replaced")
+    }
+}
+
+@Suite("AerospaceFragment.render — generated TOML stays parseable")
+struct AerospaceFragmentRenderTests {
+
+    @Test func bindings_render_digits_with_slot_ten_as_zero() {
+        let names = (1...10).map(String.init) + ["overflow"]
+        let block = AerospaceFragment.render(slotNames: names)
+        #expect(block.contains(#"cmd-alt-ctrl-shift-1 = "workspace 1""#))
+        #expect(block.contains(#"cmd-alt-ctrl-shift-9 = "workspace 9""#))
+        #expect(block.contains(#"cmd-alt-ctrl-shift-0 = "workspace 10""#))
+        #expect(!block.contains("overflow"), "only the first 10 slots get digit chords")
+    }
+
+    @Test func assignment_block_pins_every_slot() {
+        let block = AerospaceFragment.renderAssignmentBlock(slotNames: ["code", "web"])
+        #expect(block.contains("[workspace-to-monitor-force-assignment]"))
+        #expect(block.contains(#""code" = 1"#))
+        #expect(block.contains(#""web" = 1"#))
+    }
+
+    @Test func empty_slot_list_renders_placeholder_comment_only() {
+        let bindings = AerospaceFragment.render(slotNames: [])
+        let assigns  = AerospaceFragment.renderAssignmentBlock(slotNames: [])
+        #expect(bindings.contains("# (no workspaces declared in spaces.json yet)"))
+        #expect(!assigns.contains("[workspace-to-monitor-force-assignment]"),
+                "an empty table header would still claim the table name")
+    }
+
+    /// Regression: the old renderer emitted `'workspace name'` literal
+    /// strings with a fake `\'` escape — TOML literal strings support no
+    /// escapes, so an apostrophe in a workspace name corrupted the file.
+    /// Names now render as basic strings with real escaping.
+    @Test func quote_bearing_names_stay_within_their_string() {
+        let bindings = AerospaceFragment.render(slotNames: [#"it's"#, #"say "hi""#])
+        #expect(bindings.contains(#"cmd-alt-ctrl-shift-1 = "workspace it's""#))
+        #expect(bindings.contains(#"cmd-alt-ctrl-shift-2 = "workspace say \"hi\"""#))
+
+        let assigns = AerospaceFragment.renderAssignmentBlock(slotNames: [#"say "hi""#])
+        #expect(assigns.contains(#""say \"hi\"" = 1"#))
+    }
+
+    @Test func toml_basic_string_escaping() {
+        #expect(AerospaceFragment.escapeTOMLBasicString("plain") == "plain")
+        #expect(AerospaceFragment.escapeTOMLBasicString(#"a"b"#) == #"a\"b"#)
+        #expect(AerospaceFragment.escapeTOMLBasicString(#"a\b"#) == #"a\\b"#)
+        #expect(AerospaceFragment.escapeTOMLBasicString("a\nb") == #"a\nb"#)
+        #expect(AerospaceFragment.escapeTOMLBasicString("a\u{01}b") == #"a\u0001b"#)
     }
 }

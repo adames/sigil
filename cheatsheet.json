@@ -1,7 +1,7 @@
 {
   "banner": [
     { "k": "caps",     "v": "Hyper (⌃⌥⌘⇧) — single layer; tap = esc" },
-    { "k": "caps + ␣", "v": "tmux prefix" }
+    { "k": "caps + ␣", "v": "tmux mode" }
   ],
   "views": [
     {
@@ -46,104 +46,6 @@
     }
   ],
   "sections": {
-    "windows-focus": {
-      "title": "Windows",
-      "rows": [
-        ["caps + h j k l", "focus neighbour  ←  ↓  ↑  →"],
-        ["caps + y u i o", "swap window  ←  ↓  ↑  →  (move in tree)"],
-        ["caps + d",       "move window to next display (wraps)"],
-        ["caps + v",       "toggle float ↔ tile"],
-        ["caps + r",       "flatten + rotate workspace tree"],
-        ["caps + x",       "close window"],
-        ["caps + z",       "fullscreen toggle (zoom)"]
-      ],
-      "family": "system",
-      "sub":   "AeroSpace · Hyper (⌃⌥⌘⇧) held",
-      "idea":  "hjkl focuses, yuio swaps in the tree, d moves to the next display, x kills."
-    },
-    "submodes": {
-      "title": "Service drawer",
-      "rows": [
-        ["caps + s → - / =",   "resize -50 / +50  (stays in mode)"],
-        ["caps + s → b",       "balance sizes"],
-        ["caps + s → ⌫",       "close all windows but current"],
-        ["caps + s → ⏎",       "reload aerospace config"],
-        ["caps + s → esc",     "exit"]
-      ],
-      "family": "system",
-      "sub":   "AeroSpace mode.service",
-      "idea":  "Rare ops live here. Resize stays in mode for repeat taps; everything else exits on commit."
-    },
-    "workspaces": {
-      "title": "Workspaces",
-      "rows": [
-        ["caps + n / p",  "prev / next workspace (wraps)"],
-        ["caps + tab",    "last / recent workspace"],
-        ["caps + 1 … 0",  "go to workspace 1..10"],
-        ["caps + f",      "follow — send focused window to slot + travel with it"],
-        ["caps + c",      "change application — search by app · tab cycles · ↵"]
-      ],
-      "family": "system",
-      "sub":   "AeroSpace · ws-focus · ws-prompt · ws-picker",
-      "idea":  "Digits focus a workspace; f sends the window and you go with it; c jumps to any app's window."
-    },
-    "launchers": {
-      "title": "Launchers",
-      "rows": [
-        ["caps + t",   "terminal"],
-        ["caps + b",   "browser"],
-        ["caps + .",   "Finder"],
-        ["caps + ;",   "notes"],
-        ["caps + '",   "writing / inbox"],
-        ["caps + ,",   "System Settings"],
-        ["caps + /",   "cheatsheet HUD (toggle)"],
-        ["caps + ␣",   "tmux prefix shim → C-Space"]
-      ],
-      "family": "system",
-      "sub":   "ws-launch-* · open -a · Hyper held",
-      "idea":  "Apps on the home row · capture beside it · meta on the punctuation row."
-    },
-    "tmux": {
-      "title": "Tmux",
-      "rows": [
-        ["caps + ␣ → h j k l", "select pane  ←  ↓  ↑  →"],
-        ["caps + ␣ → v / s",   "split right / below"],
-        ["caps + ␣ → | / -",   "split right / below  (aliases)"],
-        ["caps + ␣ → z",       "zoom pane (toggle)"],
-        ["caps + ␣ → d",       "detach session"],
-        ["caps + ␣ → r",       "reload tmux.conf"],
-        ["caps + ␣ → [",       "copy / scroll mode  (q to exit)"],
-        ["caps + ␣ → f",       "sessionizer — fzf pick → switch/create session"],
-        ["caps + ␣ → c",       "new window"],
-        ["caps + ␣ → n / p",   "next / prev window"],
-        ["caps + ␣ → 0…9",     "go to window N"],
-        ["caps + ␣ → x",       "kill pane  (no confirmation)"],
-        ["caps + ␣ → &",       "kill window  (no confirmation)"],
-        ["caps + ␣ → $",       "rename current session"],
-        ["caps + ␣ → caps + ␣", "send literal C-Space to inner program"]
-      ],
-      "family": "terminal",
-      "sub":   "prefix = caps + ␣",
-      "idea":  "Tap caps + space, release caps, then type the command. AeroSpace forwards C-Space to tmux; the prefix itself is one keypress."
-    },
-    "shell": {
-      "title": "Shell",
-      "rows": [
-        ["ctrl + r",      "fzf history search"],
-        ["ctrl + t",      "fzf file picker (insert path)"],
-        ["alt + c",       "fzf cd into subdir"],
-        ["⟨pat⟩**<tab>",  "fzf completion on the current word"],
-        ["z ⟨pat⟩",       "zoxide — jump to frecent dir"],
-        ["zi",            "zoxide interactive picker"],
-        ["esc → h j k l", "vi mode in zsh — navigate command line"],
-        ["rg ⟨pat⟩",      "ripgrep — fast recursive search"],
-        ["fd ⟨pat⟩",      "fd — fast find replacement"],
-        ["direnv allow",  "trust this dir's .envrc on first entry"]
-      ],
-      "family": "terminal",
-      "sub":   "zsh · vi mode · fzf · zoxide",
-      "idea":  "fzf, zoxide and vi-mode turn the shell into a navigable surface, not a typewriter."
-    },
     "vim-motion": {
       "title": "Vim · Motion",
       "rows": [
@@ -178,37 +80,6 @@
       "family": "vim",
       "sub":   "neovim · change & yank",
       "idea":  "Verb + motion = composable change. The . key replays your last verb on the next thing."
-    },
-    "neovim-files-buffers": {
-      "title": "Neovim · Files & Buffers",
-      "rows": [
-        ["-",                  "open parent dir  (oil — edit names like text)"],
-        ["⟨leader⟩ + ff",      "fzf files"],
-        ["⟨leader⟩ + fb",      "fzf buffers"],
-        ["⟨leader⟩ + bn / bp", "buffer: next / prev"],
-        ["⟨leader⟩ + bd",      "buffer: delete current"],
-        ["⟨leader⟩ + bo",      "buffer: close others"],
-        ["m⟨a-z⟩  '⟨a-z⟩",     "set mark / jump to mark line  (native, replaces harpoon)"]
-      ],
-      "family": "nvim",
-      "sub":   "fzf-lua · oil · :b* · native marks",
-      "idea":  "fzf hops to any file; marks pin the few you keep returning to; oil edits the filesystem as text."
-    },
-    "neovim-lsp-search": {
-      "title": "Neovim · LSP & Search",
-      "rows": [
-        ["gd  gr",                "go to definition / references"],
-        ["K",                     "hover docs"],
-        ["⟨leader⟩ + rn",         "rename symbol"],
-        ["⟨leader⟩ + =",          "format buffer  (auto-runs ruff on :w for *.py)"],
-        ["⟨leader⟩ + fg",         "fzf live grep"],
-        ["⟨leader⟩ + gs",         "fzf git status"],
-        ["ctrl + w → v / s",      "split right / below"],
-        ["ctrl + w → h j k l",    "navigate splits"]
-      ],
-      "family": "nvim",
-      "sub":   "leader = space · pyright + ruff for *.py",
-      "idea":  "Leader is your nvim command palette. LSP for code, fzf for everything else."
     }
   }
 }

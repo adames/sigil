@@ -10,7 +10,10 @@
 
 set -u
 
-WS_THEMES_DIR="${WS_THEMES_DIR:-$HOME/.config/workspace/themes}"
+# Where this harness lives — anchors the in-repo `ws` fallback and the
+# repo's spaces.default.json (a bare `${BASH_SOURCE[0]%/*}` breaks when
+# invoked as `bash test-cascade.sh` from its own directory).
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Prefer the deployed CLI; fall back to the in-repo one (`workspace` is the
 # compat alias).
@@ -18,7 +21,7 @@ WS_BIN="${WS_BIN:-}"
 if [[ -z "$WS_BIN" ]]; then
   if   [[ -x "$HOME/.local/bin/ws" ]];            then WS_BIN="$HOME/.local/bin/ws"
   elif [[ -x "$HOME/.local/bin/workspace" ]];     then WS_BIN="$HOME/.local/bin/workspace"
-  elif [[ -x "${BASH_SOURCE[0]%/*}/ws" ]];        then WS_BIN="${BASH_SOURCE[0]%/*}/ws"
+  elif [[ -x "$HERE/ws" ]];                       then WS_BIN="$HERE/ws"
   else echo "test-cascade: ws CLI not found" >&2; exit 1; fi
 fi
 
@@ -175,6 +178,49 @@ lname="harness-$$"
 assert "layout load restores name" "one" "$(jq -r '.spaces["_unassigned:1"].name' "$WS_CONFIG")"
 "$WS_BIN" layout delete -y "$lname" >/dev/null
 "$WS_BIN" layout list | grep -qx "$lname" && fail "layout still listed after delete" || pass "layout delete removed entry"
+
+# 13 · canonical key order sorts numeric workspaceNames by value (1, 2, 10 —
+# not the lexicographic 1, 10, 2), matching Migration.spacesSortKey. Both
+# consumers of the sort must agree: the normalize pass (on-disk key order)
+# and theme's positional palette application.
+jq -n \
+  --argjson s1  "$(seed_slot 1 one)" \
+  --argjson s2  "$(seed_slot 2 two)" \
+  --argjson s10 "$(seed_slot 10 ten)" \
+  '{ version: 3, palette: "catppuccin-mocha",
+     spaces: { "_unassigned:10": $s10, "_unassigned:1": $s1, "_unassigned:2": $s2 } }' \
+  > "$WS_CONFIG"
+"$WS_BIN" theme gruvbox-dark >/dev/null
+assert "normalize orders ws 10 after ws 2" \
+  "_unassigned:1,_unassigned:2,_unassigned:10" \
+  "$(jq -r '.spaces | keys_unsorted | join(",")' "$WS_CONFIG")"
+assert "theme paints ws 10 with the third palette color" \
+  "$(jq -r '.colors[2]' "$WS_THEMES_DIR/gruvbox-dark.json")" \
+  "$(jq -r '.spaces["_unassigned:10"].color' "$WS_CONFIG")"
+
+# 14 · a literal glyph arg stores a nerdFont codepoint (regression: it used
+# to write kind=none, silently clearing the existing icon while exiting 0)
+reset_fixture
+assert_true "icon accepts a literal glyph" "$WS_BIN" icon 1 "★"
+assert "literal glyph sets kind=nerdFont" "nerdFont" \
+  "$(jq -r '.spaces["_unassigned:1"].iconSpec.kind' "$WS_CONFIG")"
+assert "literal glyph stores its codepoint escape" '\u2605' \
+  "$(jq -r '.spaces["_unassigned:1"].iconSpec.codepoint' "$WS_CONFIG")"
+
+# 15 · reset restores a doctor-clean config (regression: the shipped
+# spaces.default.json lacked `version: 3`, so reset left a file every
+# reader rejected)
+cp "$HERE/../spaces.default.json" "$WORK/spaces.default.json"
+export WS_DEFAULTS="$WORK/spaces.default.json"
+assert_true "reset -y restores defaults"  "$WS_BIN" reset -y
+assert_true "doctor green after reset -y" "$WS_BIN" doctor
+
+# 16 · themes --json with no themes is valid empty JSON, not [""]
+empty_themes="$WORK/themes-empty"; mkdir -p "$empty_themes"
+assert "themes --json on empty dir emits []" "[]" \
+  "$(WS_THEMES_DIR="$empty_themes" "$WS_BIN" themes --json)"
+assert "themes on empty dir emits nothing" "" \
+  "$(WS_THEMES_DIR="$empty_themes" "$WS_BIN" themes)"
 
 if (( FAILED )); then red "✗ verify FAILED"; exit 1; fi
 green "✓ verify: all green"

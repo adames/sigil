@@ -130,7 +130,7 @@ struct PickerView: View {
     }
 
     /// One row mirrors a workspace pill from PromptView: app icon + name
-    /// on the left, window title on the right, space-index pill at the
+    /// on the left, window title on the right, workspace name at the
     /// far end. Selected row fills with Catppuccin.blue (the same color
     /// the focus prompt uses for its navigate-action chip).
     private func windowRow(item: WindowItem, selected: Bool) -> some View {
@@ -155,9 +155,11 @@ struct PickerView: View {
                 }
             }
             Spacer()
-            Text("ws\(item.space)")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(selected ? Catppuccin.base : accent)
+            if !item.workspace.isEmpty {
+                Text(item.workspace)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(selected ? Catppuccin.base : accent)
+            }
         }
         .padding(.horizontal, 10)
         .frame(height: PromptStyle.pillHeight + 12)
@@ -196,41 +198,35 @@ struct PickerView: View {
     }
 }
 
-/// Resolve an app's icon by its display name. Caches NSImage instances
-/// because the picker re-asks for the same icon on every keystroke.
+/// Resolve an app's icon by its display name. Caches results — misses
+/// included, so an unresolvable app doesn't rescan the running-app list
+/// on every keystroke × row.
 enum AppIconResolver {
-    private static var cache: [String: NSImage] = [:]
+    private static var cache: [String: NSImage?] = [:]
 
     static func icon(forAppName name: String) -> NSImage? {
         if let hit = cache[name] { return hit }
+        let resolved = resolve(name)
+        cache[name] = resolved
+        return resolved
+    }
+
+    private static func resolve(_ name: String) -> NSImage? {
+        // `name` is usually a display name, but aerospace falls back to
+        // the bundle id when an app has no name — try the cheap bundle-id
+        // lookup first.
         let workspace = NSWorkspace.shared
         if let url = workspace.urlForApplication(withBundleIdentifier: name) {
-            let img = workspace.icon(forFile: url.path)
-            cache[name] = img
-            return img
+            return workspace.icon(forFile: url.path)
         }
-        // Fall back to a running-app lookup by localized name. Many apps
-        // expose a display name that doesn't match their bundle identifier.
-        for app in NSRunningApplication.runningApplications(withBundleIdentifier: name) {
-            if let img = app.icon {
-                cache[name] = img
-                return img
-            }
-        }
-        if let app = NSRunningApplication.runningApplications(withBundleIdentifier: "")
-            .first(where: { $0.localizedName == name }),
-           let img = app.icon {
-            cache[name] = img
-            return img
+        if let app = NSRunningApplication.runningApplications(withBundleIdentifier: name)
+            .first(where: { $0.icon != nil }) {
+            return app.icon
         }
         // Last resort — scan running apps by display name. Slower than
         // a bundle-ID lookup but only runs on a cache miss.
-        if let app = NSWorkspace.shared.runningApplications
-            .first(where: { $0.localizedName == name }),
-           let img = app.icon {
-            cache[name] = img
-            return img
-        }
-        return nil
+        return workspace.runningApplications
+            .first(where: { $0.localizedName == name })?
+            .icon
     }
 }

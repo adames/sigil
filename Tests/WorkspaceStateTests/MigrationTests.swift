@@ -83,6 +83,37 @@ struct MigrationValidatorTests {
         }
     }
 
+    /// A file with no `version` key is its own failure mode — it must
+    /// not be misreported as "unsupported version: 1".
+    @Test func missing_version_throws_missing_version() {
+        let unversioned = #"{ "spaces": {} }"#
+        #expect(throws: MigrationError.missingVersion) {
+            _ = try Migration.migrate(jsonData: Data(unversioned.utf8))
+        }
+    }
+
+    /// Regression: NSNumber bridging casts integer 0/1 to Bool, so the
+    /// renderer used to rewrite `"count": 1` as `"count": true` —
+    /// corrupting user data on `migrate --apply`. Integers must stay
+    /// integers and real booleans must stay booleans.
+    @Test func renderer_preserves_integers_zero_and_one() throws {
+        let v3 = """
+        {
+          "version": 3,
+          "_count": 1,
+          "_padding": 0,
+          "_flag": true,
+          "_off": false,
+          "spaces": {}
+        }
+        """
+        let result = try Migration.migrate(jsonData: Data(v3.utf8))
+        #expect(result.outputJSON.contains("\"_count\": 1"))
+        #expect(result.outputJSON.contains("\"_padding\": 0"))
+        #expect(result.outputJSON.contains("\"_flag\": true"))
+        #expect(result.outputJSON.contains("\"_off\": false"))
+    }
+
     /// Missing top-level `spaces` raises `.missingSpaces`.
     @Test func missing_spaces_throws() {
         let no_spaces = #"{ "version": 3, "palette": "catppuccin-mocha" }"#
@@ -189,10 +220,36 @@ struct RenamePreservesOverrideTests {
         #expect(slot.workspaceName       == "1")
         #expect(slot.displayUUID         == "UUID-A")
         #expect(slot.target              == WorkspaceTarget(displayUUID: "UUID-A", workspaceName: "1"))
+    }
 
-        let encoded = store.encodeJSON(config)
-        #expect(encoded.contains("\"userOverridden\": true"))
-        #expect(encoded.contains("\"symbolName\": \"star.fill\""))
-        #expect(encoded.contains("\"UUID-A:1\""))
+    /// Slots without the required v3 identity fields can't be matched by
+    /// anything — the loader drops them rather than fabricating an empty
+    /// identity.
+    @Test func decoder_skips_slots_missing_identity_fields() throws {
+        let v3 = """
+        {
+          "version": 3,
+          "spaces": {
+            "UUID-A:1": {
+              "name": "kept",
+              "color": "#abcdef",
+              "stableLogicalLabel": "kept",
+              "displayUUID": "UUID-A",
+              "workspaceName": "1"
+            },
+            "orphan": {
+              "name": "dropped",
+              "color": "#000000"
+            }
+          }
+        }
+        """
+        let tmp = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("ws-spaces-\(UUID().uuidString).json")
+        try Data(v3.utf8).write(to: tmp)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+
+        let config = try WorkspaceStateStore(configURL: tmp).load()
+        #expect(config.slots.map(\.name) == ["kept"])
     }
 }

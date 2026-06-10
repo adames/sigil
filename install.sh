@@ -31,6 +31,10 @@ LAUNCH_AGENTS="$WORKSPACE_LAUNCH_AGENTS_DIR"
 # follow with their matching plist files.
 BINARIES=(ws-topology ws-topologyd ws-cheatsheet ws-prompt ws-picker ws-snap)
 
+# Shell CLIs (no build step) symlinked alongside the binaries — `ws` is
+# the documented entry point, so it has to land on PATH too.
+SHELL_CLIS=(ws ws-focus ws-send-follow)
+
 # Template names and their generated plist names
 TEMPLATES=(topologyd)
 AGENT_LABELS=("$WORKSPACE_BUNDLE_PREFIX.topologyd")
@@ -84,6 +88,17 @@ for bin in "${BINARIES[@]}"; do
   step "linked $dst -> $src"
 done
 
+for cli in "${SHELL_CLIS[@]}"; do
+  src="$HERE/cli/$cli"
+  dst="$LOCAL_BIN/$cli"
+  if [[ ! -x "$src" ]]; then
+    warn "missing shell CLI: $src"
+    exit 1
+  fi
+  ln -sfn "$src" "$dst"
+  step "linked $dst -> $src"
+done
+
 mkdir -p "$LAUNCH_AGENTS"
 mkdir -p "$WORKSPACE_CACHE_DIR"
 
@@ -100,6 +115,7 @@ for template in "${TEMPLATES[@]}"; do
 
   sed -e "s|{{BUNDLE_PREFIX}}|$WORKSPACE_BUNDLE_PREFIX|g" \
       -e "s|{{HOME}}|$HOME|g" \
+      -e "s|{{BIN_DIR}}|$LOCAL_BIN|g" \
       -e "s|{{CACHE_DIR}}|$WORKSPACE_CACHE_DIR|g" \
       "$template_file" > "$dst"
 
@@ -131,5 +147,5 @@ Configuration:
 
 To uninstall:
   for L in ${AGENT_LABELS[*]}; do launchctl bootout "gui/$(id -u)/\$L" 2>/dev/null || true; rm -f "$LAUNCH_AGENTS/\$L.plist"; done
-  for B in ${BINARIES[*]}; do rm -f "$LOCAL_BIN/\$B"; done
+  for B in ${BINARIES[*]} ${SHELL_CLIS[*]}; do rm -f "$LOCAL_BIN/\$B"; done
 NOTE
