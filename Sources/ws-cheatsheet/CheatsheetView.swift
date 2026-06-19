@@ -87,11 +87,11 @@ struct CheatsheetView: View {
                     KeyCap(text: item.k)
                     Text(item.v)
                         .font(.system(size: 9))
-                        .foregroundColor(Catppuccin.subtext0)
+                        .foregroundColor(Palette.resolved.subtext0)
                         .lineLimit(1)
                 }
                 if idx < document.banner.count - 1 {
-                    Text("·").foregroundColor(Catppuccin.surface2)
+                    Text("·").foregroundColor(Palette.resolved.surface2)
                 }
             }
         }
@@ -99,10 +99,10 @@ struct CheatsheetView: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 999)
-                .fill(Catppuccin.mantle.opacity(0.92))
+                .fill(Palette.resolved.mantle.opacity(0.92))
                 .overlay(
                     RoundedRectangle(cornerRadius: 999)
-                        .strokeBorder(Catppuccin.surface0.opacity(0.6), lineWidth: 1)
+                        .strokeBorder(Palette.resolved.surface0.opacity(0.6), lineWidth: 1)
                 )
         )
     }
@@ -126,7 +126,7 @@ struct CheatsheetView: View {
         return HStack(spacing: 6) {
             Text(lens.key)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundColor(isActive ? Catppuccin.crust : accent)
+                .foregroundColor(isActive ? Palette.resolved.crust : accent)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 1)
                 .background(
@@ -135,7 +135,7 @@ struct CheatsheetView: View {
                 )
             Text(lens.label)
                 .font(.system(size: 11, weight: isActive ? .semibold : .regular))
-                .foregroundColor(isActive ? accent : Catppuccin.subtext0)
+                .foregroundColor(isActive ? accent : Palette.resolved.subtext0)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
@@ -143,11 +143,11 @@ struct CheatsheetView: View {
             RoundedRectangle(cornerRadius: 999)
                 .fill(isActive
                       ? accent.opacity(0.12)
-                      : Catppuccin.mantle.opacity(0.6))
+                      : Palette.resolved.mantle.opacity(0.6))
                 .overlay(
                     RoundedRectangle(cornerRadius: 999)
                         .strokeBorder(
-                            isActive ? accent.opacity(0.55) : Catppuccin.surface0.opacity(0.55),
+                            isActive ? accent.opacity(0.55) : Palette.resolved.surface0.opacity(0.55),
                             lineWidth: 1
                         )
                 )
@@ -179,7 +179,7 @@ struct CheatsheetView: View {
             Text("1..4 switch lens  ·  tab cycle  ·  esc or caps+/ to close  ·  \(timestamp)")
                 .font(.system(size: 9))
                 .tracking(0.5)
-                .foregroundColor(Catppuccin.overlay0)
+                .foregroundColor(Palette.resolved.overlay0)
             Spacer()
         }
     }
@@ -242,7 +242,7 @@ private struct SectionCard: View {
                 if let sub = section.sub, !sub.isEmpty {
                     Text(sub)
                         .font(.system(size: metrics.subSize))
-                        .foregroundColor(Catppuccin.overlay1)
+                        .foregroundColor(Palette.resolved.overlay1)
                         .padding(.bottom, section.idea == nil ? 8 : 4)
                 }
 
@@ -273,7 +273,7 @@ private struct SectionCard: View {
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Catppuccin.mantle.opacity(0.94))
+                .fill(Palette.resolved.mantle.opacity(0.94))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .strokeBorder(accentColor.opacity(0.22), lineWidth: 1)
@@ -291,11 +291,11 @@ private struct SectionCard: View {
                 // Footnote row: italic muted prose, no badge, no keycap.
                 Text("—")
                     .font(.system(size: metrics.rowDescSize, design: .monospaced))
-                    .foregroundColor(Catppuccin.surface2)
+                    .foregroundColor(Palette.resolved.surface2)
                     .frame(width: 60, alignment: .leading)
                 Text(desc)
                     .font(.system(size: metrics.rowDescSize - 1))
-                    .foregroundColor(Catppuccin.overlay0)
+                    .foregroundColor(Palette.resolved.overlay0)
                     .italic()
                     .fixedSize(horizontal: false, vertical: true)
             } else {
@@ -305,7 +305,7 @@ private struct SectionCard: View {
                     .layoutPriority(1)
                 Text(desc)
                     .font(.system(size: metrics.rowDescSize))
-                    .foregroundColor(Catppuccin.subtext0)
+                    .foregroundColor(Palette.resolved.subtext0)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
@@ -330,15 +330,15 @@ struct KeyCap: View {
     var body: some View {
         Text(text)
             .font(.system(size: fontSize, design: .monospaced))
-            .foregroundColor(Catppuccin.text)
+            .foregroundColor(Palette.resolved.text)
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Catppuccin.surface0.opacity(0.55))
+                    .fill(Palette.resolved.surface0.opacity(0.55))
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .strokeBorder(Catppuccin.surface1, lineWidth: 1)
+                            .strokeBorder(Palette.resolved.surface1, lineWidth: 1)
                     )
             )
             .fixedSize(horizontal: true, vertical: false)

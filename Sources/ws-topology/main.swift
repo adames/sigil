@@ -27,6 +27,7 @@ func run(args: [String]) -> Int32 {
     case "migrate":         return cmdMigrate(args: rest)
     case "resolve-icon":    return cmdResolveIcon(args: rest)
     case "emit-aerospace":  return cmdEmitAerospace(args: rest)
+    case "resolve-palette": return cmdResolvePalette(args: rest)
     case "help", "-h", "--help":
         printUsage()
         return 0
@@ -46,6 +47,9 @@ func printUsage() {
       migrate [--apply]           validate + canonically re-render spaces.json
                                   (dry-run by default). v3 only; v1/v2 inputs error.
       resolve-icon <slot>         resolve the icon for a workspaceName / slot name / 1-based ordinal; --surface=font|native
+      resolve-palette [--write]   derive Sigil's palette from the terminal (Ghostty) and
+                                  print it (dry-run) or write palette.json (--write).
+                                  --force overwrites a "source":"manual" file.
       emit-aerospace [--write]    emit the sigil-fenced aerospace.toml block.
                                   --write: merge into ~/.config/aerospace/aerospace.toml.
                                   --reload: call `aerospace reload-config` after writing.

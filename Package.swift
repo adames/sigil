@@ -59,6 +59,7 @@ let package = Package(
         .library(name: "AerospaceEmit", targets: ["AerospaceEmit"]),
         .library(name: "AdaptersAppKit", targets: ["AdaptersAppKit"]),
         .library(name: "WsUI", targets: ["WsUI"]),
+        .library(name: "PaletteCore", targets: ["PaletteCore"]),
     ],
     targets: [
         .target(
@@ -71,7 +72,16 @@ let package = Package(
         // in the executable target.
         .target(
             name: "WsUI",
+            dependencies: ["PaletteCore"],
             path: "Sources/WsUI"
+        ),
+        // Pure (SwiftUI-free) color math + terminal-palette resolver. A
+        // library so both the ws-topology resolver and PaletteCoreTests
+        // exercise the production code; WsUI reuses its PaletteDocument
+        // schema for the loader.
+        .target(
+            name: "PaletteCore",
+            path: "Sources/PaletteCore"
         ),
         .target(
             name: "LayoutPolicy",
@@ -95,7 +105,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "ws-topology",
-            dependencies: ["AerospaceEmit", "DisplayTopology", "LayoutPolicy", "WorkspaceState"],
+            dependencies: ["AerospaceEmit", "DisplayTopology", "LayoutPolicy", "WorkspaceState", "PaletteCore"],
             path: "Sources/ws-topology"
         ),
         .executableTarget(
@@ -153,6 +163,20 @@ let package = Package(
             name: "ws-topologyTests",
             dependencies: ["AerospaceEmit"],
             path: "Tests/ws-topologyTests",
+            swiftSettings: swiftTestingSettings,
+            linkerSettings: swiftTestingLinkerSettings
+        ),
+        .testTarget(
+            name: "WsUITests",
+            dependencies: ["WsUI"],
+            path: "Tests/WsUITests",
+            swiftSettings: swiftTestingSettings,
+            linkerSettings: swiftTestingLinkerSettings
+        ),
+        .testTarget(
+            name: "PaletteCoreTests",
+            dependencies: ["PaletteCore"],
+            path: "Tests/PaletteCoreTests",
             swiftSettings: swiftTestingSettings,
             linkerSettings: swiftTestingLinkerSettings
         ),

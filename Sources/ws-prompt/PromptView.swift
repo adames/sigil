@@ -41,10 +41,10 @@ struct PromptView: View {
         .frame(width: 520)
         .background(
             RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Catppuccin.mantle.opacity(0.96))
+                .fill(Palette.resolved.mantle.opacity(0.96))
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                        .strokeBorder(Catppuccin.surface0.opacity(0.85), lineWidth: 1)
+                        .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
                 )
         )
         .shadow(color: .black.opacity(0.4), radius: 20, y: 6)
@@ -56,7 +56,7 @@ struct PromptView: View {
         HStack(spacing: 10) {
             Text("send window")
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Catppuccin.text)
+                .foregroundColor(Palette.resolved.text)
             Spacer()
             modeChip
         }
@@ -67,12 +67,12 @@ struct PromptView: View {
     private var modeChip: some View {
         Text("SEND")
             .font(.system(size: 11, weight: .medium))
-            .foregroundColor(Catppuccin.base)
+            .foregroundColor(Palette.resolved.base)
             .padding(.horizontal, 10)
             .frame(height: PromptStyle.pillHeight)
             .background(
                 RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                    .fill(Catppuccin.green)
+                    .fill(Palette.resolved.green)
             )
     }
 
@@ -87,7 +87,7 @@ struct PromptView: View {
                 if workspaces.isEmpty {
                     Text("no workspaces")
                         .font(.system(size: 11))
-                        .foregroundColor(Catppuccin.overlay0)
+                        .foregroundColor(Palette.resolved.overlay0)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
                 }
@@ -99,7 +99,7 @@ struct PromptView: View {
     /// One workspace row, styled as a chip: the slot digit, optional icon,
     /// and name. `0` labels slot 10 to match the commit digit.
     private func workspaceRow(ws: Workspace) -> some View {
-        let slot = Color(hex: ws.color) ?? Catppuccin.overlay1
+        let slot = Color(hex: ws.color) ?? Palette.resolved.overlay1
         return HStack(spacing: 10) {
             HStack(spacing: 6) {
                 Text(digitLabel(ws.index))
@@ -111,7 +111,7 @@ struct PromptView: View {
 
             Text(ws.name)
                 .font(.system(size: 12))
-                .foregroundColor(Catppuccin.text)
+                .foregroundColor(Palette.resolved.text)
             Spacer()
         }
         .padding(.horizontal, 10)
@@ -159,7 +159,7 @@ struct PromptView: View {
     private var hint: some View {
         Text("1–0 sends + follows · esc cancels")
             .font(.system(size: 10, weight: .medium))
-            .foregroundColor(Catppuccin.overlay0)
+            .foregroundColor(Palette.resolved.overlay0)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

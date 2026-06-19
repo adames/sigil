@@ -62,6 +62,24 @@ ws name <name> "work"     # Rename workspace
 ws theme <theme> [--with-icons]  # Apply palette across all workspaces
 ```
 
+## Theming
+
+Sigil reads your terminal's own colors so its overlays look like an
+extension of the tools you already run — customize your terminal, not
+Sigil. Today it derives from [Ghostty](https://ghostty.org); with no
+terminal detected it falls back to the built-in Catppuccin Mocha palette,
+so it always renders.
+
+```bash
+ws palette sync     # derive ~/.config/workspace/palette.json from your terminal
+ws palette show     # preview the active palette with truecolor swatches
+ws palette reset    # delete palette.json → revert to built-in Catppuccin
+```
+
+`install.sh` runs `palette sync` automatically. Re-run it after you
+change your terminal theme. A hand-edited `palette.json` marked
+`"source": "manual"` is never overwritten by `sync` without `--force`.
+
 ## Multi-machine
 
 `spaces.json` is the shared default; `spaces.<hostname>.json` takes precedence when present (`ws host init` to fork, `ws host reset` to remove). Display topology adapts automatically — `ws-topologyd` rewrites `layout.env` on plug/unplug/mirror/clamshell events.
