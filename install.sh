@@ -99,6 +99,15 @@ for cli in "${SHELL_CLIS[@]}"; do
   step "linked $dst -> $src"
 done
 
+# Derive Sigil's palette from the terminal so a fresh install matches it
+# out of the box. Non-fatal: no Ghostty / unreadable theme just leaves
+# Sigil on its built-in Catppuccin fallback.
+if "$LOCAL_BIN/ws-topology" resolve-palette --write 2>&1 | sed 's/^/  /'; then
+  step "palette synced from terminal"
+else
+  warn "palette sync skipped (Sigil stays on the Catppuccin fallback)"
+fi
+
 mkdir -p "$LAUNCH_AGENTS"
 mkdir -p "$WORKSPACE_CACHE_DIR"
 

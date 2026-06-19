@@ -387,6 +387,11 @@ LAYOUTS  (named snapshots, per-machine)
   layout list                      list saved layouts
   layout delete <NAME> [-y]        remove a saved layout
 
+THEMING
+  palette sync [--force]           derive palette.json from your terminal (Ghostty)
+  palette show                     preview the active palette with swatches
+  palette reset                    revert to the built-in Catppuccin palette
+
 SYSTEM
   migrate [--apply]                validate / re-render spaces.json (delegates to ws-topology)
   host {status|init|reset|list}    per-host overlay (spaces.<hostname>.json)
@@ -398,6 +403,8 @@ ENV OVERRIDES
   WS_HANDLER      cascade entry point     (default: ~/.config/workspace/on-space-changed.sh)
   WS_HOOK         post-mutate hook        (default: ~/.config/workspace/hooks/post-mutate.sh)
   WS_LAYOUTS_DIR  layouts directory       (default: ~/.config/workspace/layouts)
+  WS_PALETTE      path to palette.json    (default: ~/.config/workspace/palette.json)
+  GHOSTTY_BIN     ghostty binary override (palette sync; else autodetected)
 
 EXIT CODES
   0 success · 1 runtime error · 2 usage error
@@ -1127,6 +1134,65 @@ cmd_doctor() {
   ok "spaces.json schema OK ($( _count ) identity slots, v3)"
 }
 
+cmd_palette() {
+  # Sigil reads the terminal's own colors so it looks like an extension
+  # of the tools you already run. `sync` derives palette.json from Ghostty
+  # (via ws-topology); `show` previews it; `reset` reverts to the built-in
+  # Catppuccin fallback. All thin wrappers around the Swift resolver.
+  local sub="${1:-show}"; shift || true
+  local palette_json="${WS_PALETTE:-$HOME/.config/workspace/palette.json}"
+
+  case "$sub" in
+    sync)
+      if ! command -v ws-topology >/dev/null 2>&1; then
+        err "ws-topology not on PATH (build + symlink from ~/.config/workspace/topology)"
+        return 1
+      fi
+      ws-topology resolve-palette --write "$@"
+      ;;
+    show)
+      if [[ ! -f "$palette_json" ]]; then
+        printf 'ws: no palette.json — Sigil is on its built-in Catppuccin fallback. Run '\''ws palette sync'\''.\n' >&2
+        return 0
+      fi
+      local src tty=0
+      [[ -t 1 && -z "${NO_COLOR:-}" ]] && tty=1
+      src=$(jq -r '.source // "?"' "$palette_json" 2>/dev/null)
+      printf 'palette.json  (source: %s)\n' "$src" >&2
+      # One swatch per slot, in the file's order.
+      jq -r '.slots | to_entries[] | "\(.key)\t\(.value)"' "$palette_json" 2>/dev/null \
+      | while IFS=$'\t' read -r name hex; do
+          printf '  %-10s %-8s %s\n' "$name" "$hex" "$(WS_TTY=$tty _swatch "$hex")"
+        done
+      ;;
+    reset)
+      if [[ -f "$palette_json" ]]; then
+        rm -f "$palette_json" && ok "removed $palette_json (reverted to built-in Catppuccin)"
+      else
+        printf 'ws: no palette.json to remove — already on the Catppuccin fallback\n' >&2
+      fi
+      ;;
+    -h|--help|help)
+      cat >&2 <<'EOF_PALETTE_HELP'
+usage: ws palette <sync|show|reset>
+
+  sync [--force]   derive palette.json from your terminal (Ghostty) so
+                   Sigil's overlays match it. --force overwrites a
+                   "source":"manual" palette.json.
+  show             preview the active palette with truecolor swatches.
+  reset            delete palette.json → revert to built-in Catppuccin.
+
+Sigil reads your terminal's colors; re-run `ws palette sync` after you
+change your terminal theme.
+EOF_PALETTE_HELP
+      ;;
+    *)
+      err "unknown palette subcommand: $sub (try 'ws palette --help')"
+      return 2
+      ;;
+  esac
+}
+
 cmd_verify() {
   local harness="$HOME/.config/workspace/cli/test-cascade.sh"
   if [[ ! -x "$harness" ]]; then
@@ -1150,6 +1216,7 @@ case "${1:-}" in
   name)              shift; cmd_name     "$@" ;;
   icon)              shift; cmd_icon     "$@" ;;
   theme)             shift; cmd_theme    "$@" ;;
+  palette)           shift; cmd_palette  "$@" ;;
   edit)              shift; cmd_edit     "$@" ;;
   reset)             shift; cmd_reset    "$@" ;;
   doctor)            shift; cmd_doctor   "$@" ;;

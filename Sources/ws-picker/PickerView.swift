@@ -42,10 +42,10 @@ struct PickerView: View {
         .frame(width: 520)
         .background(
             RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Catppuccin.mantle.opacity(0.96))
+                .fill(Palette.resolved.mantle.opacity(0.96))
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                        .strokeBorder(Catppuccin.surface0.opacity(0.85), lineWidth: 1)
+                        .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
                 )
         )
         .shadow(color: .black.opacity(0.4), radius: 20, y: 6)
@@ -57,7 +57,7 @@ struct PickerView: View {
         HStack(spacing: 10) {
             Text("change application")
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Catppuccin.text)
+                .foregroundColor(Palette.resolved.text)
             Spacer()
             modeChip
         }
@@ -66,12 +66,12 @@ struct PickerView: View {
     private var modeChip: some View {
         Text("CHANGE")
             .font(.system(size: 11, weight: .medium))
-            .foregroundColor(Catppuccin.base)
+            .foregroundColor(Palette.resolved.base)
             .padding(.horizontal, 10)
             .frame(height: PromptStyle.pillHeight)
             .background(
                 RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                    .fill(Catppuccin.blue)
+                    .fill(Palette.resolved.blue)
             )
     }
 
@@ -81,24 +81,24 @@ struct PickerView: View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(Catppuccin.blue)
+                .foregroundColor(Palette.resolved.blue)
                 .frame(width: 14)
             Text(displayQuery)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(controller.query.isEmpty ? Catppuccin.overlay0 : Catppuccin.text)
+                .foregroundColor(controller.query.isEmpty ? Palette.resolved.overlay0 : Palette.resolved.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text("↵")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(Catppuccin.overlay0)
+                .foregroundColor(Palette.resolved.overlay0)
         }
         .padding(.horizontal, 12)
         .frame(height: 30)
         .background(
             RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                .fill(Catppuccin.base.opacity(0.6))
+                .fill(Palette.resolved.base.opacity(0.6))
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                        .strokeBorder(Catppuccin.surface0.opacity(0.8), lineWidth: 1)
+                        .strokeBorder(Palette.resolved.surface0.opacity(0.8), lineWidth: 1)
                 )
         )
     }
@@ -120,7 +120,7 @@ struct PickerView: View {
                 if matches.isEmpty {
                     Text("no matching windows")
                         .font(.system(size: 11))
-                        .foregroundColor(Catppuccin.overlay0)
+                        .foregroundColor(Palette.resolved.overlay0)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
                 }
@@ -131,12 +131,12 @@ struct PickerView: View {
 
     /// One row mirrors a workspace pill from PromptView: app icon + name
     /// on the left, window title on the right, workspace name at the
-    /// far end. Selected row fills with Catppuccin.blue (the same color
+    /// far end. Selected row fills with Palette.resolved.blue (the same color
     /// the focus prompt uses for its navigate-action chip).
     private func windowRow(item: WindowItem, selected: Bool) -> some View {
-        let accent = Catppuccin.blue
-        let textColor: Color = selected ? Catppuccin.base : Catppuccin.text
-        let subColor:  Color = selected ? Catppuccin.base.opacity(0.75) : Catppuccin.overlay1
+        let accent = Palette.resolved.blue
+        let textColor: Color = selected ? Palette.resolved.base : Palette.resolved.text
+        let subColor:  Color = selected ? Palette.resolved.base.opacity(0.75) : Palette.resolved.overlay1
         return HStack(spacing: 10) {
             iconView(for: item.app, tinted: selected)
                 .frame(width: 18, height: 18)
@@ -158,7 +158,7 @@ struct PickerView: View {
             if !item.workspace.isEmpty {
                 Text(item.workspace)
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(selected ? Catppuccin.base : accent)
+                    .foregroundColor(selected ? Palette.resolved.base : accent)
             }
         }
         .padding(.horizontal, 10)
@@ -186,14 +186,14 @@ struct PickerView: View {
         } else {
             Image(systemName: "app.dashed")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(selected ? Catppuccin.base : Catppuccin.overlay1)
+                .foregroundColor(selected ? Palette.resolved.base : Palette.resolved.overlay1)
         }
     }
 
     private var hint: some View {
         Text("letters fuzzy-match · ↵ jumps to that workspace · tab/⇧tab cycles · esc cancels")
             .font(.system(size: 10, weight: .medium))
-            .foregroundColor(Catppuccin.overlay0)
+            .foregroundColor(Palette.resolved.overlay0)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
