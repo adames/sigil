@@ -68,6 +68,14 @@ ws theme <theme> [--with-icons]  # Apply palette across all workspaces
 
 `aerospace.toml` is shared. The sigil-fenced block (`# >>> sigil generated >>>`) re-emits on `ws-topology emit-aerospace --write` from the current machine's spaces.json (without `--write` the block prints to stdout, nothing is touched).
 
+## Contributing
+
+Bug reports, ideas, and PRs are welcome. Start with
+[CONTRIBUTING.md](CONTRIBUTING.md) for setup, project layout, and style
+notes. Please read the [Code of Conduct](CODE_OF_CONDUCT.md), and report
+security issues privately per the [security policy](SECURITY.md). Notable
+changes are tracked in the [changelog](CHANGELOG.md).
+
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
