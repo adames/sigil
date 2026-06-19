@@ -14,23 +14,21 @@ struct PromptView: View {
     private var workspaces: [Workspace] { controller.workspaces }
 
     var body: some View {
-        // Fill the full hosting view so the VStack's default `.center`
-        // alignment centers the card horizontally on screen.
-        ZStack {
-            // No background scrim. The borderless window is transparent
-            // (isOpaque=false in WsPromptApp); the card's own opaque
-            // catppuccin background carries the visual weight so the
-            // prompt floats above the live desktop instead of dimming it.
+        // GeometryReader gives us the host screen size so the card scales
+        // with the display instead of a fixed 520pt. The VStack centers
+        // the card horizontally; a top spacer drops it a screen-relative
+        // distance down.
+        GeometryReader { geo in
             VStack(spacing: 14) {
-                Spacer().frame(height: PromptStyle.topInset)
-                card
+                Spacer().frame(height: PromptStyle.topInset(for: geo.size.height))
+                card(width: PromptStyle.cardWidth(for: geo.size.width))
                 Spacer()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var card: some View {
+    private func card(width: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             header
             listRows
@@ -38,16 +36,26 @@ struct PromptView: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
-        .frame(width: 520)
+        .frame(width: width)
         .background(
+            // Frosted glass: a blur layer under a translucent mantle fill,
+            // so the slight transparency reads as glass rather than muddy
+            // color bleed over a busy desktop.
             RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Palette.resolved.mantle.opacity(0.96))
+                .fill(Palette.resolved.mantle.opacity(0.82))
+                .background(
+                    VisualEffectBlur()
+                        .clipShape(RoundedRectangle(cornerRadius: PromptStyle.cardCorner))
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
                         .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
                 )
         )
         .shadow(color: .black.opacity(0.4), radius: 20, y: 6)
+        .modifier(Shake(nudge: controller.nudge))
+        .animation(.easeOut(duration: 0.16), value: controller.nudge)
+        .overlayReveal()
     }
 
     // MARK: - Header
@@ -81,13 +89,13 @@ struct PromptView: View {
     private var listRows: some View {
         ScrollView {
             VStack(spacing: 4) {
-                ForEach(Array(workspaces.enumerated()), id: \.offset) { (_, ws) in
-                    workspaceRow(ws: ws)
+                ForEach(Array(workspaces.enumerated()), id: \.offset) { (idx, ws) in
+                    workspaceRow(ws: ws, selected: idx == controller.selection)
                 }
                 if workspaces.isEmpty {
                     Text("no workspaces")
                         .font(.system(size: 11))
-                        .foregroundColor(Palette.resolved.overlay0)
+                        .foregroundColor(Palette.resolved.hint)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
                 }
@@ -97,31 +105,35 @@ struct PromptView: View {
     }
 
     /// One workspace row, styled as a chip: the slot digit, optional icon,
-    /// and name. `0` labels slot 10 to match the commit digit.
-    private func workspaceRow(ws: Workspace) -> some View {
+    /// and name. `0` labels slot 10 to match the commit digit. The selected
+    /// row fills with its slot color (mirrors the picker's selection so the
+    /// two overlays share one interaction model).
+    private func workspaceRow(ws: Workspace, selected: Bool) -> some View {
         let slot = Color(hex: ws.color) ?? Palette.resolved.overlay1
+        let digitColor: Color = selected ? Palette.resolved.base : slot
+        let nameColor: Color = selected ? Palette.resolved.base : Palette.resolved.text
         return HStack(spacing: 10) {
             HStack(spacing: 6) {
                 Text(digitLabel(ws.index))
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(slot)
-                iconView(ws: ws, tint: slot)
+                    .foregroundColor(digitColor)
+                iconView(ws: ws, tint: digitColor)
             }
             .frame(width: 56, alignment: .leading)
 
             Text(ws.name)
                 .font(.system(size: 12))
-                .foregroundColor(Palette.resolved.text)
+                .foregroundColor(nameColor)
             Spacer()
         }
         .padding(.horizontal, 10)
         .frame(height: PromptStyle.pillHeight + 6)
         .background(
             RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                .fill(Color.clear)
+                .fill(selected ? slot : Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                        .strokeBorder(slot.opacity(0.55), lineWidth: 1.5)
+                        .strokeBorder(slot.opacity(selected ? 1 : 0.55), lineWidth: 1.5)
                 )
         )
     }
@@ -157,9 +169,9 @@ struct PromptView: View {
     // MARK: - Hint
 
     private var hint: some View {
-        Text("1–0 sends + follows · esc cancels")
-            .font(.system(size: 10, weight: .medium))
-            .foregroundColor(Palette.resolved.overlay0)
+        Text("↵ or 1–0 sends + follows · ↑↓ select · esc cancels")
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(Palette.resolved.hint)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

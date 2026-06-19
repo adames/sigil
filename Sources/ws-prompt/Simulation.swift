@@ -4,10 +4,12 @@ import Foundation
 ///
 ///   plain letters / digits   →  .char(c)
 ///   <ESC>                    →  .escape
+///   <CR> / <ENTER>           →  .enter
+///   <UP> / <DOWN>            →  .up / .down
+///   <TAB> / <STAB>           →  .tab / .backTab
 ///
 /// Anything else falls through as a literal char. Built for headless
-/// smoke-testing with key strings like "3" or "9<ESC>"; nothing
-/// automated drives it yet.
+/// smoke-testing with key strings like "3", "9<ESC>", or "<DOWN><CR>".
 enum KeySequenceParser {
     static func parse(_ raw: String) -> [PromptKey] {
         var out: [PromptKey] = []
@@ -17,7 +19,12 @@ enum KeySequenceParser {
                 if let close = raw[i...].firstIndex(of: ">") {
                     let token = String(raw[raw.index(after: i)..<close]).uppercased()
                     switch token {
-                    case "ESC":   out.append(.escape)
+                    case "ESC":            out.append(.escape)
+                    case "CR", "ENTER":    out.append(.enter)
+                    case "UP":             out.append(.up)
+                    case "DOWN":           out.append(.down)
+                    case "TAB":            out.append(.tab)
+                    case "STAB":           out.append(.backTab)
                     default:
                         // Unknown token — emit the literal "<token>" so a
                         // typo is loud rather than silently dropped.
@@ -41,6 +48,12 @@ enum SimulateReporter {
         switch action {
         case .idle:
             Swift.print("action=idle mode=\(mode.rawValue)")
+            return 0
+        case .move:
+            Swift.print("action=move mode=\(mode.rawValue)")
+            return 0
+        case .reject:
+            Swift.print("action=reject mode=\(mode.rawValue)")
             return 0
         case .commitSend(let slot):
             Swift.print("action=commit mode=send helper=ws-send-follow arg=\(slot)")

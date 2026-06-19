@@ -42,18 +42,29 @@ guard let first = args.first, let region = SnapRegion(rawValue: first) else {
     exit(2)
 }
 
-exit(snap(region) ? 0 : 1)
+// On success, flash a brief ghost rectangle over the snap target so the
+// move is confirmed visually (the rest of Sigil is overlay-driven; a
+// silent CLI snap was the odd one out). Scripts can opt out with
+// WS_SNAP_NO_FLASH=1.
+guard let target = snap(region) else { exit(1) }
+if ProcessInfo.processInfo.environment["WS_SNAP_NO_FLASH"] == "1" {
+    exit(0)
+}
+flashConfirmation(in: target)   // runs an NSApp loop, then exit(0)
 
 // MARK: - Snap
 
-func snap(_ region: SnapRegion) -> Bool {
+/// Move the focused floating window to `region`. Returns the target rect
+/// (AppKit coords) on success so the caller can flash it, or nil on any
+/// failure.
+func snap(_ region: SnapRegion) -> NSRect? {
     guard let window = focusedWindow() else {
         FileHandle.standardError.write(Data("ws-snap: no focused window\n".utf8))
-        return false
+        return nil
     }
     guard let screen = screenForWindow(window) else {
         FileHandle.standardError.write(Data("ws-snap: cannot resolve screen for focused window\n".utf8))
-        return false
+        return nil
     }
 
     let f = region.fraction
@@ -76,7 +87,7 @@ func snap(_ region: SnapRegion) -> Bool {
     guard let posValue = AXValueCreate(.cgPoint, &position),
           let sizeValue = AXValueCreate(.cgSize, &size) else {
         FileHandle.standardError.write(Data("ws-snap: AXValueCreate failed\n".utf8))
-        return false
+        return nil
     }
 
     let posResult  = AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, posValue)
@@ -86,9 +97,59 @@ func snap(_ region: SnapRegion) -> Bool {
         FileHandle.standardError.write(
             Data("ws-snap: AX set failed (pos=\(posResult.rawValue) size=\(sizeResult.rawValue))\n".utf8)
         )
-        return false
+        return nil
     }
-    return true
+    return target
+}
+
+// MARK: - Confirmation flash
+//
+// A momentary borderless ghost rectangle at the snap target: fade in,
+// hold, fade out, exit. Pure AppKit (no SwiftUI/WsUI dep) and never
+// activates or takes mouse events, so the snapped window keeps focus.
+// Accent is Catppuccin blue — a fixed hue is fine for a 0.4s flash.
+
+func flashConfirmation(in rect: NSRect) {
+    let app = NSApplication.shared
+    app.setActivationPolicy(.accessory)
+
+    let win = NSWindow(
+        contentRect: rect,
+        styleMask: .borderless,
+        backing: .buffered,
+        defer: false
+    )
+    win.isOpaque = false
+    win.backgroundColor = .clear
+    win.hasShadow = false
+    win.level = .modalPanel
+    win.ignoresMouseEvents = true
+    win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
+
+    let accent = NSColor(srgbRed: 0x89 / 255, green: 0xb4 / 255, blue: 0xfa / 255, alpha: 1)
+    let view = NSView(frame: NSRect(origin: .zero, size: rect.size))
+    view.wantsLayer = true
+    if let layer = view.layer {
+        layer.cornerRadius = 10
+        layer.borderWidth = 2
+        layer.borderColor = accent.cgColor
+        layer.backgroundColor = accent.withAlphaComponent(0.12).cgColor
+    }
+    win.contentView = view
+
+    win.alphaValue = 0
+    win.orderFrontRegardless()
+    NSAnimationContext.runAnimationGroup { ctx in
+        ctx.duration = 0.12
+        win.animator().alphaValue = 1
+    }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+        NSAnimationContext.runAnimationGroup({ ctx in
+            ctx.duration = 0.18
+            win.animator().alphaValue = 0
+        }, completionHandler: { exit(0) })
+    }
+    app.run()
 }
 
 // MARK: - AX helpers

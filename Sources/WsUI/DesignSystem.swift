@@ -69,6 +69,19 @@ public struct Palette {
     public let rosewater, flamingo, pink, mauve, red, maroon, peach: Color
     public let yellow, green, teal, sky, sapphire, blue, lavender: Color
 
+    // MARK: Semantic roles
+    //
+    // Named by intent, not by Catppuccin slot, so call sites read clearly
+    // and contrast decisions live in one place. Footers/placeholders used
+    // `overlay0` (#6c7086 on mantle ≈ 3:1 — below the 4.5:1 the palette
+    // resolver itself enforces); `hint` lifts them to a legible step.
+
+    /// Primary helper/hint text (footers, placeholders). Legible on the
+    /// card background.
+    public var hint: Color { subtext0 }
+    /// Lowest-emphasis helper text (e.g. timestamps) — still ≥ 4.5:1.
+    public var faintHint: Color { overlay2 }
+
     /// Loaded once per process at first access. `static let` is lazy and
     /// thread-safe, so the JSON read happens exactly once.
     public static let resolved: Palette = load()
@@ -150,8 +163,22 @@ public struct PromptStyle {
 
     /// Distance from the top of the screen to the top of the overlay
     /// card. Matches Raycast's search-box top so the two surfaces feel
-    /// like part of the same launcher family.
+    /// like part of the same launcher family. Prefer `topInset(for:)` —
+    /// this is the small-display floor.
     public static let topInset: CGFloat = 120
+
+    /// Card width as a function of the host screen width. Fixed-520pt
+    /// looked stranded on 5K displays and crowded on laptops; scale
+    /// gently and clamp so it never gets silly in either direction.
+    public static func cardWidth(for screenWidth: CGFloat) -> CGFloat {
+        (screenWidth * 0.34).clamped(to: 500...720)
+    }
+
+    /// Top inset as a function of host screen height — keeps the card a
+    /// roughly constant fraction down the screen across display sizes.
+    public static func topInset(for screenHeight: CGFloat) -> CGFloat {
+        (screenHeight * 0.12).clamped(to: 96...220)
+    }
 
     private init() {}
 }
