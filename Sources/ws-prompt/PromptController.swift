@@ -12,26 +12,36 @@ enum PromptMode: String {
 
 /// A single input event the controller understands. Modeled as a closed
 /// enum (rather than raw Strings) so the simulator and the live key
-/// monitor share one vocabulary. Number-only: a digit picks a slot and
-/// esc cancels — there is no text query, so no enter / tab / backspace.
+/// monitor share one vocabulary. The send prompt shares the picker's
+/// navigation model — arrows/tab move a selection, enter commits — while
+/// keeping digits as direct accelerators.
 enum PromptKey: Equatable {
     case char(Character)
     case escape
+    case enter
+    case up
+    case down
+    case tab
+    case backTab
 }
 
 /// Outcome of a key. The host spawns ws-send-follow on `.commitSend` and
-/// tears the overlay down on `.commitSend` / `.cancel`.
+/// tears the overlay down on `.commitSend` / `.cancel`. `.move` re-renders
+/// the selection; `.reject` flashes the card (input that maps to no slot).
 enum PromptAction: Equatable {
     case idle
+    case move
+    case reject
     case commitSend(slot: Int)
     case cancel
 }
 
-/// State machine for the send (follow) prompt. Modeled on AeroSpace's
-/// numeric workspace switch: a digit commits its slot immediately (1…9,
-/// and `0` → slot 10), esc cancels, every other key is a no-op. No name
-/// search and no selection state — the overlay just lists the workspaces
-/// so you can see which number is which.
+/// State machine for the send (follow) prompt. Shares the window picker's
+/// interaction model so the two overlays — which look identical — also
+/// behave identically: a highlighted selection that arrows/tab move, enter
+/// commits, esc cancels. Digits stay as direct accelerators (1…9, and
+/// `0` → slot 10) for muscle memory, and a digit past the last workspace
+/// nudges the card rather than silently dismissing.
 ///
 /// SwiftUI binds via `@ObservedObject`; the controller owns no NSEvent /
 /// NSApp — keys arrive through `handle(_:)` and the host spawns the
@@ -39,6 +49,11 @@ enum PromptAction: Equatable {
 final class PromptController: ObservableObject {
     let mode: PromptMode
     let workspaces: [Workspace]
+
+    /// 0-based index into `workspaces` of the highlighted row.
+    @Published private(set) var selection: Int = 0
+    /// Bumped on each rejected input so the view can shake once.
+    @Published private(set) var nudge: Int = 0
 
     init(mode: PromptMode, workspaces: [Workspace]) {
         self.mode = mode
@@ -50,6 +65,12 @@ final class PromptController: ObservableObject {
         switch key {
         case .escape:
             return .cancel
+        case .enter:
+            return commitSelection()
+        case .down, .tab:
+            return move(by: +1)
+        case .up, .backTab:
+            return move(by: -1)
         case .char(let c):
             guard c.isASCII, c.isNumber else { return .idle }
             return commitDigit(c)
@@ -57,19 +78,35 @@ final class PromptController: ObservableObject {
     }
 
     /// Fold a key list through `handle`, returning the first commit/cancel
-    /// (or `.idle` if the input ran dry). Backs the `--simulate-keys`
+    /// (or the last non-idle action otherwise). Backs the `--simulate-keys`
     /// smoke harness.
     func simulate(_ keys: [PromptKey]) -> PromptAction {
+        var last: PromptAction = .idle
         for key in keys {
             let action = handle(key)
             switch action {
             case .commitSend, .cancel:
                 return action
+            case .move, .reject:
+                last = action
             case .idle:
                 continue
             }
         }
-        return .idle
+        return last
+    }
+
+    private func move(by delta: Int) -> PromptAction {
+        let count = workspaces.count
+        guard count > 0 else { return .idle }
+        selection = ((selection + delta) % count + count) % count
+        return .move
+    }
+
+    private func commitSelection() -> PromptAction {
+        guard !workspaces.isEmpty else { return .reject }
+        // workspaces[selection].index is the 1-based slot ws-send-follow wants.
+        return .commitSend(slot: workspaces[selection.clamped(to: 0...(workspaces.count - 1))].index)
     }
 
     private func commitDigit(_ c: Character) -> PromptAction {
@@ -77,12 +114,14 @@ final class PromptController: ObservableObject {
         // stays visually contiguous (1…9, 0). Caller gated on isNumber, so
         // the Int() unwrap is total.
         let slot = (c == "0") ? 10 : Int(String(c))!
-        // Workspace indices are contiguous 1…count, so this rejects any
-        // digit with no listed workspace. ws-send-follow re-validates,
-        // but cancelling here skips spawning a helper that can only fail.
+        // Workspace indices are contiguous 1…count. A digit past the last
+        // workspace is a user miss — nudge the card so the no-op is
+        // visible, rather than silently tearing the overlay down.
         guard slot <= workspaces.count else {
-            return .cancel
+            nudge += 1
+            return .reject
         }
+        selection = slot - 1
         return .commitSend(slot: slot)
     }
 }

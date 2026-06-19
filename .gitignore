@@ -15,7 +15,11 @@ DerivedData/
 # IDE
 .vscode/
 .idea/
-.claude/
+# Ignore .claude/ contents (not the dir itself) so the skills negation
+# below can re-include — git can't rescue a path under a fully-excluded dir.
+.claude/*
+# …but track shared project skills (e.g. /design-critique).
+!.claude/skills/
 
 # Cache
 *.tmp

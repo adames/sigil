@@ -13,24 +13,19 @@ struct PickerView: View {
     private var matches: [WindowItem] { controller.currentMatches() }
 
     var body: some View {
-        // Fill the full hosting view so the VStack's default `.center`
-        // alignment centers the card horizontally on screen — without
-        // maxWidth/maxHeight the ZStack shrinks to the card's 520pt and
-        // NSHostingView pins it to the top-leading corner. Mirrors the
-        // ws-prompt PromptView body for visual parity across overlays.
-        ZStack {
-            // No background scrim — the card floats over the live desktop.
-            // Borderless window is already transparent (WsPickerApp).
+        // GeometryReader gives the host screen size so the card scales with
+        // the display (see ws-prompt PromptView — kept identical for parity).
+        GeometryReader { geo in
             VStack(spacing: 14) {
-                Spacer().frame(height: PromptStyle.topInset)
-                card
+                Spacer().frame(height: PromptStyle.topInset(for: geo.size.height))
+                card(width: PromptStyle.cardWidth(for: geo.size.width))
                 Spacer()
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var card: some View {
+    private func card(width: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             header
             queryField
@@ -39,23 +34,29 @@ struct PickerView: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
-        .frame(width: 520)
+        .frame(width: width)
         .background(
+            // Frosted glass — matches PromptView.
             RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Palette.resolved.mantle.opacity(0.96))
+                .fill(Palette.resolved.mantle.opacity(0.82))
+                .background(
+                    VisualEffectBlur()
+                        .clipShape(RoundedRectangle(cornerRadius: PromptStyle.cardCorner))
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
                         .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
                 )
         )
         .shadow(color: .black.opacity(0.4), radius: 20, y: 6)
+        .overlayReveal()
     }
 
     // MARK: - Header
 
     private var header: some View {
         HStack(spacing: 10) {
-            Text("change application")
+            Text("find window")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(Palette.resolved.text)
             Spacer()
@@ -64,7 +65,7 @@ struct PickerView: View {
     }
 
     private var modeChip: some View {
-        Text("CHANGE")
+        Text("FOCUS")
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(Palette.resolved.base)
             .padding(.horizontal, 10)
@@ -104,9 +105,9 @@ struct PickerView: View {
     }
 
     private var displayQuery: String {
-        controller.query.isEmpty
-            ? "type app or title · ↵ jumps to that window's workspace · esc cancels"
-            : controller.query
+        // Placeholder describes the input; the footer owns the key legend
+        // (no more duplicated ↵ explanation across the two).
+        controller.query.isEmpty ? "type an app or window title…" : controller.query
     }
 
     // MARK: - List
@@ -118,10 +119,13 @@ struct PickerView: View {
                     windowRow(item: item, selected: idx == controller.selection)
                 }
                 if matches.isEmpty {
-                    Text("no matching windows")
+                    Text(controller.query.isEmpty
+                         ? "no open windows"
+                         : "no windows match “\(controller.query)” · backspace to widen")
                         .font(.system(size: 11))
-                        .foregroundColor(Palette.resolved.overlay0)
+                        .foregroundColor(Palette.resolved.hint)
                         .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
                         .padding(.vertical, 18)
                 }
             }
@@ -191,9 +195,9 @@ struct PickerView: View {
     }
 
     private var hint: some View {
-        Text("letters fuzzy-match · ↵ jumps to that workspace · tab/⇧tab cycles · esc cancels")
-            .font(.system(size: 10, weight: .medium))
-            .foregroundColor(Palette.resolved.overlay0)
+        Text("↵ focus window · tab/⇧tab select · esc cancels")
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(Palette.resolved.hint)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

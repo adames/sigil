@@ -42,6 +42,16 @@ struct CheatsheetView: View {
         .padding(.top, outerTopPadding)
         .padding(.bottom, outerBottomPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            // Frost the desktop behind the HUD so the translucent cards —
+            // and the faint spatial-keyboard keys — read against a calm
+            // backdrop instead of whatever was on screen. A thin crust
+            // scrim adds depth over the blur.
+            VisualEffectBlur()
+                .overlay(Palette.resolved.crust.opacity(0.28))
+                .ignoresSafeArea()
+        )
+        .overlayReveal()
     }
 
     /// Columns of the active lens, horizontally centered.
@@ -176,12 +186,15 @@ struct CheatsheetView: View {
     private var footer: some View {
         HStack {
             Spacer()
-            Text("1..4 switch lens  ·  tab cycle  ·  esc or caps+/ to close  ·  \(timestamp)")
-                .font(.system(size: 9))
-                .tracking(0.5)
-                .foregroundColor(Palette.resolved.overlay0)
-            Spacer()
+            // Two emphasis steps: legible key legend + a fainter timestamp,
+            // both kept above the 4.5:1 contrast floor (was 9pt overlay0).
+            Text("1–\(document.views.count) switch lens  ·  tab cycle  ·  esc or caps+/ closes")
+                .foregroundColor(Palette.resolved.hint)
+            + Text("  ·  \(timestamp)")
+                .foregroundColor(Palette.resolved.faintHint)
         }
+        .font(.system(size: 11))
+        .tracking(0.4)
     }
 }
 

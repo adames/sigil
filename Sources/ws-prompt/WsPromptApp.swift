@@ -113,19 +113,30 @@ final class WsPromptApp {
     }
 
     private func decodeKey(_ event: NSEvent) -> PromptKey? {
+        let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         switch event.keyCode {
         case 53:  return .escape      // kVK_Escape
+        case 36:  return .enter       // kVK_Return
+        case 48:  return mods.contains(.shift) ? .backTab : .tab
+        case 126: return .up          // kVK_UpArrow
+        case 125: return .down        // kVK_DownArrow
         default:
             // Any other key resolves to its character; the controller
-            // commits on digits and ignores the rest.
-            guard let s = event.charactersIgnoringModifiers, let c = s.first else { return nil }
+            // commits on digits and ignores the rest. Arrow/function keys
+            // map into U+F700–U+F8FF — drop those so they don't read as
+            // digits.
+            guard let s = event.charactersIgnoringModifiers, let c = s.first,
+                  let scalar = c.unicodeScalars.first,
+                  !(0xF700...0xF8FF).contains(scalar.value)
+            else { return nil }
             return .char(c)
         }
     }
 
     private func dispatch(_ key: PromptKey) {
         switch promptController.handle(key) {
-        case .idle:
+        case .idle, .move, .reject:
+            // Selection/nudge are @Published — the view re-renders itself.
             return
         case .cancel:
             terminate()
