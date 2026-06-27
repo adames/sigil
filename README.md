@@ -28,7 +28,7 @@ cd ~/.config/workspace && ./install.sh
 | ws-snap | Snap floating windows | `ws-snap left\|right\|max\|center` |
 | ws-topology | Topology/layout CLI | `ws-topology dump` |
 
-The cheatsheet HUD reads `~/.config/workspace/cheatsheet.json` — hand-maintained; `bootstrap.sh` runs `lib/cheatsheet-gen.py` to weave in `@cs`-annotated sections from upstream configs.
+The cheatsheet HUD reads `~/.config/workspace/cheatsheet.json`.
 
 Visual styling follows `~/.config/workspace/palette.json` when present,
 falling back to Catppuccin Mocha. Cheatsheet family colors are derived by
@@ -88,14 +88,6 @@ change your terminal theme. A hand-edited `palette.json` marked
 `spaces.json` is the shared default; `spaces.<hostname>.json` takes precedence when present (`ws host init` to fork, `ws host reset` to remove). Display topology adapts automatically — `ws-topologyd` rewrites `layout.env` on plug/unplug/mirror/clamshell events.
 
 `aerospace.toml` is shared. The sigil-fenced block (`# >>> sigil generated >>>`) re-emits on `ws-topology emit-aerospace --write` from the current machine's spaces.json (without `--write` the block prints to stdout, nothing is touched).
-
-## Contributing
-
-Bug reports, ideas, and PRs are welcome. Start with
-[CONTRIBUTING.md](CONTRIBUTING.md) for setup, project layout, and style
-notes. Please read the [Code of Conduct](CODE_OF_CONDUCT.md), and report
-security issues privately per the [security policy](SECURITY.md). Notable
-changes are tracked in the [changelog](CHANGELOG.md).
 
 ## License
 

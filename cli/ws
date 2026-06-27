@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 # ws — CLI for per-display workspace identities. Mutates a workspace
 # slot's identity (name / icon / color) and dispatches the cascade so
-# every consumer (tmux, starship, borders) repaints in
-# step. Formerly called `workspace`; the old name is kept as a compat
-# symlink so older scripts and muscle-memory continue to work.
+# every consumer (tmux, starship, borders) repaints in step.
 #
 # Atomic spaces.json writes (mktemp + jq + normalize + mv), then on-space-changed.sh
 # fires, then the optional ~/.config/workspace/hooks/post-mutate.sh runs

@@ -53,13 +53,6 @@ let package = Package(
         .executable(name: "ws-prompt", targets: ["ws-prompt"]),
         .executable(name: "ws-picker", targets: ["ws-picker"]),
         .executable(name: "ws-snap", targets: ["ws-snap"]),
-        .library(name: "DisplayTopology", targets: ["DisplayTopology"]),
-        .library(name: "LayoutPolicy", targets: ["LayoutPolicy"]),
-        .library(name: "WorkspaceState", targets: ["WorkspaceState"]),
-        .library(name: "AerospaceEmit", targets: ["AerospaceEmit"]),
-        .library(name: "AdaptersAppKit", targets: ["AdaptersAppKit"]),
-        .library(name: "WsUI", targets: ["WsUI"]),
-        .library(name: "PaletteCore", targets: ["PaletteCore"]),
     ],
     targets: [
         .target(
