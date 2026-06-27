@@ -93,6 +93,9 @@ struct PaletteResolverTests {
         #expect(doc.slots["maroon"] == "#d54e53")     // ANSI 9
         // full slot set present (12 ramp + 14 accents).
         #expect(doc.slots.count == 26)
+        #expect(doc.families["terminal"] == "#b5bd68")
+        #expect(doc.families["vim"] == "#e7c547")
+        #expect(doc.families["nvim"] == "#b294bb")
         #expect(doc.source == "ghostty")
     }
 

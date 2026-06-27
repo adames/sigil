@@ -1,4 +1,5 @@
 import DisplayTopology
+import Dispatch
 import Foundation
 import PaletteCore
 
@@ -59,7 +60,7 @@ func cmdResolvePalette(args: [String]) -> Int32 {
 
     let parsed = GhosttyPalette.parse(configText)
 
-    let document: PaletteDocument
+    var document: PaletteDocument
     do {
         document = try PaletteResolver.resolve(from: parsed, source: "ghostty")
     } catch PaletteResolver.Failure.missingSurfaces {
@@ -74,6 +75,7 @@ func cmdResolvePalette(args: [String]) -> Int32 {
         FileHandle.standardError.write(Data("resolve-palette: \(error)\n".utf8))
         return 1
     }
+    document.families.merge(FamilyAccentResolver.resolve(from: document.slots)) { _, new in new }
 
     let json: String
     do {
@@ -109,6 +111,110 @@ func cmdResolvePalette(args: [String]) -> Int32 {
     }
     FileHandle.standardError.write(Data("resolve-palette: wrote \(target.path) (source: ghostty)\n".utf8))
     return 0
+}
+
+// MARK: - Cheatsheet family accents
+
+enum FamilyAccentResolver {
+    static func resolve(from slots: [String: String]) -> [String: String] {
+        var families = [
+            "system": validHex(env("MACOS_SPACE_COLOR")) ?? slots["blue"],
+            "terminal": slots["green"],
+            "vim": slots["peach"],
+            "nvim": slots["mauve"],
+        ].compactMapValues { validHex($0) }
+
+        families.merge(nvimHighlights()) { _, new in new }
+        return families
+    }
+
+    private static func nvimHighlights() -> [String: String] {
+        guard let nvim = nvimBinary() else { return [:] }
+        let lua = """
+        local groups = { vim = "Statement", nvim = "Function" }
+        for family, group in pairs(groups) do
+          local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = group, link = false })
+          if ok and hl and hl.fg then
+            print(family .. "=" .. string.format("#%06x", hl.fg))
+          end
+        end
+        """
+        guard let output = run(binary: nvim, arguments: ["--headless", "-n", "+lua \(lua)", "+qa!"], timeout: 2.0) else {
+            return [:]
+        }
+
+        var result: [String: String] = [:]
+        for line in output.split(whereSeparator: \.isNewline) {
+            guard let eq = line.firstIndex(of: "=") else { continue }
+            let family = line[..<eq].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let hex = line[line.index(after: eq)...].trimmingCharacters(in: .whitespacesAndNewlines)
+            if (family == "vim" || family == "nvim"), let hex = validHex(hex) {
+                result[family] = hex
+            }
+        }
+        return result
+    }
+
+    private static func nvimBinary() -> String? {
+        if let override = env("NVIM_BIN"),
+           !override.isEmpty,
+           FileManager.default.isExecutableFile(atPath: override) {
+            return override
+        }
+        return which("nvim")
+    }
+
+    private static func env(_ name: String) -> String? {
+        ProcessInfo.processInfo.environment[name]
+    }
+
+    private static func validHex(_ value: String?) -> String? {
+        guard let value, let rgb = RGB(hex: value) else { return nil }
+        return rgb.hex
+    }
+
+    private static func which(_ name: String) -> String? {
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        proc.arguments = ["which", name]
+        let pipe = Pipe()
+        proc.standardOutput = pipe
+        proc.standardError = FileHandle.nullDevice
+        do {
+            try proc.run()
+            proc.waitUntilExit()
+        } catch { return nil }
+        guard proc.terminationStatus == 0 else { return nil }
+        let out = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return out.isEmpty ? nil : out
+    }
+
+    private static func run(binary: String, arguments: [String], timeout: TimeInterval) -> String? {
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: binary)
+        proc.arguments = arguments
+        let stdout = Pipe()
+        proc.standardOutput = stdout
+        proc.standardError = FileHandle.nullDevice
+        let done = DispatchSemaphore(value: 0)
+        proc.terminationHandler = { _ in done.signal() }
+
+        do {
+            try proc.run()
+        } catch { return nil }
+
+        let deadline = DispatchTime.now() + timeout
+        if done.wait(timeout: deadline) == .timedOut {
+            proc.terminate()
+            proc.waitUntilExit()
+            return nil
+        }
+
+        guard proc.terminationStatus == 0 else { return nil }
+        let data = stdout.fileHandleForReading.readDataToEndOfFile()
+        return String(decoding: data, as: UTF8.self)
+    }
 }
 
 /// Destination for palette.json. `WS_PALETTE` overrides (kept in sync

@@ -13,12 +13,33 @@ public struct PaletteDocument: Codable, Equatable {
     public var source: String
     public var generatedAtNote: String
     public var slots: [String: String]
+    public var families: [String: String]
 
-    public init(version: Int = 1, source: String, generatedAtNote: String, slots: [String: String]) {
+    public init(
+        version: Int = 1,
+        source: String,
+        generatedAtNote: String,
+        slots: [String: String],
+        families: [String: String] = [:]
+    ) {
         self.version = version
         self.source = source
         self.generatedAtNote = generatedAtNote
         self.slots = slots
+        self.families = families
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case version, source, generatedAtNote, slots, families
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        version = try c.decode(Int.self, forKey: .version)
+        source = try c.decode(String.self, forKey: .source)
+        generatedAtNote = try c.decode(String.self, forKey: .generatedAtNote)
+        slots = try c.decode([String: String].self, forKey: .slots)
+        families = try c.decodeIfPresent([String: String].self, forKey: .families) ?? [:]
     }
 }
 
@@ -120,11 +141,19 @@ public enum PaletteResolver {
             put("flamingo", ColorMath.adjustLightness(red, by: 0.10))
         }
 
+        let families = [
+            "system": slots["blue"],
+            "terminal": slots["green"],
+            "vim": slots["peach"],
+            "nvim": slots["mauve"],
+        ].compactMapValues { $0 }
+
         return PaletteDocument(
             version: 1,
             source: source,
             generatedAtNote: "written by `ws palette sync`",
-            slots: slots
+            slots: slots,
+            families: families
         )
     }
 }

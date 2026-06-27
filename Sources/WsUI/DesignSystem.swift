@@ -98,14 +98,26 @@ public struct Palette {
         return home.appendingPathComponent(".config/workspace/palette.json")
     }
 
+    /// Read + decode the palette file. Any failure (no file, bad JSON)
+    /// yields nil → all Catppuccin / app-level fallbacks.
+    static func loadDocument() -> PaletteDocument? {
+        guard let data = try? Data(contentsOf: paletteURL),
+              let doc = try? JSONDecoder().decode(PaletteDocument.self, from: data)
+        else { return nil }
+        return doc
+    }
+
     /// Read + decode the palette file, returning the raw slot→hex map.
     /// Any failure (no file, bad JSON) yields an empty map → all
     /// Catppuccin.
-    static func loadSlots() -> [String: String] {
-        guard let data = try? Data(contentsOf: paletteURL),
-              let doc = try? JSONDecoder().decode(PaletteDocument.self, from: data)
-        else { return [:] }
-        return doc.slots
+    public static func loadSlots() -> [String: String] {
+        loadDocument()?.slots ?? [:]
+    }
+
+    /// Read + decode per-app family accents. Empty means callers should
+    /// use their compiled fallback colors.
+    public static func loadFamilies() -> [String: String] {
+        loadDocument()?.families ?? [:]
     }
 
     static func load() -> Palette {

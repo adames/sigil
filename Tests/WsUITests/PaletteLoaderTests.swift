@@ -52,4 +52,26 @@ struct PaletteLoaderTests {
         defer { unsetenv("WS_PALETTE") }
         #expect(Palette.loadSlots()["base"] == "#282c34")
     }
+
+    @Test func valid_file_decodes_family_accents() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("palette-\(UUID()).json")
+        let json = "{\"version\":1,\"source\":\"ghostty\",\"generatedAtNote\":\"x\",\"slots\":{},\"families\":{\"vim\":\"#e7c547\"}}"
+        try json.write(to: tmp, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        setenv("WS_PALETTE", tmp.path, 1)
+        defer { unsetenv("WS_PALETTE") }
+        #expect(Palette.loadFamilies()["vim"] == "#e7c547")
+    }
+
+    @Test func old_palette_file_without_families_decodes() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("palette-\(UUID()).json")
+        let json = "{\"version\":1,\"source\":\"ghostty\",\"generatedAtNote\":\"x\",\"slots\":{\"base\":\"#282c34\"}}"
+        try json.write(to: tmp, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        setenv("WS_PALETTE", tmp.path, 1)
+        defer { unsetenv("WS_PALETTE") }
+        #expect(Palette.loadFamilies().isEmpty)
+    }
 }

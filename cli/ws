@@ -1164,6 +1164,13 @@ cmd_palette() {
       | while IFS=$'\t' read -r name hex; do
           printf '  %-10s %-8s %s\n' "$name" "$hex" "$(WS_TTY=$tty _swatch "$hex")"
         done
+      if jq -e '(.families // {}) | length > 0' "$palette_json" >/dev/null 2>&1; then
+        printf '\ncheatsheet families\n' >&2
+        jq -r '(.families // {}) | to_entries[] | "\(.key)\t\(.value)"' "$palette_json" 2>/dev/null \
+        | while IFS=$'\t' read -r name hex; do
+            printf '  %-10s %-8s %s\n' "$name" "$hex" "$(WS_TTY=$tty _swatch "$hex")"
+          done
+      fi
       ;;
     reset)
       if [[ -f "$palette_json" ]]; then

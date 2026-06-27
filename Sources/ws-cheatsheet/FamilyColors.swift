@@ -1,17 +1,20 @@
 import SwiftUI
 import WsUI   // re-exports Palette / Catppuccin
 
-/// Categorical color tokens, one per "world" the user works in. Each
-/// family maps to a resolved-palette accent so every sigil surface reads
-/// off the same palette (the terminal's, falling back to Catppuccin).
+/// Categorical color tokens, one per "world" the user works in. The
+/// resolver writes these from the tools' own config-derived colors into
+/// palette.json; when absent, the old resolved-palette accents remain the
+/// fallback.
 ///
 /// Sections share a family color; a section's identity is carried by its
 /// title + idea caption, not by a unique hue.
 enum FamilyColors {
-    static let system   = Palette.resolved.blue    // Hyper / Mod  (window mgr, workspace, launch)
-    static let terminal = Palette.resolved.green    // tmux, shell
-    static let vim      = Palette.resolved.peach    // raw vim keys (motion, edit)
-    static let nvim     = Palette.resolved.mauve    // nvim plugin layer (LSP, fzf, oil, marks)
+    private static let derived = Palette.loadFamilies()
+
+    static let system   = derivedColor("system")   ?? Palette.resolved.blue    // Hyper / Mod
+    static let terminal = derivedColor("terminal") ?? Palette.resolved.green   // tmux, shell
+    static let vim      = derivedColor("vim")      ?? Palette.resolved.peach   // raw vim keys
+    static let nvim     = derivedColor("nvim")     ?? Palette.resolved.mauve   // nvim plugin layer
 
     /// Resolve a section's effective accent color. Prefers the new `family`
     /// token; falls back to the legacy per-section `color` hex.
@@ -28,5 +31,10 @@ enum FamilyColors {
         case "nvim":     return nvim
         default:         return nil
         }
+    }
+
+    private static func derivedColor(_ family: String) -> Color? {
+        guard let hex = derived[family.lowercased()] else { return nil }
+        return Color(hex: hex)
     }
 }

@@ -30,7 +30,10 @@ cd ~/.config/workspace && ./install.sh
 
 The cheatsheet HUD reads `~/.config/workspace/cheatsheet.json` — hand-maintained; `bootstrap.sh` runs `lib/cheatsheet-gen.py` to weave in `@cs`-annotated sections from upstream configs.
 
-Visual styling is Catppuccin Mocha. Family colors: **system → blue**, **terminal → green**, **vim → peach**, **nvim → mauve**.
+Visual styling follows `~/.config/workspace/palette.json` when present,
+falling back to Catppuccin Mocha. Cheatsheet family colors are derived by
+`ws palette sync`: terminal from Ghostty, Vim/Neovim from headless Neovim
+highlights, with palette accents as fallback.
 
 ## Files
 

@@ -350,11 +350,11 @@ Remember: `swift test` needs full Xcode (see the note atop
    that visible change is the proof the loop works).
 
 ### Phase 2 — per-family accents from each tool
-The "amazing" part. Color each cheatsheet *family* from its own world
-instead of a fixed hue. Today `FamilyColors`
+Implemented in the resolver + cheatsheet loader: color each cheatsheet
+*family* from its own world instead of a fixed hue. `FamilyColors`
 ([`Sources/ws-cheatsheet/FamilyColors.swift`](../../Sources/ws-cheatsheet/FamilyColors.swift))
-hardcodes: system=blue, terminal=green, vim=peach, nvim=mauve. Replace
-with derived accents:
+reads derived accents from `palette.json`, falling back to the old
+system=blue, terminal=green, vim=peach, nvim=mauve mapping:
 
 - **terminal** → ANSI green from Ghostty (already in `palette.json`).
 - **vim** → query nvim headless for a highlight group hex, e.g.
@@ -365,9 +365,9 @@ with derived accents:
   plugin highlight) so it reads distinct from raw `vim`.
 - **system** → leave as Sigil's own accent / `MACOS_SPACE_COLOR`.
 
-Extend `palette.json` with a `families` object; extend `FamilyColors.
-resolve` to read it (keep current hardcoded values as fallback). The
-4 lenses (`aero`/`term`/`vim`/`nvim`, confirmed present in
+`palette.json` has a `families` object; `FamilyColors.resolve` reads it
+and keeps the old hardcoded values as fallback. The 4 lenses
+(`aero`/`term`/`vim`/`nvim`, confirmed present in
 `cheatsheet.json`) stay color-distinguishable, but now each mirrors its
 real tool.
 
