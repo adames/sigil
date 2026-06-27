@@ -23,18 +23,32 @@ final class WsPickerApp {
     private var windowDelegate: BlurDismissDelegate?
     private var signalSource: DispatchSourceSignal?
 
+    /// Worst-case window height: header + query field + a full
+    /// `listMaxHeight` list + hint, plus margins. The card is top-anchored,
+    /// so fewer rows just leave transparent space — no window resize.
+    private static let windowHeight: CGFloat = 580
+
     init(source: WindowSource) {
         self.source = source
         let pidPath = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".cache/workspace/ws-picker.pid")
         self.pidLock = PIDLock(path: pidPath)
 
-        let items = source.loadWindows()
-        self.controller = PickerController(items: items)
+        // Empty + loading: the window list is fetched asynchronously in
+        // run() so the overlay paints without blocking on aerospace.
+        let ctl = PickerController(loading: true)
+        self.controller = ctl
 
+        // Small, top-centred window — not a full-screen transparent sheet.
         let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
+        let cardWidth = PromptStyle.cardWidth(for: screen.frame.width)
+        let winWidth = cardWidth + PromptStyle.cardMargin * 2
+        let winHeight = Self.windowHeight
+        let vis = screen.visibleFrame
+        let originX = vis.midX - winWidth / 2
+        let originY = vis.maxY - PromptStyle.topInset(for: screen.frame.height) - winHeight
         let win = KeyableWindow(
-            contentRect: screen.frame,
+            contentRect: NSRect(x: originX, y: originY, width: winWidth, height: winHeight),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -45,7 +59,17 @@ final class WsPickerApp {
         win.level = .modalPanel
         win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         win.isReleasedWhenClosed = false
-        win.contentView = NSHostingView(rootView: PickerView(controller: controller))
+
+        // Fixed-frame container so NSHostingView's fitting size can't drive
+        // the window size — the window owns its frame top-down.
+        let container = NSView(frame: NSRect(origin: .zero, size: NSSize(width: winWidth, height: winHeight)))
+        container.autoresizesSubviews = true
+        let hosting = NSHostingView(rootView: PickerView(controller: ctl, cardWidth: cardWidth))
+        hosting.frame = container.bounds
+        hosting.autoresizingMask = [.width, .height]
+        container.addSubview(hosting)
+        win.contentView = container
+
         self.window = win
     }
 
@@ -74,6 +98,16 @@ final class WsPickerApp {
 
         installKeyMonitor()
         signalSource = installSignalHandler(SIGTERM) { [weak self] in self?.terminate() }
+
+        // Window is up — fetch the window list off the main thread and fill
+        // the controller when it lands. Typing filters as soon as it does.
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            let items = self.source.loadWindows()
+            DispatchQueue.main.async { [weak self] in
+                self?.controller.apply(items: items)
+            }
+        }
 
         app.run()
     }

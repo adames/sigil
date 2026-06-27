@@ -43,15 +43,14 @@ struct CheatsheetView: View {
         .padding(.bottom, outerBottomPadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            // Frost the desktop behind the HUD so the translucent cards —
-            // and the faint spatial-keyboard keys — read against a calm
-            // backdrop instead of whatever was on screen. A thin crust
-            // scrim adds depth over the blur.
-            VisualEffectBlur()
-                .overlay(Palette.resolved.crust.opacity(0.28))
+            // Solid scrim instead of a live behind-window blur: one
+            // alpha-composited fill paints on the first frame (the blur
+            // sampled the whole desktop every frame, which is what made the
+            // HUD "show up weird"). The faint translucency still separates
+            // the cards from the desktop without the GPU cost.
+            Palette.resolved.crust.opacity(0.92)
                 .ignoresSafeArea()
         )
-        .overlayReveal()
     }
 
     /// Columns of the active lens, horizontally centered.

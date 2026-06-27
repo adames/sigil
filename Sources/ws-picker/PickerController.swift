@@ -29,13 +29,29 @@ enum PickerAction: Equatable {
 /// commits, Esc cancels. No digit-fast-path: window IDs are 6-digit
 /// aerospace handles, not slot numbers.
 final class PickerController: ObservableObject {
-    let items: [WindowItem]
+    /// Window list. Starts empty and is filled by `apply(...)` once the
+    /// async aerospace query returns, so the overlay paints immediately.
+    @Published private(set) var items: [WindowItem]
+    /// True until the first `apply(...)`. While loading, Enter is a no-op
+    /// (there's nothing to commit yet) instead of dismissing the picker.
+    @Published private(set) var isLoading: Bool
 
     @Published private(set) var query: String = ""
     @Published private(set) var selection: Int = 0
 
-    init(items: [WindowItem]) {
+    /// `loading: true` for the live overlay (data arrives via `apply`);
+    /// `false` when the caller already has the list (the simulate harness).
+    init(items: [WindowItem] = [], loading: Bool = false) {
         self.items = items
+        self.isLoading = loading
+    }
+
+    /// Replace the window list once the async query lands and clear the
+    /// loading flag. Selection resets to the top match.
+    func apply(items: [WindowItem]) {
+        self.items = items
+        self.selection = 0
+        self.isLoading = false
     }
 
     func handle(_ key: PickerKey) -> PickerAction {
@@ -76,6 +92,9 @@ final class PickerController: ObservableObject {
     }
 
     private func commitFromQuery() -> PickerAction {
+        // List not loaded yet — nothing to commit; ignore rather than
+        // treating it as an empty-match cancel.
+        if isLoading { return .idle }
         let matches = currentMatches()
         guard !matches.isEmpty else { return .cancel }
         let pick = matches[selection.clamped(to: 0...(matches.count - 1))]

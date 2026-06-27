@@ -30,6 +30,12 @@ final class WsPromptApp {
     private var windowDelegate: BlurDismissDelegate?
     private var signalSource: DispatchSourceSignal?
 
+    /// Worst-case window height: enough for the header, a full
+    /// `listMaxHeight` list, and the hint, plus margins. The card is
+    /// top-anchored, so when there are fewer rows the extra space just
+    /// stays transparent — the window never resizes as rows load.
+    private static let windowHeight: CGFloat = 540
+
     init(mode: PromptMode, service: WorkspaceService) {
         self.mode = mode
         self.service = service
@@ -37,11 +43,22 @@ final class WsPromptApp {
             .appendingPathComponent(".cache/workspace/ws-prompt.\(mode.rawValue).pid")
         self.pidLock = PIDLock(path: pidPath)
 
-        let workspaces = service.loadWorkspaces()
+        // Empty + loading: the list is fetched asynchronously in run() so
+        // the window paints on the first runloop tick instead of blocking
+        // on aerospace.
+        let ctl = PromptController(mode: mode, loading: true)
+        self.promptController = ctl
 
+        // Small, top-centred window — not a full-screen transparent sheet.
         let screen: NSScreen = NSScreen.main ?? NSScreen.screens.first!
+        let cardWidth = PromptStyle.cardWidth(for: screen.frame.width)
+        let winWidth = cardWidth + PromptStyle.cardMargin * 2
+        let winHeight = Self.windowHeight
+        let vis = screen.visibleFrame
+        let originX = vis.midX - winWidth / 2
+        let originY = vis.maxY - PromptStyle.topInset(for: screen.frame.height) - winHeight
         let win = KeyableWindow(
-            contentRect: screen.frame,
+            contentRect: NSRect(x: originX, y: originY, width: winWidth, height: winHeight),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -52,11 +69,19 @@ final class WsPromptApp {
         win.level = .modalPanel
         win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         win.isReleasedWhenClosed = false
-        self.window = win
 
-        let ctl = PromptController(mode: mode, workspaces: workspaces)
-        self.promptController = ctl
-        win.contentView = NSHostingView(rootView: PromptView(controller: ctl))
+        // Wrap the hosting view in a fixed-frame container so NSHostingView's
+        // fitting size can't drive the window's size — the window owns its
+        // frame top-down (same guard ws-cheatsheet uses).
+        let container = NSView(frame: NSRect(origin: .zero, size: NSSize(width: winWidth, height: winHeight)))
+        container.autoresizesSubviews = true
+        let hosting = NSHostingView(rootView: PromptView(controller: ctl, cardWidth: cardWidth))
+        hosting.frame = container.bounds
+        hosting.autoresizingMask = [.width, .height]
+        container.addSubview(hosting)
+        win.contentView = container
+
+        self.window = win
     }
 
     // MARK: - Lifecycle
@@ -83,6 +108,17 @@ final class WsPromptApp {
 
         installKeyMonitor()
         signalSource = installSignalHandler(SIGTERM) { [weak self] in self?.terminate() }
+
+        // Window is up — now fetch the workspace list off the main thread
+        // and fill the controller when it lands. Digits typed before it
+        // arrives commit optimistically (see PromptController.commitDigit).
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+            let workspaces = self.service.loadWorkspaces()
+            DispatchQueue.main.async { [weak self] in
+                self?.promptController.apply(workspaces: workspaces)
+            }
+        }
 
         app.run()
     }

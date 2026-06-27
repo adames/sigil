@@ -48,16 +48,35 @@ enum PromptAction: Equatable {
 /// ws-send-follow helper once a `commitSend` action is emitted.
 final class PromptController: ObservableObject {
     let mode: PromptMode
-    let workspaces: [Workspace]
+
+    /// Live workspace list. Starts empty and is filled by `apply(...)` once
+    /// the async AeroSpace query returns — the window paints first, the
+    /// rows arrive a beat later.
+    @Published private(set) var workspaces: [Workspace]
+    /// True until the first `apply(...)`. While loading, a digit commits
+    /// optimistically (ws-send-follow validates the slot) so the common
+    /// caps+f-then-digit path isn't gated on the query.
+    @Published private(set) var isLoading: Bool
 
     /// 0-based index into `workspaces` of the highlighted row.
     @Published private(set) var selection: Int = 0
     /// Bumped on each rejected input so the view can shake once.
     @Published private(set) var nudge: Int = 0
 
-    init(mode: PromptMode, workspaces: [Workspace]) {
+    /// `loading: true` for the live overlay (data arrives via `apply`);
+    /// `false` when the caller already has the list (the simulate harness).
+    init(mode: PromptMode, workspaces: [Workspace] = [], loading: Bool = false) {
         self.mode = mode
         self.workspaces = workspaces
+        self.isLoading = loading
+    }
+
+    /// Replace the workspace list once the async query lands and clear the
+    /// loading flag. Selection resets to the first row.
+    func apply(workspaces: [Workspace]) {
+        self.workspaces = workspaces
+        self.selection = 0
+        self.isLoading = false
     }
 
     /// Drive the state machine. One key in, one Action out.
@@ -114,6 +133,12 @@ final class PromptController: ObservableObject {
         // stays visually contiguous (1…9, 0). Caller gated on isNumber, so
         // the Int() unwrap is total.
         let slot = (c == "0") ? 10 : Int(String(c))!
+        // List not loaded yet: commit the digit as-is and let ws-send-follow
+        // validate the slot ("slot N does not exist"). Keeps caps+f-then-digit
+        // instant instead of waiting on the workspace query.
+        if isLoading {
+            return .commitSend(slot: slot)
+        }
         // Workspace indices are contiguous 1…count. A digit past the last
         // workspace is a user miss — nudge the card so the no-op is
         // visible, rather than silently tearing the overlay down.

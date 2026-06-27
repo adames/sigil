@@ -161,6 +161,16 @@ public struct PromptStyle {
     public static let pillHeight: CGFloat = 22
     public static let cardCorner: CGFloat = 10
 
+    /// Transparent breathing room between the card and the window edge so
+    /// the card's drop shadow isn't clipped. The host window is sized to
+    /// `cardWidth + 2·cardMargin`; the rest of the window stays clear.
+    public static let cardMargin: CGFloat = 24
+
+    /// Max height of the scrolling workspace/window list inside a card.
+    /// Owned here (not hardcoded per view) so the App can size the host
+    /// window to fit the worst case without the card ever resizing it.
+    public static let listMaxHeight: CGFloat = 360
+
     /// Distance from the top of the screen to the top of the overlay
     /// card. Matches Raycast's search-box top so the two surfaces feel
     /// like part of the same launcher family. Prefer `topInset(for:)` —

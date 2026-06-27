@@ -9,20 +9,19 @@ import WsUI
 /// feels like one tool: same card geometry, Catppuccin palette, pill style.
 struct PickerView: View {
     @ObservedObject var controller: PickerController
+    /// Card width, computed once from the host screen by WsPickerApp. The
+    /// window is sized to this (+ margins), so the card never resizes it.
+    let cardWidth: CGFloat
 
     private var matches: [WindowItem] { controller.currentMatches() }
 
     var body: some View {
-        // GeometryReader gives the host screen size so the card scales with
-        // the display (see ws-prompt PromptView — kept identical for parity).
-        GeometryReader { geo in
-            VStack(spacing: 14) {
-                Spacer().frame(height: PromptStyle.topInset(for: geo.size.height))
-                card(width: PromptStyle.cardWidth(for: geo.size.width))
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        // The host window is already sized + positioned (top-centred) by
+        // WsPickerApp; pin the card to the top and let matches fill in as
+        // they load (kept identical to ws-prompt PromptView for parity).
+        card(width: cardWidth)
+            .padding(PromptStyle.cardMargin)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private func card(width: CGFloat) -> some View {
@@ -36,20 +35,15 @@ struct PickerView: View {
         .padding(.vertical, 16)
         .frame(width: width)
         .background(
-            // Frosted glass — matches PromptView.
+            // Solid card — no behind-window blur (matches PromptView).
             RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Palette.resolved.mantle.opacity(0.82))
-                .background(
-                    VisualEffectBlur()
-                        .clipShape(RoundedRectangle(cornerRadius: PromptStyle.cardCorner))
-                )
+                .fill(Palette.resolved.mantle)
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
                         .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
                 )
         )
-        .shadow(color: .black.opacity(0.4), radius: 20, y: 6)
-        .overlayReveal()
+        .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
     }
 
     // MARK: - Header
@@ -118,7 +112,7 @@ struct PickerView: View {
                 ForEach(Array(matches.enumerated()), id: \.element.id) { (idx, item) in
                     windowRow(item: item, selected: idx == controller.selection)
                 }
-                if matches.isEmpty {
+                if matches.isEmpty && !controller.isLoading {
                     Text(controller.query.isEmpty
                          ? "no open windows"
                          : "no windows match “\(controller.query)” · backspace to widen")
@@ -130,7 +124,7 @@ struct PickerView: View {
                 }
             }
         }
-        .frame(maxHeight: 360)
+        .frame(maxHeight: PromptStyle.listMaxHeight)
     }
 
     /// One row mirrors a workspace pill from PromptView: app icon + name

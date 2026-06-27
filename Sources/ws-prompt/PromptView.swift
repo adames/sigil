@@ -10,22 +10,20 @@ import WsUI
 /// selection — modeled on AeroSpace's numeric workspace switch.
 struct PromptView: View {
     @ObservedObject var controller: PromptController
+    /// Card width, computed once from the host screen by WsPromptApp. The
+    /// window is sized to this (+ margins), so the card never resizes it.
+    let cardWidth: CGFloat
 
     private var workspaces: [Workspace] { controller.workspaces }
 
     var body: some View {
-        // GeometryReader gives us the host screen size so the card scales
-        // with the display instead of a fixed 520pt. The VStack centers
-        // the card horizontally; a top spacer drops it a screen-relative
-        // distance down.
-        GeometryReader { geo in
-            VStack(spacing: 14) {
-                Spacer().frame(height: PromptStyle.topInset(for: geo.size.height))
-                card(width: PromptStyle.cardWidth(for: geo.size.width))
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        // The host window is already sized + positioned (top-centred) by
+        // WsPromptApp, so the view just pins the card to the top and lets
+        // the rows fill in once they load — no GeometryReader, no centring
+        // spacers, nothing that would make AppKit resize the window.
+        card(width: cardWidth)
+            .padding(PromptStyle.cardMargin)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private func card(width: CGFloat) -> some View {
@@ -38,24 +36,19 @@ struct PromptView: View {
         .padding(.vertical, 16)
         .frame(width: width)
         .background(
-            // Frosted glass: a blur layer under a translucent mantle fill,
-            // so the slight transparency reads as glass rather than muddy
-            // color bleed over a busy desktop.
+            // Solid card — no behind-window blur. A flat mantle fill paints
+            // instantly and stays crisp; the small window means there's no
+            // full-screen surface to composite.
             RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Palette.resolved.mantle.opacity(0.82))
-                .background(
-                    VisualEffectBlur()
-                        .clipShape(RoundedRectangle(cornerRadius: PromptStyle.cardCorner))
-                )
+                .fill(Palette.resolved.mantle)
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
                         .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
                 )
         )
-        .shadow(color: .black.opacity(0.4), radius: 20, y: 6)
+        .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
         .modifier(Shake(nudge: controller.nudge))
         .animation(.easeOut(duration: 0.16), value: controller.nudge)
-        .overlayReveal()
     }
 
     // MARK: - Header
@@ -92,7 +85,7 @@ struct PromptView: View {
                 ForEach(Array(workspaces.enumerated()), id: \.offset) { (idx, ws) in
                     workspaceRow(ws: ws, selected: idx == controller.selection)
                 }
-                if workspaces.isEmpty {
+                if workspaces.isEmpty && !controller.isLoading {
                     Text("no workspaces")
                         .font(.system(size: 11))
                         .foregroundColor(Palette.resolved.hint)
@@ -101,7 +94,7 @@ struct PromptView: View {
                 }
             }
         }
-        .frame(maxHeight: 360)
+        .frame(maxHeight: PromptStyle.listMaxHeight)
     }
 
     /// One workspace row, styled as a chip: the slot digit, optional icon,
