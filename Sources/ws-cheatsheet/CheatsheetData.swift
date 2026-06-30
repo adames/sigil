@@ -55,10 +55,13 @@ struct CheatsheetDocument: Decodable {
         }
     }
 
-    /// One vertical column in a lens. References sections by id; the
-    /// renderer never iterates `Column` directly — it resolves through
-    /// `CheatsheetDocument.resolve(view:)` into `ResolvedColumn`, which
-    /// carries the `ForEach` identity.
+    /// One vertical column in a lens. The authored column grouping is now
+    /// only an *ordering* hint: `orderedSections(view:)` flattens the
+    /// columns left-to-right into a single list, and `CheatsheetLayout`
+    /// re-distributes that list into however many columns actually fit the
+    /// display. (Hard-coding 3 columns here is what produced the stranded
+    /// empty third and the per-machine "uneven categories" — see
+    /// CheatsheetLayout for the adaptive replacement.)
     struct Column: Decodable {
         let sections: [String]
 
@@ -112,24 +115,13 @@ struct CheatsheetDocument: Decodable {
         }
     }
 
-    /// One column with its section ids resolved into Section values.
-    /// Renderer-facing shape — produced by `resolve(view:)`.
-    struct ResolvedColumn: Identifiable {
-        let id: String
-        let sections: [Section]
-    }
-
-    /// Resolve a lens's column → section-id references into the actual
-    /// Section values from the pool. Missing ids are silently dropped
-    /// (the lens still renders; the gap is a visible hint to the
-    /// editor).
-    func resolve(view: Lens) -> [ResolvedColumn] {
-        view.columns.enumerated().map { idx, col in
-            ResolvedColumn(
-                id: "\(view.id)-\(idx)",
-                sections: col.sections.compactMap { sections[$0] }
-            )
-        }
+    /// Flatten a lens's authored columns into a single ordered section
+    /// list, dropping empty columns and missing ids. This is the input to
+    /// `CheatsheetLayout`, which decides the real column count and balances
+    /// these sections into it per display. Authored left-to-right column
+    /// order is preserved as the reading order.
+    func orderedSections(view: Lens) -> [Section] {
+        view.columns.flatMap { $0.sections }.compactMap { sections[$0] }
     }
 }
 

@@ -22,6 +22,26 @@ let pidPath = FileManager.default
 let args = Array(CommandLine.arguments.dropFirst())
 let isToggle = args.contains("--toggle")
 
+// MARK: - Offscreen render mode (visual verification)
+//
+// `ws-cheatsheet --render <width> <height> <out.png>` renders the HUD at a
+// simulated visibleFrame size to a PNG and exits — no window, no pidfile,
+// nothing shown on screen. Lets the adaptive layout be checked across the
+// display matrix (small laptop → large external monitor) without the
+// hardware. Mirrors the `--simulate` hooks in ws-prompt / ws-picker.
+if let idx = args.firstIndex(of: "--render"), args.count > idx + 3 {
+    let w = Double(args[idx + 1]) ?? 1440
+    let h = Double(args[idx + 2]) ?? 900
+    let out = args[idx + 3]
+    let lens = args.count > idx + 4 ? (Int(args[idx + 4]) ?? 0) : 0
+    // Top-level code already runs on the main thread; assert that so the
+    // main-actor ImageRenderer is reachable from this sync context.
+    MainActor.assumeIsolated {
+        renderToPNG(size: CGSize(width: w, height: h), lens: lens, to: out)
+    }
+    exit(0)
+}
+
 let pidLock = PIDLock(path: pidPath)
 
 if let existing = pidLock.runningPID() {
@@ -74,6 +94,37 @@ func errorDocument(reason: String) -> CheatsheetDocument {
         ],
         sections: ["error": errorSection]
     )
+}
+
+/// Render the HUD to a PNG at a fixed size, off-screen, then return. Used
+/// by `--render` for visual verification. `ImageRenderer` runs a full
+/// SwiftUI layout/draw pass without a window, so the real CheatsheetView /
+/// SectionCard / layout engine are exercised exactly as on-screen.
+@MainActor
+func renderToPNG(size: CGSize, lens: Int, to path: String) {
+    _ = NSApplication.shared   // realize AppKit for Core Text / font stack
+    let loaded = try? CheatsheetLoader.load()
+    let document = (loaded.flatMap { $0.views.isEmpty ? nil : $0 })
+        ?? errorDocument(reason: "render: cheatsheet.json not usable")
+    let state = CheatsheetState(document: document)
+    state.currentIndex = max(0, min(lens, document.views.count - 1))
+    let content = CheatsheetView(state: state, timestamp: "12:00")
+        .frame(width: size.width, height: size.height)
+
+    let renderer = ImageRenderer(content: content)
+    renderer.scale = 2
+    guard let tiff = renderer.nsImage?.tiffRepresentation,
+          let rep = NSBitmapImageRep(data: tiff),
+          let png = rep.representation(using: .png, properties: [:]) else {
+        FileHandle.standardError.write(Data("render: could not produce PNG\n".utf8))
+        exit(1)
+    }
+    do {
+        try png.write(to: URL(fileURLWithPath: path))
+    } catch {
+        FileHandle.standardError.write(Data("render: write failed: \(error)\n".utf8))
+        exit(1)
+    }
 }
 
 let document: CheatsheetDocument
