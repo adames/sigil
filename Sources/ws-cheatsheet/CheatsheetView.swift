@@ -26,10 +26,6 @@ struct CheatsheetView: View {
 
     private var document: CheatsheetDocument { state.document }
     private var currentLens: CheatsheetDocument.Lens { state.currentLens }
-    private var resolvedColumns: [CheatsheetDocument.ResolvedColumn] {
-        document.resolve(view: currentLens)
-    }
-    private var metrics: LayoutMetrics { .spacious }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -53,37 +49,55 @@ struct CheatsheetView: View {
         )
     }
 
-    /// Columns of the active lens, horizontally centered.
+    /// Columns of the active lens, sized to the display.
     ///
-    /// Each visible column claims the same width it would have if every
-    /// declared column were filled — that is, `(width - 2·spacing) / 3`.
-    /// Empty columns are dropped; the remaining ones collapse the HStack
-    /// to its natural width, and the outer frame's `.top` alignment
-    /// centers it horizontally (and tops it vertically). The end result:
-    /// lenses with one empty column (AeroSpace / Terminal / Vim) shift
-    /// to the middle of the screen instead of left-justifying with a
-    /// dead right column.
+    /// `CheatsheetLayout.plan` decides everything from the bounded
+    /// `geo.size`: how many columns fit the width (clamped to the section
+    /// count, so there is never a stranded empty column), how the sections
+    /// balance into them, and which typographic tier keeps the tallest
+    /// column inside the height. The HStack collapses to its natural width
+    /// and centers — so a 2-section lens is a calm centered pair on a wide
+    /// monitor and a denser, fitted mosaic on a small laptop. Nothing here
+    /// reads SwiftUI's fitting size, so the window cannot grow off-screen.
     private var columnGrid: some View {
         GeometryReader { geo in
-            let totalCols = resolvedColumns.count
-            let spacing = metrics.columnSpacing
-            let colWidth: CGFloat = totalCols > 0
-                ? max((geo.size.width - spacing * CGFloat(totalCols - 1)) / CGFloat(totalCols), 0)
-                : 0
-            let visible = resolvedColumns.filter { !$0.sections.isEmpty }
+            let ordered = document.orderedSections(view: currentLens)
+            let plan = CheatsheetLayout.plan(
+                for: ordered,
+                availableWidth: geo.size.width,
+                availableHeight: geo.size.height
+            )
 
-            HStack(alignment: .top, spacing: spacing) {
-                ForEach(visible) { column in
-                    VStack(spacing: metrics.cardSpacing) {
-                        ForEach(column.sections) { section in
-                            SectionCard(section: section, metrics: metrics)
-                        }
-                    }
-                    .frame(width: colWidth, alignment: .top)
+            HStack(alignment: .top, spacing: plan.metrics.columnSpacing) {
+                ForEach(Array(plan.columns.enumerated()), id: \.offset) { _, column in
+                    columnStack(column, plan: plan)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            // Center the mosaic when it fits: on a tall external monitor the
+            // cards sit centered rather than stranded at the top edge; on a
+            // tight laptop the fitted content already ~fills, so centering is
+            // a no-op. When even the densest tier overflows (a tiny zoomed
+            // display), top-align so the first rows stay visible.
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: plan.fits ? .center : .top
+            )
         }
+    }
+
+    /// One display column: its sections stacked top-down at the plan's
+    /// width and tier.
+    private func columnStack(
+        _ sections: [CheatsheetDocument.Section],
+        plan: LayoutPlan
+    ) -> some View {
+        VStack(spacing: plan.metrics.cardSpacing) {
+            ForEach(sections) { section in
+                SectionCard(section: section, metrics: plan.metrics)
+            }
+        }
+        .frame(width: plan.columnWidth, alignment: .top)
     }
 
     // MARK: - Banner (legend for the modifier badges below)
@@ -195,45 +209,6 @@ struct CheatsheetView: View {
         .font(.system(size: 11))
         .tracking(0.4)
     }
-}
-
-// MARK: - LayoutMetrics
-//
-// Single tier sized for ≤ 4 sections per lens — large enough to read
-// at a glance, tight enough on vertical padding that AeroSpace's
-// densest column (14 rows + a long idea wrap) fits inside the
-// visibleFrame on a standard MacBook display.
-//
-// If a future lens lands with more sections than `spacious` can hold,
-// reintroduce a `compact` tier here and have the view pick between
-// them based on section count.
-
-struct LayoutMetrics {
-    let titleSize: CGFloat
-    let subSize: CGFloat
-    let ideaSize: CGFloat
-    let rowDescSize: CGFloat
-    let keyCapSize: CGFloat
-    let badgeSize: CGFloat
-    let rowVerticalPadding: CGFloat
-    let cardHPadding: CGFloat
-    let cardVPadding: CGFloat
-    let cardSpacing: CGFloat
-    let columnSpacing: CGFloat
-
-    static let spacious = LayoutMetrics(
-        titleSize: 22,
-        subSize: 14,
-        ideaSize: 16,
-        rowDescSize: 17,
-        keyCapSize: 16,
-        badgeSize: 8,
-        rowVerticalPadding: 3,
-        cardHPadding: 18,
-        cardVPadding: 10,
-        cardSpacing: 10,
-        columnSpacing: 16
-    )
 }
 
 // MARK: - SectionCard
