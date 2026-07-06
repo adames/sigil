@@ -16,10 +16,13 @@ enum PickerKey: Equatable {
 }
 
 /// Outcome of a key. The UI re-renders on every event; the binary
-/// dispatches `aerospace -m window --focus` on `.commit`.
+/// dispatches `aerospace -m window --focus` on `.commit`. `.reject`
+/// flashes the card (Enter with no match) — mirrors PromptAction so the
+/// two overlays behave identically on a no-op commit.
 enum PickerAction: Equatable {
     case idle
     case refilter
+    case reject
     case commit(id: Int)
     case cancel
 }
@@ -38,6 +41,9 @@ final class PickerController: ObservableObject {
 
     @Published private(set) var query: String = ""
     @Published private(set) var selection: Int = 0
+    /// Bumped on each rejected input so the view can shake once. Mirrors
+    /// PromptController's nudge — same overlay, same feedback.
+    @Published private(set) var nudge: Int = 0
 
     /// `loading: true` for the live overlay (data arrives via `apply`);
     /// `false` when the caller already has the list (the simulate harness).
@@ -84,7 +90,7 @@ final class PickerController: ObservableObject {
             let action = handle(key)
             switch action {
             case .commit, .cancel:    return action
-            case .refilter:           last = action
+            case .refilter, .reject:  last = action
             case .idle:               continue
             }
         }
@@ -96,7 +102,14 @@ final class PickerController: ObservableObject {
         // treating it as an empty-match cancel.
         if isLoading { return .idle }
         let matches = currentMatches()
-        guard !matches.isEmpty else { return .cancel }
+        // Enter with no match is a user miss, not a request to dismiss —
+        // nudge the card so the no-op is visible and keep the overlay
+        // open (mirrors PromptController.commitDigit's out-of-range
+        // case). Esc remains the only way to cancel.
+        guard !matches.isEmpty else {
+            nudge += 1
+            return .reject
+        }
         let pick = matches[selection.clamped(to: 0...(matches.count - 1))]
         return .commit(id: pick.id)
     }

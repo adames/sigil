@@ -51,6 +51,9 @@ enum PickerSimReporter {
         case .refilter:
             Swift.print("action=refilter")
             return 0
+        case .reject:
+            Swift.print("action=reject")
+            return 0
         case .commit(let id):
             Swift.print("action=commit window=\(id)")
             return 0
