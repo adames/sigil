@@ -30,11 +30,26 @@ if [[ -r "$WORKSPACE_CONFIG_DIR/config.env" ]]; then
     source "$WORKSPACE_CONFIG_DIR/config.env"
 fi
 
-# AeroSpace binary path. Overridable (tests point it at a stub; users with
-# a nonstandard install can pin it via env or config.env). Empty if the
-# resolved path isn't executable — callers (lib/window-manager.sh) check
-# `[[ -x … ]]` and fail-soft when absent.
-: "${WORKSPACE_WM_BIN:=/opt/homebrew/bin/aerospace}"
+# AeroSpace binary path. Resolution order: explicit env override
+# (AEROSPACE_BIN / WORKSPACE_WM_BIN — tests point it at a stub; users with
+# a nonstandard install can pin it via env or config.env) → `command -v
+# aerospace` (PATH) → /opt/homebrew/bin/aerospace (Apple Silicon Homebrew)
+# → /usr/local/bin/aerospace (Intel Homebrew). Empty if nothing resolves to
+# an executable — callers (lib/window-manager.sh) check `[[ -x … ]]` and
+# fail-soft when absent.
+: "${WORKSPACE_WM_BIN:=${AEROSPACE_BIN:-}}"
+if [[ -z "$WORKSPACE_WM_BIN" ]]; then
+    WORKSPACE_WM_BIN="$(command -v aerospace 2>/dev/null || true)"
+fi
+if [[ -z "$WORKSPACE_WM_BIN" ]]; then
+    for _ws_candidate in /opt/homebrew/bin/aerospace /usr/local/bin/aerospace; do
+        if [[ -x "$_ws_candidate" ]]; then
+            WORKSPACE_WM_BIN="$_ws_candidate"
+            break
+        fi
+    done
+    unset _ws_candidate
+fi
 [[ -x "$WORKSPACE_WM_BIN" ]] || WORKSPACE_WM_BIN=""
 
 # Derived values

@@ -16,13 +16,17 @@ set -eu
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Source workspace configuration
-source "$HERE/lib/config.sh" 2>/dev/null || {
+# Source workspace configuration. Loud on a real syntax error (broken
+# config.sh should fail the install, not silently fall back) — only a
+# missing/unreadable file takes the fallback path.
+if [[ -r "$HERE/lib/config.sh" ]]; then
+  source "$HERE/lib/config.sh"
+else
   # Fallback if config.sh not available (first run)
   WORKSPACE_BUNDLE_PREFIX="${WORKSPACE_BUNDLE_PREFIX:-com.user.workspace}"
   WORKSPACE_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/workspace"
   WORKSPACE_LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
-}
+fi
 
 LOCAL_BIN="${WORKSPACE_BIN_DIR:-$HOME/.local/bin}"
 LAUNCH_AGENTS="$WORKSPACE_LAUNCH_AGENTS_DIR"
@@ -65,6 +69,7 @@ step "swift build -c release"
 BUILD_DIR="$(cd "$HERE" && swift build -c release --show-bin-path)"
 
 step "ad-hoc codesigning with stable identifiers"
+codesign_failed=()
 for bin in "${BINARIES[@]}"; do
   src="$BUILD_DIR/$bin"
   if [[ ! -x "$src" ]]; then
@@ -77,8 +82,16 @@ for bin in "${BINARIES[@]}"; do
         --requirements "=designated => identifier \"$identifier\"" \
         "$src" 2>/dev/null; then
     warn "codesign $bin failed — TCC may re-prompt after rebuilds"
+    codesign_failed+=("$bin")
   fi
 done
+
+# TCC identity is the entire point of this step — a silent partial success
+# (some binaries signed, some not) is worse than failing loudly here.
+if (( ${#codesign_failed[@]} > 0 )); then
+  err "codesign failed for: ${codesign_failed[*]}"
+  exit 1
+fi
 
 mkdir -p "$LOCAL_BIN"
 for bin in "${BINARIES[@]}"; do
@@ -102,7 +115,17 @@ done
 # Derive Sigil's palette from the terminal so a fresh install matches it
 # out of the box. Non-fatal: no Ghostty / unreadable theme just leaves
 # Sigil on its built-in Catppuccin fallback.
-if "$LOCAL_BIN/ws-topology" resolve-palette --write 2>&1 | sed 's/^/  /'; then
+#
+# Capture output + exit status separately (without pipefail) rather than
+# testing the pipeline directly — piped through `sed` for indenting, the
+# pipeline's exit status is sed's, not resolve-palette's, so the else/warn
+# branch could never fire.
+palette_out="$("$LOCAL_BIN/ws-topology" resolve-palette --write 2>&1)"
+palette_status=$?
+if [[ -n "$palette_out" ]]; then
+  printf '%s\n' "$palette_out" | sed 's/^/  /'
+fi
+if (( palette_status == 0 )); then
   step "palette synced from terminal"
 else
   warn "palette sync skipped (Sigil stays on the Catppuccin fallback)"
