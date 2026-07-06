@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # icon-decode.sh — decode an iconSpec.codepoint escape to its literal glyph.
 #
 # spaces.json (v2) stores icons as ASCII-escaped codepoints — `\uXXXX` for
@@ -16,6 +17,9 @@ ws_decode_icon() {
   [[ -z "$esc" ]] && return 0
   if [[ "$esc" == "\\u{"* ]]; then
     local hex="${esc#\\u\{}"; hex="${hex%\}}"
+    # Gate before interpolating into the printf format — same
+    # validated-input discipline as the short-form branch below.
+    [[ "$hex" =~ ^[0-9a-fA-F]{1,6}$ ]] || return 0
     local padded
     padded=$(printf '%08x' "0x$hex" 2>/dev/null) || return 0
     printf "\\U${padded}"

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # hex-ansi.sh — parse "#RRGGBB" into decimal RGB components.
 #
 # Two callers want this:

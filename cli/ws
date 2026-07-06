@@ -32,9 +32,21 @@
 
 set -u
 
+# Resolve the sibling lib/ directory relative to this script's own real
+# location. `ws` is symlinked into ~/.local/bin (see install.sh), so
+# BASH_SOURCE[0] is the symlink — resolve it first (macOS 14+ ships
+# `readlink -f`). Falls back to the legacy ~/.config/workspace/lib path
+# below when the self-relative file doesn't exist, preserving today's
+# behavior for exotic layouts (e.g. a lib/ shipped independently of the
+# checkout this script lives in).
+WS_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+
 # Source workspace configuration (bundle prefix, paths, WM binary).
 # This provides: WORKSPACE_BUNDLE_PREFIX, WORKSPACE_WM_BIN, etc.
-if [[ -r "$HOME/.config/workspace/lib/config.sh" ]]; then
+if [[ -r "$WS_ROOT/lib/config.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$WS_ROOT/lib/config.sh"
+elif [[ -r "$HOME/.config/workspace/lib/config.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/config.sh"
 fi
@@ -42,7 +54,10 @@ fi
 # Source window manager abstraction layer. Stubs (WM never available, no
 # workspaces) keep the CLI usable on machines without the runtime lib —
 # callers already fall back to spaces.json when the WM is unreachable.
-if [[ -r "$HOME/.config/workspace/lib/window-manager.sh" ]]; then
+if [[ -r "$WS_ROOT/lib/window-manager.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$WS_ROOT/lib/window-manager.sh"
+elif [[ -r "$HOME/.config/workspace/lib/window-manager.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/window-manager.sh"
 else
@@ -54,7 +69,10 @@ fi
 # shared spaces.json when no host-specific file exists). Sourced before
 # any other default-resolution so subsequent `${WS_CONFIG:-…}` defaults
 # don't clobber the host overlay.
-if [[ -r "$HOME/.config/workspace/lib/resolve-config.sh" ]]; then
+if [[ -r "$WS_ROOT/lib/resolve-config.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$WS_ROOT/lib/resolve-config.sh"
+elif [[ -r "$HOME/.config/workspace/lib/resolve-config.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/resolve-config.sh"
 fi
@@ -82,15 +100,26 @@ fi
 
 have() { command -v "$1" >/dev/null 2>&1; }   # ensure available regardless
 
+# jq backs nearly every subcommand (spaces.json reads/writes) — fail fast
+# with a clear message instead of ~34 confusing "command not found" errors
+# scattered across cmd_* functions.
+have jq || { err "jq is required (brew install jq)"; exit 1; }
+
 # Shared helpers for codepoint unescape + hex→RGB. Stubs let the CLI keep
 # working when the lib/ shipment hasn't landed (very fresh install).
-if [[ -r "$HOME/.config/workspace/lib/icon-decode.sh" ]]; then
+if [[ -r "$WS_ROOT/lib/icon-decode.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$WS_ROOT/lib/icon-decode.sh"
+elif [[ -r "$HOME/.config/workspace/lib/icon-decode.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/icon-decode.sh"
 else
   ws_decode_icon() { :; }
 fi
-if [[ -r "$HOME/.config/workspace/lib/hex-ansi.sh" ]]; then
+if [[ -r "$WS_ROOT/lib/hex-ansi.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$WS_ROOT/lib/hex-ansi.sh"
+elif [[ -r "$HOME/.config/workspace/lib/hex-ansi.sh" ]]; then
   # shellcheck source=/dev/null
   source "$HOME/.config/workspace/lib/hex-ansi.sh"
 else

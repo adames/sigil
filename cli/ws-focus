@@ -5,51 +5,84 @@
 # focus overlay was removed (AeroSpace's Caps+1…0 covers direct focus).
 set -u
 
+# Resolve the sibling lib/ directory relative to this script's own real
+# location. `ws-focus` is symlinked into ~/.local/bin (see install.sh), so
+# BASH_SOURCE[0] is the symlink — resolve it first (macOS 14+ ships
+# `readlink -f`). Falls back to the legacy ~/.config/workspace/lib path
+# when the self-relative file doesn't exist.
+WS_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+if [[ -r "$WS_ROOT/lib/config.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$WS_ROOT/lib/config.sh"
+elif [[ -r "$HOME/.config/workspace/lib/config.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$HOME/.config/workspace/lib/config.sh"
+fi
+
+have() { command -v "$1" >/dev/null 2>&1; }
+have jq || { echo "ws-focus: jq is required (brew install jq)" >&2; exit 1; }
+
+# Notify via argv-passed osascript — never splice data into the AppleScript
+# source (that's an injection vector: a workspace/slot name containing a
+# quote or backslash could break out of the string literal).
+_notify() {
+  local msg="$1" title="${2:-ws}"
+  osascript -e 'on run argv' \
+            -e 'display notification (item 1 of argv) with title (item 2 of argv)' \
+            -e 'end run' \
+            -- "$msg" "$title" 2>/dev/null
+}
+
+if [[ ! -x "${WORKSPACE_WM_BIN:-}" ]]; then
+  _notify "aerospace not found (set WORKSPACE_WM_BIN or install aerospace)"
+  exit 1
+fi
+
 target="${1:-}"
 [[ -n "$target" ]] || {
-  osascript -e 'display notification "ws-focus: missing slot arg" with title "ws"'
+  _notify "ws-focus: missing slot arg"
   exit 2
 }
 
 # `last`/`recent` → delegate to aerospace's built-in back-and-forth.
 if [[ "$target" == "last" || "$target" == "recent" ]]; then
-  if aerospace workspace-back-and-forth 2>/dev/null; then
+  if "$WORKSPACE_WM_BIN" workspace-back-and-forth 2>/dev/null; then
     exit 0
   fi
-  osascript -e 'display notification "no recent workspace yet" with title "ws"'
+  _notify "no recent workspace yet"
   exit 1
 fi
 
 # next/prev → delegate to aerospace's built-in cycle. --wrap-around
 # makes the last workspace's "next" land back on the first.
 if [[ "$target" == "next" || "$target" == "prev" ]]; then
-  if aerospace workspace --wrap-around --no-stdin "$target" 2>/dev/null; then
+  if "$WORKSPACE_WM_BIN" workspace --wrap-around --no-stdin "$target" 2>/dev/null; then
     exit 0
   fi
-  osascript -e "display notification \"aerospace workspace $target failed\" with title \"ws\""
+  _notify "aerospace workspace $target failed"
   exit 1
 fi
 
 # Numeric slot → resolve to aerospace workspace name via list-workspaces.
 # spaces.json composite-key order matches aerospace's monitor-grouped
 # order under fork B, so the N-th entry is the chord target.
-all=$(aerospace list-workspaces --all --json 2>/dev/null)
+all=$("$WORKSPACE_WM_BIN" list-workspaces --all --json 2>/dev/null)
 if [[ -z "$all" ]]; then
-  osascript -e 'display notification "aerospace unavailable" with title "ws"'
+  _notify "aerospace unavailable"
   exit 1
 fi
 count=$(jq 'length' <<<"$all")
 if [[ ! "$target" =~ ^[0-9]+$ ]] || (( target < 1 || target > count )); then
-  osascript -e "display notification \"slot $target does not exist (have $count)\" with title \"ws\""
+  _notify "slot $target does not exist (have $count)"
   exit 1
 fi
 name=$(jq -r --argjson n "$target" '.[$n - 1].workspace' <<<"$all")
 [[ -z "$name" || "$name" == "null" ]] && {
-  osascript -e "display notification \"slot $target has no workspace name\" with title \"ws\""
+  _notify "slot $target has no workspace name"
   exit 1
 }
 
-aerospace workspace "$name" 2>/dev/null || {
-  osascript -e "display notification \"aerospace workspace $name failed\" with title \"ws\""
+"$WORKSPACE_WM_BIN" workspace "$name" 2>/dev/null || {
+  _notify "aerospace workspace $name failed"
   exit 1
 }
