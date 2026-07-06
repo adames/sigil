@@ -120,8 +120,8 @@ done
 # testing the pipeline directly — piped through `sed` for indenting, the
 # pipeline's exit status is sed's, not resolve-palette's, so the else/warn
 # branch could never fire.
-palette_out="$("$LOCAL_BIN/ws-topology" resolve-palette --write 2>&1)"
-palette_status=$?
+palette_status=0
+palette_out="$("$LOCAL_BIN/ws-topology" resolve-palette --write 2>&1)" || palette_status=$?
 if [[ -n "$palette_out" ]]; then
   printf '%s\n' "$palette_out" | sed 's/^/  /'
 fi
