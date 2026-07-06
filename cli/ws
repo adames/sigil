@@ -952,7 +952,7 @@ ws layout — save / load / list named snapshots of spaces.json
 
   ws layout save <NAME>          snapshot current state
   ws layout load <NAME> [-y]     restore a saved snapshot
-  ws layout list                 list saved layouts
+  ws layout list [--json]        list saved layouts
   ws layout delete <NAME> [-y]   remove a saved layout
 
 Layouts are stored in ~/.config/workspace/layouts/<NAME>.json (or
@@ -1081,10 +1081,12 @@ cmd_reset() {
 cmd_doctor() {
   if [[ ! -r "$WS_CONFIG" ]]; then
     err "spaces.json not found: $WS_CONFIG"
+    _doctor_environment
     return 1
   fi
   if ! jq -e . "$WS_CONFIG" >/dev/null 2>&1; then
     err "spaces.json is not valid JSON"
+    _doctor_environment
     return 1
   fi
   local bad=0
@@ -1094,10 +1096,12 @@ cmd_doctor() {
   local version; version=$(jq -r '.version // 1' "$WS_CONFIG" 2>/dev/null)
   if [[ "$version" != "3" ]]; then
     err "unsupported spaces.json version: $version (only v3 is accepted — rebuild/seed via the Swift tools or \`ws migrate\`)"
+    _doctor_environment
     return 1
   fi
   if [[ "$(jq -r '.spaces | type' "$WS_CONFIG" 2>/dev/null)" != "object" ]]; then
     err "spaces is missing or not an object"
+    _doctor_environment
     return 1
   fi
   # Per-slot v3 invariants (keyed by the composite <displayUUID>:<workspaceName>):

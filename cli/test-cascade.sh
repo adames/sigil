@@ -231,7 +231,7 @@ assert "layout list --json includes saved layout" '["jsontest"]' \
 "$WS_BIN" layout delete -y jsontest >/dev/null
 
 # 18 · host status --json parity (hostname, effective path, overlay bool + path)
-host_json=$("$WS_BIN" host status --json)
+host_json=$(HOME="$WORK" "$WS_BIN" host status --json)
 assert_true "host status --json is valid JSON" jq -e . <<<"$host_json"
 assert "host status --json effective path matches WS_CONFIG" "$WS_CONFIG" \
   "$(jq -r '.effective' <<<"$host_json")"
