@@ -75,13 +75,21 @@ final class WsPromptApp {
         // frame top-down (same guard ws-cheatsheet uses).
         let container = NSView(frame: NSRect(origin: .zero, size: NSSize(width: winWidth, height: winHeight)))
         container.autoresizesSubviews = true
-        let hosting = NSHostingView(rootView: PromptView(controller: ctl, cardWidth: cardWidth))
+        let hosting = NSHostingView(rootView: PromptView(
+            controller: ctl, cardWidth: cardWidth, reduceMotion: Self.reduceMotionEnabled()))
         hosting.frame = container.bounds
         hosting.autoresizingMask = [.width, .height]
         container.addSubview(hosting)
         win.contentView = container
 
         self.window = win
+    }
+
+    /// System "reduce motion" toggle, read once at launch. Gates the
+    /// reject shake's animation (PromptView) — mirrors ws-picker's
+    /// WsPickerApp helper of the same name.
+    private static func reduceMotionEnabled() -> Bool {
+        NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
 
     // MARK: - Lifecycle

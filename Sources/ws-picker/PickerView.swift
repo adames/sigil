@@ -12,6 +12,16 @@ struct PickerView: View {
     /// Card width, computed once from the host screen by WsPickerApp. The
     /// window is sized to this (+ margins), so the card never resizes it.
     let cardWidth: CGFloat
+    /// Read once at launch from `NSWorkspace.shared
+    /// .accessibilityDisplayShouldReduceMotion` (see WsPickerApp). When
+    /// true, the shake offset is skipped entirely (the card never moves)
+    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
+    var reduceMotion: Bool = false
+
+    /// True for a beat right after a reject, regardless of reduceMotion —
+    /// a border-color pulse isn't motion, so it's the primary feedback
+    /// when animation is off and a redundant cue otherwise.
+    @State private var rejectFlash = false
 
     private var matches: [WindowItem] { controller.currentMatches() }
 
@@ -40,10 +50,23 @@ struct PickerView: View {
                 .fill(Palette.resolved.mantle)
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                        .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
+                        .strokeBorder(
+                            rejectFlash ? Palette.resolved.red.opacity(0.85) : Palette.resolved.surface0.opacity(0.85),
+                            lineWidth: rejectFlash ? 1.5 : 1
+                        )
                 )
         )
         .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
+        .modifier(Shake(nudge: reduceMotion ? 0 : controller.nudge))
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: controller.nudge)
+        .onChange(of: controller.nudge) { _, newValue in
+            rejectFlash = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+                if controller.nudge == newValue {
+                    rejectFlash = false
+                }
+            }
+        }
     }
 
     // MARK: - Header
@@ -68,6 +91,7 @@ struct PickerView: View {
                 RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
                     .fill(Palette.resolved.blue)
             )
+            .accessibilityLabel("focus mode")
     }
 
     // MARK: - Query field
@@ -78,13 +102,15 @@ struct PickerView: View {
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundColor(Palette.resolved.blue)
                 .frame(width: 14)
+                .accessibilityHidden(true)
             Text(displayQuery)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(controller.query.isEmpty ? Palette.resolved.overlay0 : Palette.resolved.text)
+                .foregroundColor(controller.query.isEmpty ? Palette.resolved.hint : Palette.resolved.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text("↵")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(Palette.resolved.overlay0)
+                .foregroundColor(Palette.resolved.hint)
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, 12)
         .frame(height: 30)
@@ -96,6 +122,9 @@ struct PickerView: View {
                         .strokeBorder(Palette.resolved.surface0.opacity(0.8), lineWidth: 1)
                 )
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("window search")
+        .accessibilityValue(controller.query.isEmpty ? "empty" : controller.query)
     }
 
     private var displayQuery: String {
@@ -169,6 +198,20 @@ struct PickerView: View {
                         .strokeBorder(accent.opacity(selected ? 1 : 0.55), lineWidth: 1.5)
                 )
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(rowLabel(for: item))
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
+    }
+
+    /// "<title>, <app>, workspace <name>" (or the app-only fallback when
+    /// the window has no title) — read as one row so VoiceOver doesn't
+    /// step through the icon, title, and workspace chip separately.
+    private func rowLabel(for item: WindowItem) -> String {
+        var label = item.title.isEmpty ? item.app : "\(item.displayLabel), \(item.app)"
+        if !item.workspace.isEmpty {
+            label += ", workspace \(item.workspace)"
+        }
+        return label
     }
 
     /// App icon rendered at row height. NSWorkspace's icon cache means

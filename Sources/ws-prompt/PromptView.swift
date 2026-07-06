@@ -13,6 +13,16 @@ struct PromptView: View {
     /// Card width, computed once from the host screen by WsPromptApp. The
     /// window is sized to this (+ margins), so the card never resizes it.
     let cardWidth: CGFloat
+    /// Read once at launch from `NSWorkspace.shared
+    /// .accessibilityDisplayShouldReduceMotion` (see WsPromptApp). When
+    /// true, the shake offset is skipped entirely (the card never moves)
+    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
+    var reduceMotion: Bool = false
+
+    /// True for a beat right after a reject, regardless of reduceMotion —
+    /// a border-color pulse isn't motion, so it's the primary feedback
+    /// when animation is off and a redundant cue otherwise.
+    @State private var rejectFlash = false
 
     private var workspaces: [Workspace] { controller.workspaces }
 
@@ -43,12 +53,23 @@ struct PromptView: View {
                 .fill(Palette.resolved.mantle)
                 .overlay(
                     RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                        .strokeBorder(Palette.resolved.surface0.opacity(0.85), lineWidth: 1)
+                        .strokeBorder(
+                            rejectFlash ? Palette.resolved.red.opacity(0.85) : Palette.resolved.surface0.opacity(0.85),
+                            lineWidth: rejectFlash ? 1.5 : 1
+                        )
                 )
         )
         .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
-        .modifier(Shake(nudge: controller.nudge))
-        .animation(.easeOut(duration: 0.16), value: controller.nudge)
+        .modifier(Shake(nudge: reduceMotion ? 0 : controller.nudge))
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: controller.nudge)
+        .onChange(of: controller.nudge) { _, newValue in
+            rejectFlash = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+                if controller.nudge == newValue {
+                    rejectFlash = false
+                }
+            }
+        }
     }
 
     // MARK: - Header
@@ -75,6 +96,7 @@ struct PromptView: View {
                 RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
                     .fill(Palette.resolved.green)
             )
+            .accessibilityLabel("send mode")
     }
 
     // MARK: - Workspace list
@@ -129,6 +151,9 @@ struct PromptView: View {
                         .strokeBorder(slot.opacity(selected ? 1 : 0.55), lineWidth: 1.5)
                 )
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("workspace \(ws.name), slot \(digitLabel(ws.index))")
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
 
     /// Slot 10 commits on `0`, so show `0` for index 10; everything else

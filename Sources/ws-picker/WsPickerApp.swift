@@ -64,13 +64,21 @@ final class WsPickerApp {
         // the window size — the window owns its frame top-down.
         let container = NSView(frame: NSRect(origin: .zero, size: NSSize(width: winWidth, height: winHeight)))
         container.autoresizesSubviews = true
-        let hosting = NSHostingView(rootView: PickerView(controller: ctl, cardWidth: cardWidth))
+        let hosting = NSHostingView(rootView: PickerView(
+            controller: ctl, cardWidth: cardWidth, reduceMotion: Self.reduceMotionEnabled()))
         hosting.frame = container.bounds
         hosting.autoresizingMask = [.width, .height]
         container.addSubview(hosting)
         win.contentView = container
 
         self.window = win
+    }
+
+    /// System "reduce motion" toggle, read once at launch. Gates the
+    /// reject shake's animation (PickerView) — mirrors ws-prompt's
+    /// WsPromptApp helper of the same name.
+    private static func reduceMotionEnabled() -> Bool {
+        NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
 
     // MARK: - Lifecycle
@@ -154,7 +162,9 @@ final class WsPickerApp {
 
     private func dispatch(_ key: PickerKey) {
         switch controller.handle(key) {
-        case .idle, .refilter:    return
+        case .idle, .refilter, .reject:
+            // Selection/nudge are @Published — the view re-renders itself.
+            return
         case .cancel:             terminate()
         case .commit(let id):
             source.focus(windowID: id)
