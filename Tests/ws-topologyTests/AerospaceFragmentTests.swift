@@ -264,3 +264,107 @@ struct AerospaceFragmentRenderTests {
         #expect(AerospaceFragment.escapeTOMLBasicString("a\u{01}b") == #"a\u0001b"#)
     }
 }
+
+@Suite("AerospaceFragment.readExistingConfig — guarded pre-merge read")
+struct AerospaceFragmentReadExistingConfigTests {
+
+    private func makeTempDir() throws -> URL {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("aerospace-emit-tests-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir
+    }
+
+    @Test func missing_file_yields_empty_string_not_an_error() throws {
+        let dir = try makeTempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let target = dir.appendingPathComponent("does-not-exist.toml")
+
+        let result = AerospaceFragment.readExistingConfig(at: target)
+        switch result {
+        case .success(.missing):
+            break
+        case .success(.contents(let contents)):
+            Issue.record("expected .missing for a nonexistent file, got contents(\"\(contents)\")")
+        case .failure(let error):
+            Issue.record("expected success for a nonexistent file, got \(error)")
+        }
+    }
+
+    @Test func existing_valid_utf8_file_is_read_verbatim() throws {
+        let dir = try makeTempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let target = dir.appendingPathComponent("aerospace.toml")
+        let contents = "gaps.outer.top = 26\n[workspace-to-monitor-force-assignment]\n\"1\" = 1\n"
+        try contents.write(to: target, atomically: true, encoding: .utf8)
+
+        let result = AerospaceFragment.readExistingConfig(at: target)
+        switch result {
+        case .success(.contents(let read)):
+            #expect(read == contents)
+        case .success(.missing):
+            Issue.record("expected contents for a readable file, got .missing")
+        case .failure(let error):
+            Issue.record("expected success for a readable file, got \(error)")
+        }
+    }
+
+    /// Regression: this is the data-loss bug. A file that exists but
+    /// can't be decoded as UTF-8 must NOT collapse to "" — that would
+    /// make the caller's merge treat the user's real config as blank
+    /// and --write would replace it wholesale with just the generated
+    /// block. Non-UTF-8 bytes must surface as `.failure`.
+    @Test func existing_non_utf8_file_is_reported_as_failure_not_emptied() throws {
+        let dir = try makeTempDir()
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let target = dir.appendingPathComponent("aerospace.toml")
+        // 0xFF is not valid UTF-8 in this position.
+        let invalidUTF8 = Data([0x67, 0x61, 0x70, 0x73, 0xFF, 0xFE])
+        try invalidUTF8.write(to: target)
+
+        let result = AerospaceFragment.readExistingConfig(at: target)
+        switch result {
+        case .success(let read):
+            Issue.record("expected failure for non-UTF-8 bytes, got success(\(read))")
+        case .failure(let error):
+            guard case .unreadable(let path, _) = error else {
+                Issue.record("expected .unreadable, got \(error)")
+                return
+            }
+            #expect(path == target.path)
+        }
+    }
+
+    /// Same failure mode, reached via a permissions error instead of bad
+    /// bytes: the file exists and is valid UTF-8, but is unreadable.
+    @Test func existing_unreadable_permissions_file_is_reported_as_failure_not_emptied() throws {
+        let dir = try makeTempDir()
+        defer {
+            // Restore permissions before cleanup so removal doesn't fail.
+            try? FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: dir.appendingPathComponent("aerospace.toml").path)
+            try? FileManager.default.removeItem(at: dir)
+        }
+        let target = dir.appendingPathComponent("aerospace.toml")
+        try "gaps.outer.top = 26\n".write(to: target, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o000], ofItemAtPath: target.path)
+
+        // Root (and some sandboxed CI runners) can read files with mode
+        // 000, which would make this test meaningless — skip in that case
+        // rather than assert a false failure.
+        guard !FileManager.default.isReadableFile(atPath: target.path) else {
+            return
+        }
+
+        let result = AerospaceFragment.readExistingConfig(at: target)
+        switch result {
+        case .success(let read):
+            Issue.record("expected failure for an unreadable file, got success(\(read))")
+        case .failure(let error):
+            guard case .unreadable(let path, _) = error else {
+                Issue.record("expected .unreadable, got \(error)")
+                return
+            }
+            #expect(path == target.path)
+        }
+    }
+}

@@ -114,6 +114,62 @@ public enum AerospaceFragment {
         }
     }
 
+    /// Result of reading the on-disk aerospace.toml before merging into it.
+    public enum ExistingConfigReadError: Error, CustomStringConvertible, Equatable {
+        /// The file exists but couldn't be decoded as UTF-8 (or the read
+        /// itself failed, e.g. a permissions error). Collapsing this to
+        /// an empty string would make `merge` treat the user's real
+        /// config as blank and --write would replace it wholesale, so
+        /// callers must surface this and refuse to write instead.
+        case unreadable(path: String, underlying: String)
+
+        public var description: String {
+            switch self {
+            case .unreadable(let path, let underlying):
+                return "cannot read \(path) (\(underlying)) — refusing to overwrite an unreadable config; repair or remove it before re-emitting"
+            }
+        }
+    }
+
+    /// Outcome of a guarded pre-merge read. Carries file existence
+    /// alongside contents so callers can derive both from this single
+    /// check instead of a separate `fileExists` call racing against the
+    /// read — see `ExistingConfig`.
+    public enum ExistingConfig: Equatable {
+        /// File did not exist at read time.
+        case missing
+        /// File existed and was read successfully.
+        case contents(String)
+    }
+
+    /// Read the aerospace.toml that a merge will be applied to.
+    /// Returns `.missing` only when the file genuinely does not exist yet
+    /// (fresh install). If the file exists but the read fails — bad
+    /// permissions, non-UTF-8 bytes — that's surfaced as
+    /// `.unreadable` rather than silently treated as an empty file,
+    /// since the latter would make `--write` clobber the user's real
+    /// config with just the generated block.
+    ///
+    /// Existence and contents come from the same `Data(contentsOf:)`
+    /// call site rather than a separate preflight `fileExists`, so
+    /// callers that need to know "did the file exist before this write"
+    /// (e.g. to decide restore-vs-remove on a validation rollback) don't
+    /// race a second filesystem check against this one.
+    public static func readExistingConfig(at target: URL) -> Result<ExistingConfig, ExistingConfigReadError> {
+        let data: Data
+        do {
+            data = try Data(contentsOf: target)
+        } catch let error as CocoaError where error.code == .fileReadNoSuchFile {
+            return .success(.missing)
+        } catch {
+            return .failure(.unreadable(path: target.path, underlying: String(describing: error)))
+        }
+        guard let text = String(data: data, encoding: .utf8) else {
+            return .failure(.unreadable(path: target.path, underlying: "not valid UTF-8"))
+        }
+        return .success(.contents(text))
+    }
+
     /// Replace lines between the fence pair (inclusive) with `block`, or
     /// append at EOF if absent. Idempotent. Line-anchored — fences must
     /// appear as standalone lines, not as substrings in doc comments
