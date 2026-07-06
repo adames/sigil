@@ -110,13 +110,13 @@ struct PickerControllerFuzzyCommitTests {
     }
 
     @Test func query_matches_by_workspace_name_not_just_app_or_title() {
-        // "mail" only appears in WindowItem 300's workspace field (title is
-        // empty) — matching proves matchKey folds in workspace, not just
-        // app/title.
+        // "web" only appears in WindowItem 200's workspace field, and is not
+        // a subsequence of its app/title ("Safari Sigil PRs") — matching
+        // proves matchKey folds in workspace, not just app/title.
         let c = PickerController(items: fixtureItems())
-        for ch in "mail" { _ = c.handle(.char(ch)) }
-        #expect(c.currentMatches().map(\.id) == [300])
-        #expect(c.handle(.enter) == .commit(id: 300))
+        for ch in "web" { _ = c.handle(.char(ch)) }
+        #expect(c.currentMatches().map(\.id) == [200])
+        #expect(c.handle(.enter) == .commit(id: 200))
     }
 
     @Test func backspace_removes_last_query_char_and_refilters() {
@@ -126,9 +126,8 @@ struct PickerControllerFuzzyCommitTests {
         #expect(c.currentMatches().isEmpty)
         let action = c.handle(.backspace)
         #expect(action == .refilter)
-        // Back to "s" alone, which matches Ghostty ("...term...") no —
-        // "s" is a subsequence of "Safari" and also of workspace names;
-        // assert query state directly instead of guessing the match set.
+        // Back to "s" alone; "s" matches multiple items, so assert query
+        // state directly instead of the match set.
         #expect(c.query == "s")
     }
 
