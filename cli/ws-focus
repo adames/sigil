@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ws-focus <SLOT|next|prev|last> — focus workspace N (or cycle).
-# Called from ws-prompt's focus overlay (Caps+f → digit/name) AND
-# directly from aerospace.toml's Caps+n / Caps+p / Caps+Tab bindings
-# for cycling + back-and-forth.
+# Called only from aerospace.toml bindings (Caps+n / Caps+p / Caps+Tab)
+# for cycling + back-and-forth. ws-prompt no longer calls this: its old
+# focus overlay was removed (AeroSpace's Caps+1…0 covers direct focus).
 set -u
 
 target="${1:-}"
