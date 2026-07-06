@@ -14,9 +14,8 @@ struct PickerView: View {
     let cardWidth: CGFloat
     /// Read once at launch from `NSWorkspace.shared
     /// .accessibilityDisplayShouldReduceMotion` (see WsPickerApp). When
-    /// true, reject feedback drops the shake's animation — the geometry
-    /// still snaps on a reject (so the miss isn't silent) but doesn't
-    /// jitter — and relies on `rejectFlash`'s border pulse instead.
+    /// true, the shake offset is skipped entirely (the card never moves)
+    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
     var reduceMotion: Bool = false
 
     /// True for a beat right after a reject, regardless of reduceMotion —
@@ -60,10 +59,12 @@ struct PickerView: View {
         .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
         .modifier(Shake(nudge: reduceMotion ? 0 : controller.nudge))
         .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: controller.nudge)
-        .onChange(of: controller.nudge) { _, _ in
+        .onChange(of: controller.nudge) { _, newValue in
             rejectFlash = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
-                rejectFlash = false
+                if controller.nudge == newValue {
+                    rejectFlash = false
+                }
             }
         }
     }
@@ -122,7 +123,7 @@ struct PickerView: View {
                 )
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("workspace search")
+        .accessibilityLabel("window search")
         .accessibilityValue(controller.query.isEmpty ? "empty" : controller.query)
     }
 
