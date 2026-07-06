@@ -222,5 +222,37 @@ assert "themes --json on empty dir emits []" "[]" \
 assert "themes on empty dir emits nothing" "" \
   "$(WS_THEMES_DIR="$empty_themes" "$WS_BIN" themes)"
 
+# 17 · layout list --json parity (array of names, [] when empty)
+reset_fixture
+assert "layout list --json on empty dir emits []" "[]" "$("$WS_BIN" layout list --json)"
+"$WS_BIN" layout save jsontest >/dev/null
+assert "layout list --json includes saved layout" '["jsontest"]' \
+  "$("$WS_BIN" layout list --json | jq -c .)"
+"$WS_BIN" layout delete -y jsontest >/dev/null
+
+# 18 · host status --json parity (hostname, effective path, overlay bool + path)
+host_json=$("$WS_BIN" host status --json)
+assert_true "host status --json is valid JSON" jq -e . <<<"$host_json"
+assert "host status --json effective path matches WS_CONFIG" "$WS_CONFIG" \
+  "$(jq -r '.effective' <<<"$host_json")"
+assert "host status --json overlay is false (no overlay in harness)" "false" \
+  "$(jq -r '.overlay' <<<"$host_json")"
+
+# 19 · _confirm non-interactive clarity: a non-tty caller without -y gets a
+# specific "refusing to ... non-interactively" message and exits 1, instead
+# of a generic silent abort. Piped stdin (this harness) is never a tty.
+"$WS_BIN" layout save confirmtest >/dev/null
+noninteractive_err=$(echo | "$WS_BIN" layout delete confirmtest 2>&1)
+noninteractive_rc=0
+echo | "$WS_BIN" layout delete confirmtest >/dev/null 2>&1 || noninteractive_rc=$?
+assert "non-interactive delete without -y exits 1" "1" "$noninteractive_rc"
+[[ "$noninteractive_err" == *"refusing to delete layout 'confirmtest' non-interactively (pass -y)"* ]] \
+  && pass "non-interactive delete names the action + tells you to pass -y" \
+  || fail "non-interactive delete message missing expected text: $noninteractive_err"
+"$WS_BIN" layout list | grep -qx confirmtest \
+  && pass "non-interactive refusal left the layout in place" \
+  || fail "layout was deleted despite non-interactive refusal"
+"$WS_BIN" layout delete -y confirmtest >/dev/null
+
 if (( FAILED )); then red "✗ verify FAILED"; exit 1; fi
 green "✓ verify: all green"
