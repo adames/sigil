@@ -131,22 +131,43 @@ public enum AerospaceFragment {
         }
     }
 
+    /// Outcome of a guarded pre-merge read. Carries file existence
+    /// alongside contents so callers can derive both from this single
+    /// check instead of a separate `fileExists` call racing against the
+    /// read — see `ExistingConfig`.
+    public enum ExistingConfig: Equatable {
+        /// File did not exist at read time.
+        case missing
+        /// File existed and was read successfully.
+        case contents(String)
+    }
+
     /// Read the aerospace.toml that a merge will be applied to.
-    /// Returns `""` only when the file genuinely does not exist yet
+    /// Returns `.missing` only when the file genuinely does not exist yet
     /// (fresh install). If the file exists but the read fails — bad
     /// permissions, non-UTF-8 bytes — that's surfaced as
     /// `.unreadable` rather than silently treated as an empty file,
     /// since the latter would make `--write` clobber the user's real
     /// config with just the generated block.
-    public static func readExistingConfig(at target: URL, fileManager: FileManager = .default) -> Result<String, ExistingConfigReadError> {
-        guard fileManager.fileExists(atPath: target.path) else {
-            return .success("")
-        }
+    ///
+    /// Existence and contents come from the same `Data(contentsOf:)`
+    /// call site rather than a separate preflight `fileExists`, so
+    /// callers that need to know "did the file exist before this write"
+    /// (e.g. to decide restore-vs-remove on a validation rollback) don't
+    /// race a second filesystem check against this one.
+    public static func readExistingConfig(at target: URL) -> Result<ExistingConfig, ExistingConfigReadError> {
+        let data: Data
         do {
-            return .success(try String(contentsOf: target, encoding: .utf8))
+            data = try Data(contentsOf: target)
+        } catch let error as CocoaError where error.code == .fileReadNoSuchFile {
+            return .success(.missing)
         } catch {
             return .failure(.unreadable(path: target.path, underlying: String(describing: error)))
         }
+        guard let text = String(data: data, encoding: .utf8) else {
+            return .failure(.unreadable(path: target.path, underlying: "not valid UTF-8"))
+        }
+        return .success(.contents(text))
     }
 
     /// Replace lines between the fence pair (inclusive) with `block`, or

@@ -294,10 +294,14 @@ func cmdEmitAerospace(args: [String]) -> Int32 {
 
     let target = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".config/aerospace/aerospace.toml")
-    let fileExisted = FileManager.default.fileExists(atPath: target.path)
+    let fileExisted: Bool
     let existing: String
     switch AerospaceFragment.readExistingConfig(at: target) {
-    case .success(let contents):
+    case .success(.missing):
+        fileExisted = false
+        existing = ""
+    case .success(.contents(let contents)):
+        fileExisted = true
         existing = contents
     case .failure(let error):
         // Do NOT collapse an unreadable file to "" — that would make the

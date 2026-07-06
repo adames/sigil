@@ -282,8 +282,10 @@ struct AerospaceFragmentReadExistingConfigTests {
 
         let result = AerospaceFragment.readExistingConfig(at: target)
         switch result {
-        case .success(let contents):
-            #expect(contents == "")
+        case .success(.missing):
+            break
+        case .success(.contents(let contents)):
+            Issue.record("expected .missing for a nonexistent file, got contents(\"\(contents)\")")
         case .failure(let error):
             Issue.record("expected success for a nonexistent file, got \(error)")
         }
@@ -298,8 +300,10 @@ struct AerospaceFragmentReadExistingConfigTests {
 
         let result = AerospaceFragment.readExistingConfig(at: target)
         switch result {
-        case .success(let read):
+        case .success(.contents(let read)):
             #expect(read == contents)
+        case .success(.missing):
+            Issue.record("expected contents for a readable file, got .missing")
         case .failure(let error):
             Issue.record("expected success for a readable file, got \(error)")
         }
@@ -321,7 +325,7 @@ struct AerospaceFragmentReadExistingConfigTests {
         let result = AerospaceFragment.readExistingConfig(at: target)
         switch result {
         case .success(let read):
-            Issue.record("expected failure for non-UTF-8 bytes, got success(\"\(read)\")")
+            Issue.record("expected failure for non-UTF-8 bytes, got success(\(read))")
         case .failure(let error):
             guard case .unreadable(let path, _) = error else {
                 Issue.record("expected .unreadable, got \(error)")
@@ -354,7 +358,7 @@ struct AerospaceFragmentReadExistingConfigTests {
         let result = AerospaceFragment.readExistingConfig(at: target)
         switch result {
         case .success(let read):
-            Issue.record("expected failure for an unreadable file, got success(\"\(read)\")")
+            Issue.record("expected failure for an unreadable file, got success(\(read))")
         case .failure(let error):
             guard case .unreadable(let path, _) = error else {
                 Issue.record("expected .unreadable, got \(error)")
