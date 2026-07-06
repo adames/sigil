@@ -16,13 +16,8 @@ struct PromptView: View {
     /// Read once at launch from `NSWorkspace.shared
     /// .accessibilityDisplayShouldReduceMotion` (see WsPromptApp). When
     /// true, the shake offset is skipped entirely (the card never moves)
-    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
+    /// and OverlayCard's border pulse carries the reject feedback alone.
     var reduceMotion: Bool = false
-
-    /// True for a beat right after a reject, regardless of reduceMotion —
-    /// a border-color pulse isn't motion, so it's the primary feedback
-    /// when animation is off and a redundant cue otherwise.
-    @State private var rejectFlash = false
 
     private var workspaces: [Workspace] { controller.workspaces }
 
@@ -31,72 +26,19 @@ struct PromptView: View {
         // WsPromptApp, so the view just pins the card to the top and lets
         // the rows fill in once they load — no GeometryReader, no centring
         // spacers, nothing that would make AppKit resize the window.
-        card(width: cardWidth)
-            .padding(PromptStyle.cardMargin)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    private func card(width: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            header
+        OverlayCard(
+            title: "send window",
+            width: cardWidth,
+            nudge: controller.nudge,
+            reduceMotion: reduceMotion,
+            // Green = move-and-follow.
+            chip: ModeChip("SEND", accent: Palette.resolved.green)
+        ) {
             listRows
             hint
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 16)
-        .frame(width: width)
-        .background(
-            // Solid card — no behind-window blur. A flat mantle fill paints
-            // instantly and stays crisp; the small window means there's no
-            // full-screen surface to composite.
-            RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Palette.resolved.mantle)
-                .overlay(
-                    RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                        .strokeBorder(
-                            rejectFlash ? Palette.resolved.red.opacity(0.85) : Palette.resolved.surface0.opacity(0.85),
-                            lineWidth: rejectFlash ? 1.5 : 1
-                        )
-                )
-        )
-        .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
-        .modifier(Shake(nudge: reduceMotion ? 0 : controller.nudge))
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: controller.nudge)
-        .onChange(of: controller.nudge) { _, newValue in
-            rejectFlash = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
-                if controller.nudge == newValue {
-                    rejectFlash = false
-                }
-            }
-        }
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        HStack(spacing: 10) {
-            Text("send window")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Palette.resolved.text)
-            Spacer()
-            modeChip
-        }
-    }
-
-    /// Mode chip — fixed corner, 22pt tall, full-color fill, dark
-    /// catppuccin text. Green = move-and-follow.
-    private var modeChip: some View {
-        Text("SEND")
-            .font(.system(size: 11, weight: .medium))
-            .foregroundColor(Palette.resolved.base)
-            .padding(.horizontal, 10)
-            .frame(height: PromptStyle.pillHeight)
-            .background(
-                RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                    .fill(Palette.resolved.green)
-            )
-            .accessibilityLabel("send mode")
+        .padding(PromptStyle.cardMargin)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     // MARK: - Workspace list
@@ -109,7 +51,7 @@ struct PromptView: View {
                 }
                 if workspaces.isEmpty && !controller.isLoading {
                     Text("no workspaces")
-                        .font(.system(size: 11))
+                        .font(.system(size: PromptStyle.hintSize))
                         .foregroundColor(Palette.resolved.hint)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
@@ -130,14 +72,14 @@ struct PromptView: View {
         return HStack(spacing: 10) {
             HStack(spacing: 6) {
                 Text(digitLabel(ws.index))
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: PromptStyle.bodySize, weight: .medium))
                     .foregroundColor(digitColor)
                 iconView(ws: ws, tint: digitColor)
             }
             .frame(width: 56, alignment: .leading)
 
             Text(ws.name)
-                .font(.system(size: 12))
+                .font(.system(size: PromptStyle.bodySize))
                 .foregroundColor(nameColor)
             Spacer()
         }
@@ -172,11 +114,11 @@ struct PromptView: View {
             switch ws.iconKind {
             case .sfSymbol:
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: PromptStyle.hintSize, weight: .semibold))
                     .foregroundColor(tint)
             case .nerdFont:
                 Text(icon)
-                    .font(.custom(ws.iconFontFamily ?? "", size: 12))
+                    .font(.custom(ws.iconFontFamily ?? "", size: PromptStyle.bodySize))
                     .foregroundColor(tint)
             case .none:
                 EmptyView()
@@ -188,7 +130,7 @@ struct PromptView: View {
 
     private var hint: some View {
         Text("↵ or 1–0 sends + follows · ↑↓ select · esc cancels")
-            .font(.system(size: 11, weight: .medium))
+            .font(.system(size: PromptStyle.hintSize, weight: .medium))
             .foregroundColor(Palette.resolved.hint)
             .frame(maxWidth: .infinity, alignment: .leading)
     }

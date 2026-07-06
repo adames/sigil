@@ -15,13 +15,8 @@ struct PickerView: View {
     /// Read once at launch from `NSWorkspace.shared
     /// .accessibilityDisplayShouldReduceMotion` (see WsPickerApp). When
     /// true, the shake offset is skipped entirely (the card never moves)
-    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
+    /// and OverlayCard's border pulse carries the reject feedback alone.
     var reduceMotion: Bool = false
-
-    /// True for a beat right after a reject, regardless of reduceMotion —
-    /// a border-color pulse isn't motion, so it's the primary feedback
-    /// when animation is off and a redundant cue otherwise.
-    @State private var rejectFlash = false
 
     private var matches: [WindowItem] { controller.currentMatches() }
 
@@ -29,69 +24,19 @@ struct PickerView: View {
         // The host window is already sized + positioned (top-centred) by
         // WsPickerApp; pin the card to the top and let matches fill in as
         // they load (kept identical to ws-prompt PromptView for parity).
-        card(width: cardWidth)
-            .padding(PromptStyle.cardMargin)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    private func card(width: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            header
+        OverlayCard(
+            title: "find window",
+            width: cardWidth,
+            nudge: controller.nudge,
+            reduceMotion: reduceMotion,
+            chip: ModeChip("FOCUS", accent: Palette.resolved.blue)
+        ) {
             queryField
             listRows
             hint
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 16)
-        .frame(width: width)
-        .background(
-            // Solid card — no behind-window blur (matches PromptView).
-            RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                .fill(Palette.resolved.mantle)
-                .overlay(
-                    RoundedRectangle(cornerRadius: PromptStyle.cardCorner)
-                        .strokeBorder(
-                            rejectFlash ? Palette.resolved.red.opacity(0.85) : Palette.resolved.surface0.opacity(0.85),
-                            lineWidth: rejectFlash ? 1.5 : 1
-                        )
-                )
-        )
-        .shadow(color: .black.opacity(0.4), radius: 18, y: 6)
-        .modifier(Shake(nudge: reduceMotion ? 0 : controller.nudge))
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: controller.nudge)
-        .onChange(of: controller.nudge) { _, newValue in
-            rejectFlash = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
-                if controller.nudge == newValue {
-                    rejectFlash = false
-                }
-            }
-        }
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        HStack(spacing: 10) {
-            Text("find window")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Palette.resolved.text)
-            Spacer()
-            modeChip
-        }
-    }
-
-    private var modeChip: some View {
-        Text("FOCUS")
-            .font(.system(size: 11, weight: .medium))
-            .foregroundColor(Palette.resolved.base)
-            .padding(.horizontal, 10)
-            .frame(height: PromptStyle.pillHeight)
-            .background(
-                RoundedRectangle(cornerRadius: PromptStyle.pillCorner)
-                    .fill(Palette.resolved.blue)
-            )
-            .accessibilityLabel("focus mode")
+        .padding(PromptStyle.cardMargin)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     // MARK: - Query field
@@ -99,16 +44,16 @@ struct PickerView: View {
     private var queryField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: PromptStyle.captionSize, weight: .semibold))
                 .foregroundColor(Palette.resolved.blue)
                 .frame(width: 14)
                 .accessibilityHidden(true)
             Text(displayQuery)
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(size: PromptStyle.headerSize, weight: .medium))
                 .foregroundColor(controller.query.isEmpty ? Palette.resolved.hint : Palette.resolved.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Text("↵")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: PromptStyle.hintSize, weight: .semibold))
                 .foregroundColor(Palette.resolved.hint)
                 .accessibilityHidden(true)
         }
@@ -145,7 +90,7 @@ struct PickerView: View {
                     Text(controller.query.isEmpty
                          ? "no open windows"
                          : "no windows match “\(controller.query)” · backspace to widen")
-                        .font(.system(size: 11))
+                        .font(.system(size: PromptStyle.hintSize))
                         .foregroundColor(Palette.resolved.hint)
                         .frame(maxWidth: .infinity)
                         .multilineTextAlignment(.center)
@@ -170,13 +115,13 @@ struct PickerView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.displayLabel)
-                    .font(.system(size: 12))
+                    .font(.system(size: PromptStyle.bodySize))
                     .foregroundColor(textColor)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 if !item.title.isEmpty {
                     Text(item.app)
-                        .font(.system(size: 10))
+                        .font(.system(size: PromptStyle.captionSize))
                         .foregroundColor(subColor)
                         .lineLimit(1)
                 }
@@ -184,7 +129,7 @@ struct PickerView: View {
             Spacer()
             if !item.workspace.isEmpty {
                 Text(item.workspace)
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.system(size: PromptStyle.captionSize, weight: .semibold))
                     .foregroundColor(selected ? Palette.resolved.base : accent)
             }
         }
@@ -226,14 +171,14 @@ struct PickerView: View {
                 .opacity(selected ? 0.95 : 1.0)
         } else {
             Image(systemName: "app.dashed")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: PromptStyle.hintSize, weight: .semibold))
                 .foregroundColor(selected ? Palette.resolved.base : Palette.resolved.overlay1)
         }
     }
 
     private var hint: some View {
         Text("↵ focus window · tab/⇧tab select · esc cancels")
-            .font(.system(size: 11, weight: .medium))
+            .font(.system(size: PromptStyle.hintSize, weight: .medium))
             .foregroundColor(Palette.resolved.hint)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
