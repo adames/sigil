@@ -112,6 +112,20 @@ for cli in "${SHELL_CLIS[@]}"; do
   step "linked $dst -> $src"
 done
 
+# Shell completions for `ws`. Symlinked (not copied) so edits to the
+# checkout take effect without re-running install.sh, matching every
+# other symlink step above.
+BASH_COMPLETION_DIR="${WORKSPACE_BASH_COMPLETION_DIR:-$HOME/.local/share/bash-completion/completions}"
+ZSH_SITE_FUNCTIONS_DIR="${WORKSPACE_ZSH_SITE_FUNCTIONS_DIR:-$HOME/.local/share/zsh/site-functions}"
+
+mkdir -p "$BASH_COMPLETION_DIR"
+ln -sfn "$HERE/cli/completions/ws.bash" "$BASH_COMPLETION_DIR/ws"
+step "linked $BASH_COMPLETION_DIR/ws -> $HERE/cli/completions/ws.bash"
+
+mkdir -p "$ZSH_SITE_FUNCTIONS_DIR"
+ln -sfn "$HERE/cli/completions/_ws" "$ZSH_SITE_FUNCTIONS_DIR/_ws"
+step "linked $ZSH_SITE_FUNCTIONS_DIR/_ws -> $HERE/cli/completions/_ws"
+
 # Derive Sigil's palette from the terminal so a fresh install matches it
 # out of the box. Non-fatal: no Ghostty / unreadable theme just leaves
 # Sigil on its built-in Catppuccin fallback.
@@ -177,7 +191,15 @@ Configuration:
   Bundle prefix: $WORKSPACE_BUNDLE_PREFIX
   Window manager: aerospace
 
+Shell completions for ws:
+  zsh   add this to your .zshrc BEFORE compinit runs, then start a new shell:
+          fpath+=($ZSH_SITE_FUNCTIONS_DIR)
+  bash  bash-completion must be active (brew install bash-completion@2 and
+        source it from your bashrc, if not already) — it auto-loads
+        $BASH_COMPLETION_DIR/ws on the next new shell.
+
 To uninstall:
   for L in ${AGENT_LABELS[*]}; do launchctl bootout "gui/$(id -u)/\$L" 2>/dev/null || true; rm -f "$LAUNCH_AGENTS/\$L.plist"; done
   for B in ${BINARIES[*]} ${SHELL_CLIS[*]}; do rm -f "$LOCAL_BIN/\$B"; done
+  rm -f "$BASH_COMPLETION_DIR/ws" "$ZSH_SITE_FUNCTIONS_DIR/_ws"
 NOTE

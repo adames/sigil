@@ -1,0 +1,212 @@
+#compdef ws
+# _ws — zsh completion for the `ws` CLI.
+#
+# Usage: install.sh symlinks this into
+#   ~/.local/share/zsh/site-functions/_ws
+# Add that directory to fpath (before `compinit` runs) and it autoloads:
+#   fpath+=(~/.local/share/zsh/site-functions)
+# Manually, in an interactive shell: `autoload -Uz compinit && compinit`
+# after the fpath line above, or `source cli/completions/_ws` in a pinch
+# (less idiomatic — prefer the fpath route).
+#
+# DRIFT RISK: this file hand-mirrors cli/ws's dispatch table (the `case`
+# block at the bottom of cli/ws) and cmd_help's subcommand list. It is NOT
+# generated. Whenever cli/ws gains/renames a subcommand, a nested
+# sub-subcommand (layout/host/palette/icon), or a flag, update the tables
+# below to match. Grep cli/ws's dispatch `case "${1:-}" in` and each
+# cmd_<name>'s own arg-parsing loop to verify.
+#
+# Flags are listed here ONLY where cli/ws actually parses them today:
+#   status --json · get --json · themes --json · count --customized
+#   theme --with-icons · palette sync --force · migrate --apply
+#   refresh --full · layout load/delete -y|--yes · reset -y|--yes
+
+_ws_config_path() {
+  print -r -- "${WS_CONFIG:-$HOME/.config/workspace/spaces.json}"
+}
+
+_ws_themes_dir() {
+  print -r -- "${WS_THEMES_DIR:-$HOME/.config/workspace/themes}"
+}
+
+# Workspace-addressable tokens: aerospace workspace names AND identity
+# names (either resolves via cli/ws's _resolve_ws). Guarded: no jq, or no
+# readable/valid spaces.json, silently yields nothing.
+_ws_workspace_names() {
+  local cfg
+  cfg=$(_ws_config_path)
+  (( ${+commands[jq]} )) || return 0
+  [[ -r "$cfg" ]] || return 0
+  jq -r '
+    .spaces | to_entries[]
+    | (.value.workspaceName // empty), (.value.name // empty)
+  ' "$cfg" 2>/dev/null
+}
+
+_ws_theme_names() {
+  local dir
+  dir=$(_ws_themes_dir)
+  [[ -d "$dir" ]] || return 0
+  local -a files
+  files=("$dir"/*.json(N))
+  local f
+  for f in "${files[@]}"; do
+    print -r -- "${f:t:r}"
+  done
+}
+
+(( $+functions[_ws_workspaces] )) || _ws_workspaces() {
+  local -a names
+  names=("${(f)$(_ws_workspace_names)}")
+  _describe -t workspaces 'workspace' names
+}
+
+(( $+functions[_ws_themes] )) || _ws_themes() {
+  local -a names
+  names=("${(f)$(_ws_theme_names)}")
+  _describe -t themes 'theme' names
+}
+
+_ws_layout() {
+  local -a subs
+  subs=(
+    'save:snapshot current state'
+    'load:restore a saved snapshot'
+    'list:list saved layouts'
+    'delete:remove a saved layout'
+  )
+  if (( CURRENT == 2 )); then
+    _describe -t layout-subs 'layout subcommand' subs
+    return
+  fi
+  case ${words[2]} in
+    load|delete)
+      _arguments \
+        '(-y --yes)'{-y,--yes}'[skip confirmation]'
+      ;;
+  esac
+}
+
+_ws_host() {
+  local -a subs
+  subs=(
+    'status:show current host overlay state'
+    'init:fork the shared config into a host overlay'
+    'reset:remove the host overlay'
+    'list:list all spaces*.json files'
+  )
+  if (( CURRENT == 2 )); then
+    _describe -t host-subs 'host subcommand' subs
+  fi
+}
+
+_ws_palette() {
+  local -a subs
+  subs=(
+    'sync:derive palette.json from your terminal'
+    'show:preview the active palette'
+    'reset:revert to the built-in Catppuccin palette'
+  )
+  if (( CURRENT == 2 )); then
+    _describe -t palette-subs 'palette subcommand' subs
+    return
+  fi
+  case ${words[2]} in
+    sync)
+      _arguments \
+        '--force[overwrite a manually-edited palette.json]'
+      ;;
+  esac
+}
+
+_ws_icon() {
+  if (( CURRENT == 2 )); then
+    local -a choices
+    choices=('search:non-interactive SF Symbol search')
+    _describe -t icon-args 'icon target' choices
+    _ws_workspaces
+    return
+  fi
+  # `ws icon search <term>` and `ws icon <ws> [glyph]` both take free text
+  # with no further completion.
+}
+
+_ws_top() {
+  local -a cmds
+  cmds=(
+    'status:list workspaces with identity + color swatches'
+    'get:dump a workspace identity overlay as JSON'
+    'count:workspace count'
+    'themes:list available themes'
+    'name:set a workspace identity name'
+    'icon:set a workspace icon'
+    'theme:apply a palette across all workspaces'
+    'palette:manage the terminal-derived palette'
+    'edit:open spaces.json in $EDITOR'
+    'reset:restore spaces.json from spaces.default.json'
+    'doctor:validate spaces.json (v3 schema)'
+    'verify:run end-to-end cascade tests'
+    'layout:save/load/list/delete named snapshots'
+    'migrate:validate / re-render spaces.json'
+    'host:per-host overlay management'
+    'refresh:force re-run the cascade'
+    'help:show usage'
+  )
+  _describe -t commands 'ws subcommand' cmds
+}
+
+_ws() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  if (( CURRENT == 2 )); then
+    _ws_top
+    return
+  fi
+
+  case ${words[2]} in
+    layout)  _ws_layout ;;
+    host)    _ws_host ;;
+    palette) _ws_palette ;;
+    icon)    _ws_icon ;;
+    name)
+      if (( CURRENT == 3 )); then
+        _ws_workspaces
+      fi
+      ;;
+    get)
+      if (( CURRENT == 3 )); then
+        _ws_workspaces
+      else
+        _arguments '--json[emit JSON]'
+      fi
+      ;;
+    theme)
+      if (( CURRENT == 3 )); then
+        _ws_themes
+      else
+        _arguments '--with-icons[also paint icons from the theme file]'
+      fi
+      ;;
+    status)
+      _arguments '--json[emit JSON]'
+      ;;
+    themes)
+      _arguments '--json[emit JSON]'
+      ;;
+    count)
+      _arguments '--customized[count only slots with an identity overlay]'
+      ;;
+    migrate)
+      _arguments '--apply[rewrite spaces.json in place]'
+      ;;
+    refresh)
+      _arguments '--full[also republish topology.json / layout.env]'
+      ;;
+    reset)
+      _arguments '(-y --yes)'{-y,--yes}'[skip confirmation]'
+      ;;
+  esac
+}
+
+_ws "$@"
