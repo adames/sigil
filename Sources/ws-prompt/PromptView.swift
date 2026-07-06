@@ -16,7 +16,7 @@ struct PromptView: View {
     /// Read once at launch from `NSWorkspace.shared
     /// .accessibilityDisplayShouldReduceMotion` (see WsPromptApp). When
     /// true, the shake offset is skipped entirely (the card never moves)
-    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
+    /// and OverlayCard's border pulse carries the reject feedback alone.
     var reduceMotion: Bool = false
 
     private var workspaces: [Workspace] { controller.workspaces }

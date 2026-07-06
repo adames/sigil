@@ -91,6 +91,13 @@ public struct OverlayCard<Content: View>: View {
     /// when animation is off and a redundant cue otherwise.
     @State private var rejectFlash = false
 
+    /// The most recent nudge value we've scheduled a clear for. `State`
+    /// storage (unlike a plain `let`) stays live across struct copies, so
+    /// the asyncAfter closure below reads the value as of timer-fire time,
+    /// not as of the runloop tick that scheduled it — mirrors the
+    /// @ObservedObject-counter comparison this replaced (see b63ee8e).
+    @State private var latestNudge = 0
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
@@ -118,8 +125,9 @@ public struct OverlayCard<Content: View>: View {
         .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: nudge)
         .onChange(of: nudge) { _, newValue in
             rejectFlash = true
+            latestNudge = newValue
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
-                if nudge == newValue {
+                if latestNudge == newValue {
                     rejectFlash = false
                 }
             }

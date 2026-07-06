@@ -15,7 +15,7 @@ struct PickerView: View {
     /// Read once at launch from `NSWorkspace.shared
     /// .accessibilityDisplayShouldReduceMotion` (see WsPickerApp). When
     /// true, the shake offset is skipped entirely (the card never moves)
-    /// and `rejectFlash`'s border pulse carries the reject feedback alone.
+    /// and OverlayCard's border pulse carries the reject feedback alone.
     var reduceMotion: Bool = false
 
     private var matches: [WindowItem] { controller.currentMatches() }
