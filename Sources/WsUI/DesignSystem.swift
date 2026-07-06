@@ -173,6 +173,26 @@ public struct PromptStyle {
     public static let pillHeight: CGFloat = 22
     public static let cardCorner: CGFloat = 10
 
+    // MARK: Type scale
+    //
+    // Every `.system(size:)` literal across PromptView/PickerView clusters
+    // into exactly these four sizes — named for how they're actually used,
+    // not a design language invented ahead of the call sites. Each token
+    // maps to one pre-existing literal value; sizes that were close but
+    // distinct (e.g. 12 vs 11) keep separate tokens rather than merging.
+
+    /// Header title ("send window" / "find window") and the picker's
+    /// query field text — the largest text on the card.
+    public static let headerSize: CGFloat = 13
+    /// Row primary text: workspace name, window title, selected digit.
+    public static let bodySize: CGFloat = 12
+    /// Mode chip label, footer hint, empty-state text, and small
+    /// semibold glyphs (row icons, the query field's ↵ mark).
+    public static let hintSize: CGFloat = 11
+    /// Smallest text: the picker's magnifying-glass glyph, workspace tag,
+    /// and a window row's app-name subtitle.
+    public static let captionSize: CGFloat = 10
+
     /// Transparent breathing room between the card and the window edge so
     /// the card's drop shadow isn't clipped. The host window is sized to
     /// `cardWidth + 2·cardMargin`; the rest of the window stays clear.
