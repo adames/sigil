@@ -173,6 +173,32 @@ let package = Package(
             swiftSettings: swiftTestingSettings,
             linkerSettings: swiftTestingLinkerSettings
         ),
+        // Depends directly on the ws-prompt *executable* target rather
+        // than a peeled-out library. Modern SwiftPM lets a test target
+        // `@testable import` an executableTarget same as a regular
+        // library, and PromptController.swift has no dependency on the
+        // AppKit/NSEvent runtime — main.swift's top-level argv parsing
+        // never executes here (it's a separate binary's entry point, not
+        // linked into the test bundle's main), so there's no split
+        // needed just to get coverage on the state machine.
+        .testTarget(
+            name: "ws-promptTests",
+            dependencies: ["ws-prompt"],
+            path: "Tests/ws-promptTests",
+            swiftSettings: swiftTestingSettings,
+            linkerSettings: swiftTestingLinkerSettings
+        ),
+        // Same rationale as ws-promptTests above — PickerController is
+        // plain Swift + Foundation/SwiftUI, no AppKit entry-point
+        // coupling, so testing the executable target directly avoids an
+        // otherwise-pointless PickerCore library split.
+        .testTarget(
+            name: "ws-pickerTests",
+            dependencies: ["ws-picker"],
+            path: "Tests/ws-pickerTests",
+            swiftSettings: swiftTestingSettings,
+            linkerSettings: swiftTestingLinkerSettings
+        ),
     ],
     swiftLanguageModes: [.v5]
 )
