@@ -114,6 +114,41 @@ public enum AerospaceFragment {
         }
     }
 
+    /// Result of reading the on-disk aerospace.toml before merging into it.
+    public enum ExistingConfigReadError: Error, CustomStringConvertible, Equatable {
+        /// The file exists but couldn't be decoded as UTF-8 (or the read
+        /// itself failed, e.g. a permissions error). Collapsing this to
+        /// an empty string would make `merge` treat the user's real
+        /// config as blank and --write would replace it wholesale, so
+        /// callers must surface this and refuse to write instead.
+        case unreadable(path: String, underlying: String)
+
+        public var description: String {
+            switch self {
+            case .unreadable(let path, let underlying):
+                return "cannot read \(path) (\(underlying)) — refusing to overwrite an unreadable config; repair or remove it before re-emitting"
+            }
+        }
+    }
+
+    /// Read the aerospace.toml that a merge will be applied to.
+    /// Returns `""` only when the file genuinely does not exist yet
+    /// (fresh install). If the file exists but the read fails — bad
+    /// permissions, non-UTF-8 bytes — that's surfaced as
+    /// `.unreadable` rather than silently treated as an empty file,
+    /// since the latter would make `--write` clobber the user's real
+    /// config with just the generated block.
+    public static func readExistingConfig(at target: URL, fileManager: FileManager = .default) -> Result<String, ExistingConfigReadError> {
+        guard fileManager.fileExists(atPath: target.path) else {
+            return .success("")
+        }
+        do {
+            return .success(try String(contentsOf: target, encoding: .utf8))
+        } catch {
+            return .failure(.unreadable(path: target.path, underlying: String(describing: error)))
+        }
+    }
+
     /// Replace lines between the fence pair (inclusive) with `block`, or
     /// append at EOF if absent. Idempotent. Line-anchored — fences must
     /// appear as standalone lines, not as substrings in doc comments

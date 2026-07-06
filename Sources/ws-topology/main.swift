@@ -295,7 +295,17 @@ func cmdEmitAerospace(args: [String]) -> Int32 {
     let target = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".config/aerospace/aerospace.toml")
     let fileExisted = FileManager.default.fileExists(atPath: target.path)
-    let existing: String = (try? String(contentsOf: target, encoding: .utf8)) ?? ""
+    let existing: String
+    switch AerospaceFragment.readExistingConfig(at: target) {
+    case .success(let contents):
+        existing = contents
+    case .failure(let error):
+        // Do NOT collapse an unreadable file to "" — that would make the
+        // merge below treat the user's real config as empty and --write
+        // would replace it wholesale with just the generated block.
+        FileHandle.standardError.write(Data("emit-aerospace: \(error)\n".utf8))
+        return 1
+    }
     // Assignments first (top-level), then bindings (inside [mode.main.binding]).
     let merged: String
     do {
