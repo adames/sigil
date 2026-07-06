@@ -107,14 +107,22 @@ struct CheatsheetView: View {
             ForEach(Array(document.banner.enumerated()), id: \.offset) { idx, item in
                 HStack(spacing: 8) {
                     ModifierBadge(forChord: item.k)
+                        .accessibilityHidden(true)
                     KeyCap(text: item.k)
                     Text(item.v)
                         .font(.system(size: 9))
                         .foregroundColor(Palette.resolved.subtext0)
                         .lineLimit(1)
                 }
+                // One element per legend item ("key, description") instead
+                // of the badge/keycap/text trio being read as three
+                // separate nodes.
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(item.k), \(item.v)")
                 if idx < document.banner.count - 1 {
-                    Text("·").foregroundColor(Palette.resolved.surface2)
+                    Text("·")
+                        .foregroundColor(Palette.resolved.surface2)
+                        .accessibilityHidden(true)
                 }
             }
         }
@@ -128,6 +136,8 @@ struct CheatsheetView: View {
                         .strokeBorder(Palette.resolved.surface0.opacity(0.6), lineWidth: 1)
                 )
         )
+        // Legend row, read as a group of its per-item labels above.
+        .accessibilityElement(children: .contain)
     }
 
     // MARK: - Lens picker
@@ -142,6 +152,10 @@ struct CheatsheetView: View {
                 lensChip(lens: lens, isActive: idx == state.currentIndex)
             }
         }
+        // The chips are a tab strip (one active lens at a time), read as a
+        // group rather than the picker's HStack wrapper being announced on
+        // its own.
+        .accessibilityElement(children: .contain)
     }
 
     private func lensChip(lens: CheatsheetDocument.Lens, isActive: Bool) -> some View {
@@ -175,6 +189,12 @@ struct CheatsheetView: View {
                         )
                 )
         )
+        // One element per chip: the lens name plus the key chord that
+        // jumps to it (the key monitor in main.swift, not a click target —
+        // there's no tap gesture here, so `.isButton` would be misleading).
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(lens.label) lens, key \(lens.key)")
+        .accessibilityAddTraits(isActive ? [.isSelected] : [])
     }
 
     /// A lens's chip-accent: scan its columns for the first section
@@ -225,6 +245,10 @@ private struct SectionCard: View {
                     .tracking(0.7)
                     .foregroundColor(accentColor)
                     .padding(.bottom, 2)
+                    // Real heading semantics so VoiceOver's rotor can jump
+                    // section-to-section the same way sighted users scan
+                    // by the uppercase title.
+                    .accessibilityAddTraits(.isHeader)
 
                 if let sub = section.sub, !sub.isEmpty {
                     Text(sub)
@@ -267,6 +291,10 @@ private struct SectionCard: View {
                 )
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        // One card = one container: title, sub, idea, and rows are read in
+        // order as a single group instead of the VStack's children each
+        // being their own stop.
+        .accessibilityElement(children: .contain)
     }
 
     private func rowView(_ row: [String]) -> some View {
@@ -280,14 +308,20 @@ private struct SectionCard: View {
                     .font(.system(size: metrics.rowDescSize, design: .monospaced))
                     .foregroundColor(Palette.resolved.surface2)
                     .frame(width: 60, alignment: .leading)
+                    .accessibilityHidden(true)
                 Text(desc)
                     .font(.system(size: metrics.rowDescSize - 1))
                     .foregroundColor(Palette.resolved.overlay0)
                     .italic()
                     .fixedSize(horizontal: false, vertical: true)
             } else {
+                // The dot is a redundant category cue (color already
+                // carries it, per ModifierBadge's own doc comment) — hide
+                // it so VoiceOver doesn't announce an unlabeled shape
+                // before every row.
                 ModifierBadge(forChord: key, size: metrics.badgeSize)
                     .padding(.top, 4)
+                    .accessibilityHidden(true)
                 KeyCap(text: key, fontSize: metrics.keyCapSize)
                     .layoutPriority(1)
                 Text(desc)
@@ -298,6 +332,11 @@ private struct SectionCard: View {
             Spacer(minLength: 0)
         }
         .padding(.vertical, metrics.rowVerticalPadding)
+        // One row = one element: "<key>, <description>" (or just the
+        // footnote prose when there's no key), rather than the keycap and
+        // description being read as separate stops.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(key.isEmpty || key == "—" ? desc : "\(key), \(desc)")
     }
 
     private var accentColor: Color {

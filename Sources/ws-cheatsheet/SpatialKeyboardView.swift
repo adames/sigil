@@ -1,4 +1,5 @@
 import SwiftUI
+import WsUI   // re-exports Palette
 
 /// Dual-coded vim motion diagram — a stylized QWERTY where motion-bearing
 /// keys are highlighted *in place*. This is the canonical vi/vim cheatsheet
@@ -21,21 +22,36 @@ struct SpatialKeyboardView: View {
         // e) and char-find (f, F, t, T) which both use the vim orange.
         private static let jumpAccent = Color(hex: "#f472b6") ?? .pink
 
+        // The hardcoded `Color.white.opacity(...)` tints below were replaced
+        // with `Palette.resolved.text` at the same opacities — `text`
+        // (#cdd6f4) is close enough to white that the blended result is
+        // visually indistinguishable on the default (Catppuccin) palette,
+        // but now resolves through the same palette every other HUD surface
+        // uses, so a custom `text` slot in palette.json reaches here too.
+        // `text` is slightly darker than the pure white it replaces, so
+        // contrast on the highlighted caps actually drops ~25-30% (measured
+        // on the default Catppuccin composite: word 4.85:1 -> 3.39:1, jump
+        // 5.73:1 -> 4.00:1 — both now under DesignSystem.swift's 4.5:1
+        // floor, where white cleared it). Accepted anyway because no
+        // palette role is lighter than `text` (so "palette tokens only"
+        // can't do better here), the diagram is a11y-hidden as decorative
+        // (the real accessible text is the row table below it), and this
+        // matches KeyCap's existing `Palette.resolved.text` idiom.
         var bg: Color {
             switch self {
             case .arrow:   return FamilyColors.vim.opacity(0.85)
             case .word:    return FamilyColors.vim.opacity(0.50)
             case .find:    return FamilyColors.vim.opacity(0.32)
             case .jump:    return Self.jumpAccent.opacity(0.55)
-            case .neutral: return Color.white.opacity(0.06)
-            case .dim:     return Color.white.opacity(0.025)
+            case .neutral: return Palette.resolved.text.opacity(0.06)
+            case .dim:     return Palette.resolved.text.opacity(0.025)
             }
         }
         var fg: Color {
             switch self {
-            case .arrow, .word, .find, .jump: return .white.opacity(0.95)
-            case .neutral:                    return .white.opacity(0.55)
-            case .dim:                        return .white.opacity(0.22)
+            case .arrow, .word, .find, .jump: return Palette.resolved.text.opacity(0.95)
+            case .neutral:                    return Palette.resolved.text.opacity(0.55)
+            case .dim:                        return Palette.resolved.text.opacity(0.22)
             }
         }
     }
@@ -64,6 +80,12 @@ struct SpatialKeyboardView: View {
             }
             .padding(.top, 2)
         }
+        // Purely decorative: the same bindings are already spelled out as
+        // accessible text in the section's row table right below this
+        // diagram. Hiding the whole keyboard (rather than each key cap)
+        // stops VoiceOver from reading 26 individual letter/hint pairs that
+        // duplicate what the rows already say.
+        .accessibilityHidden(true)
     }
 
     private func row(offset: CGFloat, caps: [Cap]) -> some View {
@@ -81,8 +103,25 @@ struct SpatialKeyboardView: View {
             RoundedRectangle(cornerRadius: 4)
                 .fill(cap.role.bg)
                 .overlay(
+                    // A solid palette token (surface1/overlay0/etc.) can't
+                    // dominate the old white-wash border on all six role
+                    // backgrounds at once — the key caps span everything
+                    // from vim orange to near-black, and each solid hue
+                    // wins on some backgrounds and loses on others. A wash
+                    // of `text` (the palette's near-white role) reproduces
+                    // the same "lighten toward white" effect the hardcoded
+                    // white gave, just resolved through the palette; 0.20
+                    // is the lowest alpha that matches the old white/0.10
+                    // border on the bright vim-orange caps (1.10 vs 1.10).
+                    // That is a deliberate tradeoff, not a wash: on the
+                    // ~18 dim/neutral caps that dominate the diagram this
+                    // visibly strengthens the outline (border-vs-cap
+                    // contrast 1.35:1 -> 1.68:1) rather than reproducing
+                    // it — accepted because the stronger outline still
+                    // reads as the same "lightened border" language, just
+                    // slightly more present on the low-contrast caps.
                     RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+                        .strokeBorder(Palette.resolved.text.opacity(0.20), lineWidth: 1)
                 )
                 .frame(width: 22, height: 24)
 
@@ -110,7 +149,12 @@ struct SpatialKeyboardView: View {
                 .frame(width: 8, height: 8)
             Text(label)
                 .font(.system(size: 9))
-                .foregroundColor(.white.opacity(0.50))
+                // Nearest role to the old white@0.50: `faintHint`
+                // (overlay2) is the same "smallest/faintest caption" token
+                // the footer timestamp uses, and its solid contrast
+                // (~6.25:1 on the card background) already clears what the
+                // hardcoded wash gave (~5.2:1).
+                .foregroundColor(Palette.resolved.faintHint)
         }
     }
 

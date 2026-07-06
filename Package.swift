@@ -199,6 +199,17 @@ let package = Package(
             swiftSettings: swiftTestingSettings,
             linkerSettings: swiftTestingLinkerSettings
         ),
+        // Same rationale as ws-promptTests/ws-pickerTests — CheatsheetData
+        // and the decode-error helpers in main.swift are plain
+        // Swift/Foundation, no AppKit entry-point coupling, so testing the
+        // executable target directly avoids a pointless library split.
+        .testTarget(
+            name: "ws-cheatsheetTests",
+            dependencies: ["ws-cheatsheet"],
+            path: "Tests/ws-cheatsheetTests",
+            swiftSettings: swiftTestingSettings,
+            linkerSettings: swiftTestingLinkerSettings
+        ),
     ],
     swiftLanguageModes: [.v5]
 )

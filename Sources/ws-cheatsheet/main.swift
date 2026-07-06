@@ -78,9 +78,14 @@ func errorDocument(reason: String) -> CheatsheetDocument {
         rows: [
             ["path", CheatsheetLoader.defaultPath.path],
             ["reason", reason],
+            ["fix", "rune build -o " + CheatsheetLoader.defaultPath.path.replacingOccurrences(
+                of: FileManager.default.homeDirectoryForCurrentUser.path,
+                with: "~"
+            )],
         ],
         color: "#ef4444",
-        sub: "ws-cheatsheet — load failure"
+        sub: "ws-cheatsheet — load failure",
+        idea: "Regenerate the cheatsheet with rune, then reopen the HUD."
     )
     return CheatsheetDocument(
         banner: [.init(k: "ERR", v: "cheatsheet.json not usable")],
@@ -96,6 +101,49 @@ func errorDocument(reason: String) -> CheatsheetDocument {
     )
 }
 
+/// Turn a decode failure into a one-line, human-readable message. Swift's
+/// `DecodingError` renders as a verbose nested dump (`keyNotFound(CodingKeys
+/// ..., Context(codingPath: [...], ...))`) which is fine in a log but reads
+/// as a stack trace on the error card. Pattern-match the common cases into
+/// a "cheatsheet.json: <what> at <where>" sentence; anything else (file not
+/// found, permission denied, etc.) falls back to the error's own description.
+///
+/// Pure + free of CheatsheetLoader/UI so it's directly unit-testable.
+func decodeFailureReason(_ error: Error) -> String {
+    guard let decodingError = error as? DecodingError else {
+        return "\(error)"
+    }
+    switch decodingError {
+    case .keyNotFound(let key, let context):
+        return "cheatsheet.json: missing key \"\(key.stringValue)\" at \(codingPathDescription(context.codingPath))"
+    case .typeMismatch(let type, let context):
+        return "cheatsheet.json: expected \(type) at \(codingPathDescription(context.codingPath))"
+    case .valueNotFound(let type, let context):
+        return "cheatsheet.json: missing value for \(type) at \(codingPathDescription(context.codingPath))"
+    case .dataCorrupted(let context):
+        let location = codingPathDescription(context.codingPath)
+        return "cheatsheet.json: corrupted data at \(location) — \(context.debugDescription)"
+    @unknown default:
+        return "\(error)"
+    }
+}
+
+/// Render a `[CodingKey]` path as a human-readable location, e.g.
+/// `views[0].columns` for a nested array/object path, or "top level" for
+/// an empty path (the root of the document).
+private func codingPathDescription(_ path: [CodingKey]) -> String {
+    guard !path.isEmpty else { return "top level" }
+    var result = ""
+    for key in path {
+        if let index = key.intValue {
+            result += "[\(index)]"
+        } else {
+            result += result.isEmpty ? key.stringValue : ".\(key.stringValue)"
+        }
+    }
+    return result
+}
+
 /// Render the HUD to a PNG at a fixed size, off-screen, then return. Used
 /// by `--render` for visual verification. `ImageRenderer` runs a full
 /// SwiftUI layout/draw pass without a window, so the real CheatsheetView /
@@ -103,9 +151,15 @@ func errorDocument(reason: String) -> CheatsheetDocument {
 @MainActor
 func renderToPNG(size: CGSize, lens: Int, to path: String) {
     _ = NSApplication.shared   // realize AppKit for Core Text / font stack
-    let loaded = try? CheatsheetLoader.load()
-    let document = (loaded.flatMap { $0.views.isEmpty ? nil : $0 })
-        ?? errorDocument(reason: "render: cheatsheet.json not usable")
+    let document: CheatsheetDocument
+    do {
+        let loaded = try CheatsheetLoader.load()
+        document = loaded.views.isEmpty
+            ? errorDocument(reason: "\"views\" is empty — the HUD needs at least one view")
+            : loaded
+    } catch {
+        document = errorDocument(reason: decodeFailureReason(error))
+    }
     let state = CheatsheetState(document: document)
     state.currentIndex = max(0, min(lens, document.views.count - 1))
     let content = CheatsheetView(state: state, timestamp: "12:00")
@@ -134,7 +188,7 @@ do {
         ? errorDocument(reason: "\"views\" is empty — the HUD needs at least one view")
         : loaded
 } catch {
-    document = errorDocument(reason: "\(error)")
+    document = errorDocument(reason: decodeFailureReason(error))
 }
 
 let state = CheatsheetState(document: document)
