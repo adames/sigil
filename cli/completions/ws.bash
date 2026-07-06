@@ -66,6 +66,21 @@ _ws_reply() {
   mapfile -t COMPREPLY < <(compgen "$@")
 }
 
+# _ws_reply_dyn <cur>  — append prefix-matching lines from stdin to
+# COMPREPLY without ever routing them through `compgen -W`. compgen -W
+# subjects every word to command substitution, so untrusted
+# config/filename-derived values (workspace names, identity names, theme
+# filenames — synced across hosts, not fully trusted) could otherwise
+# execute arbitrary code on TAB (e.g. a name literally "$(...)"). A plain
+# read loop with a prefix test never evaluates the text. Does NOT clear
+# COMPREPLY — callers append after seeding any static choices.
+_ws_reply_dyn() {
+  local cur="$1" line
+  while IFS= read -r line; do
+    [[ -n "$line" && "$line" == "$cur"* ]] && COMPREPLY+=("$line")
+  done
+}
+
 _ws_completion() {
   local cur
   COMPREPLY=()
@@ -112,7 +127,8 @@ _ws_completion() {
       ;;
     icon)
       if [[ $COMP_CWORD -eq 2 ]]; then
-        _ws_reply -W "search $(_ws_workspace_names)" -- "$cur"
+        _ws_reply -W "search" -- "$cur"
+        _ws_reply_dyn "$cur" < <(_ws_workspace_names)
         return 0
       fi
       # `ws icon search <term>` — no completion for the free-text term.
@@ -121,7 +137,8 @@ _ws_completion() {
       ;;
     name|get)
       if [[ $COMP_CWORD -eq 2 ]]; then
-        _ws_reply -W "$(_ws_workspace_names)" -- "$cur"
+        COMPREPLY=()
+        _ws_reply_dyn "$cur" < <(_ws_workspace_names)
         return 0
       fi
       if [[ "$top" == get && "$cur" == -* ]]; then
@@ -131,7 +148,8 @@ _ws_completion() {
       ;;
     theme)
       if [[ $COMP_CWORD -eq 2 ]]; then
-        _ws_reply -W "$(_ws_theme_names)" -- "$cur"
+        COMPREPLY=()
+        _ws_reply_dyn "$cur" < <(_ws_theme_names)
         return 0
       fi
       if [[ "$cur" == -* ]]; then

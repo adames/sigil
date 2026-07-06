@@ -20,6 +20,26 @@
 #   status --json · get --json · themes --json · count --customized
 #   theme --with-icons · palette sync --force · migrate --apply
 #   refresh --full · layout load/delete -y|--yes · reset -y|--yes
+#
+# STRUCTURE: `_ws` (entered with `words=(ws ...)`, `CURRENT` = the
+# absolute position of the word being completed, 1-indexed including
+# `ws`) dispatches on `words[2]` for the top-level subcommand, and — for
+# subcommands with their own sub-subcommands (layout/host/palette/icon)
+# — the per-group helper below dispatches again on `words[3]`.
+#
+# `words`/`CURRENT` are NOT reindexed by zsh as you go deeper (unlike,
+# say, `_arguments -C ... '*::arg:->args'`, which only peels one level
+# and does not decrement CURRENT to match) — every function here sees the
+# SAME full `words` array and the SAME absolute `CURRENT` the top-level
+# `_ws` was called with. So each leaf `_arguments` call (which expects to
+# see just ITS OWN command name plus its own args, as if invoked
+# standalone) must explicitly drop every ancestor word first:
+#   words=("${words[@]:N}"); (( CURRENT -= N ))
+# where N is the depth already consumed (1 for `ws <sub> --flag`, 2 for
+# `ws <group> <sub> --flag`). Get N wrong and `_arguments` sees an
+# unexpected leading positional and silently completes nothing — this bit
+# us once already (see PR history); if you touch the arithmetic, verify
+# with a zpty capture harness before trusting it, not just `zsh -n`.
 
 _ws_config_path() {
   print -r -- "${WS_CONFIG:-$HOME/.config/workspace/spaces.json}"
@@ -67,6 +87,8 @@ _ws_theme_names() {
   _describe -t themes 'theme' names
 }
 
+# Entered as `words=(ws layout ...)`; CURRENT is the absolute position
+# (ws=1, layout=2, first sub-subcommand=3).
 _ws_layout() {
   local -a subs
   subs=(
@@ -75,12 +97,14 @@ _ws_layout() {
     'list:list saved layouts'
     'delete:remove a saved layout'
   )
-  if (( CURRENT == 2 )); then
+  if (( CURRENT == 3 )); then
     _describe -t layout-subs 'layout subcommand' subs
     return
   fi
-  case ${words[2]} in
+  case ${words[3]} in
     load|delete)
+      words=("${words[@]:2}")
+      (( CURRENT -= 2 ))
       _arguments \
         '(-y --yes)'{-y,--yes}'[skip confirmation]'
       ;;
@@ -95,7 +119,7 @@ _ws_host() {
     'reset:remove the host overlay'
     'list:list all spaces*.json files'
   )
-  if (( CURRENT == 2 )); then
+  if (( CURRENT == 3 )); then
     _describe -t host-subs 'host subcommand' subs
   fi
 }
@@ -107,12 +131,14 @@ _ws_palette() {
     'show:preview the active palette'
     'reset:revert to the built-in Catppuccin palette'
   )
-  if (( CURRENT == 2 )); then
+  if (( CURRENT == 3 )); then
     _describe -t palette-subs 'palette subcommand' subs
     return
   fi
-  case ${words[2]} in
+  case ${words[3]} in
     sync)
+      words=("${words[@]:2}")
+      (( CURRENT -= 2 ))
       _arguments \
         '--force[overwrite a manually-edited palette.json]'
       ;;
@@ -120,7 +146,7 @@ _ws_palette() {
 }
 
 _ws_icon() {
-  if (( CURRENT == 2 )); then
+  if (( CURRENT == 3 )); then
     local -a choices
     choices=('search:non-interactive SF Symbol search')
     _describe -t icon-args 'icon target' choices
@@ -156,9 +182,6 @@ _ws_top() {
 }
 
 _ws() {
-  local curcontext="$curcontext" state line
-  typeset -A opt_args
-
   if (( CURRENT == 2 )); then
     _ws_top
     return
@@ -178,6 +201,8 @@ _ws() {
       if (( CURRENT == 3 )); then
         _ws_workspaces
       else
+        words=("${words[@]:2}")
+        (( CURRENT -= 2 ))
         _arguments '--json[emit JSON]'
       fi
       ;;
@@ -185,25 +210,39 @@ _ws() {
       if (( CURRENT == 3 )); then
         _ws_themes
       else
+        words=("${words[@]:2}")
+        (( CURRENT -= 2 ))
         _arguments '--with-icons[also paint icons from the theme file]'
       fi
       ;;
     status)
+      words=("${words[@]:1}")
+      (( CURRENT-- ))
       _arguments '--json[emit JSON]'
       ;;
     themes)
+      words=("${words[@]:1}")
+      (( CURRENT-- ))
       _arguments '--json[emit JSON]'
       ;;
     count)
+      words=("${words[@]:1}")
+      (( CURRENT-- ))
       _arguments '--customized[count only slots with an identity overlay]'
       ;;
     migrate)
+      words=("${words[@]:1}")
+      (( CURRENT-- ))
       _arguments '--apply[rewrite spaces.json in place]'
       ;;
     refresh)
+      words=("${words[@]:1}")
+      (( CURRENT-- ))
       _arguments '--full[also republish topology.json / layout.env]'
       ;;
     reset)
+      words=("${words[@]:1}")
+      (( CURRENT-- ))
       _arguments '(-y --yes)'{-y,--yes}'[skip confirmation]'
       ;;
   esac
