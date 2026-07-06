@@ -149,7 +149,7 @@ struct DecodeFailureReasonTests {
 @Suite("Empty-views routing to the error document")
 struct EmptyViewsRoutingTests {
     @Test func empty_views_array_decodes_but_is_the_caller_s_cue_to_show_the_error_card() throws {
-        // Mirrors main.swift:134's check: `"views": []` decodes fine (it's
+        // Mirrors main.swift's check: `"views": []` decodes fine (it's
         // valid per the schema) but leaves nothing to render, so the
         // caller — not the decoder — routes this case to `errorDocument`.
         let json = """
@@ -162,5 +162,22 @@ struct EmptyViewsRoutingTests {
         let data = Data(json.utf8)
         let doc = try JSONDecoder().decode(CheatsheetDocument.self, from: data)
         #expect(doc.views.isEmpty)
+    }
+
+    @Test func error_document_pins_the_error_card_contract() {
+        // Pins what the empty-views (and decode-failure) path actually
+        // routes to: `errorDocument(reason:)` itself. The decode test above
+        // only proves the precondition (`views` can be empty) — deleting
+        // main.swift's routing ternary would still leave that test green.
+        // Assert the routed-to document's shape directly: a single "error"
+        // view whose "error" section carries the reason and a `rune build`
+        // fix hint.
+        let err = errorDocument(reason: "x")
+        #expect(err.views.count == 1)
+        #expect(err.views[0].id == "error")
+        #expect(err.sections["error"]?.rows.contains(["reason", "x"]) == true)
+        #expect(err.sections["error"]?.rows.contains(where: { row in
+            row.first == "fix" && row.last?.contains("rune build") == true
+        }) == true)
     }
 }

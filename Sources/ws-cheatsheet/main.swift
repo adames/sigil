@@ -78,7 +78,10 @@ func errorDocument(reason: String) -> CheatsheetDocument {
         rows: [
             ["path", CheatsheetLoader.defaultPath.path],
             ["reason", reason],
-            ["fix", "rune build -o \(CheatsheetLoader.defaultPath.path)"],
+            ["fix", "rune build -o " + CheatsheetLoader.defaultPath.path.replacingOccurrences(
+                of: FileManager.default.homeDirectoryForCurrentUser.path,
+                with: "~"
+            )],
         ],
         color: "#ef4444",
         sub: "ws-cheatsheet — load failure",
@@ -148,9 +151,15 @@ private func codingPathDescription(_ path: [CodingKey]) -> String {
 @MainActor
 func renderToPNG(size: CGSize, lens: Int, to path: String) {
     _ = NSApplication.shared   // realize AppKit for Core Text / font stack
-    let loaded = try? CheatsheetLoader.load()
-    let document = (loaded.flatMap { $0.views.isEmpty ? nil : $0 })
-        ?? errorDocument(reason: "render: cheatsheet.json not usable")
+    let document: CheatsheetDocument
+    do {
+        let loaded = try CheatsheetLoader.load()
+        document = loaded.views.isEmpty
+            ? errorDocument(reason: "\"views\" is empty — the HUD needs at least one view")
+            : loaded
+    } catch {
+        document = errorDocument(reason: decodeFailureReason(error))
+    }
     let state = CheatsheetState(document: document)
     state.currentIndex = max(0, min(lens, document.views.count - 1))
     let content = CheatsheetView(state: state, timestamp: "12:00")

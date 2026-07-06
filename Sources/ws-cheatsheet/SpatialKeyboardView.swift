@@ -28,10 +28,15 @@ struct SpatialKeyboardView: View {
         // visually indistinguishable on the default (Catppuccin) palette,
         // but now resolves through the same palette every other HUD surface
         // uses, so a custom `text` slot in palette.json reaches here too.
-        // See DesignSystem.swift's hint-vs-overlay0 note: no swap here may
-        // drop contrast below what the hardcoded white gave — same opacity
-        // on a slightly darker fg only *raises* contrast against these dark
-        // key-cap backgrounds, never lowers it.
+        // `text` is slightly darker than the pure white it replaces, so
+        // contrast on the highlighted caps actually drops ~25-30% (measured
+        // on the default Catppuccin composite: word 4.85:1 -> 3.39:1, jump
+        // 5.73:1 -> 4.00:1 — both now under DesignSystem.swift's 4.5:1
+        // floor, where white cleared it). Accepted anyway because no
+        // palette role is lighter than `text` (so "palette tokens only"
+        // can't do better here), the diagram is a11y-hidden as decorative
+        // (the real accessible text is the row table below it), and this
+        // matches KeyCap's existing `Palette.resolved.text` idiom.
         var bg: Color {
             switch self {
             case .arrow:   return FamilyColors.vim.opacity(0.85)
@@ -105,10 +110,16 @@ struct SpatialKeyboardView: View {
                     // wins on some backgrounds and loses on others. A wash
                     // of `text` (the palette's near-white role) reproduces
                     // the same "lighten toward white" effect the hardcoded
-                    // white gave, just resolved through the palette;
-                    // 0.20 is the lowest opacity that matches or beats the
-                    // original 1.0-white/0.10 border's contrast on every
-                    // role background.
+                    // white gave, just resolved through the palette; 0.20
+                    // is the lowest alpha that matches the old white/0.10
+                    // border on the bright vim-orange caps (1.10 vs 1.10).
+                    // That is a deliberate tradeoff, not a wash: on the
+                    // ~18 dim/neutral caps that dominate the diagram this
+                    // visibly strengthens the outline (border-vs-cap
+                    // contrast 1.35:1 -> 1.68:1) rather than reproducing
+                    // it — accepted because the stronger outline still
+                    // reads as the same "lightened border" language, just
+                    // slightly more present on the low-contrast caps.
                     RoundedRectangle(cornerRadius: 4)
                         .strokeBorder(Palette.resolved.text.opacity(0.20), lineWidth: 1)
                 )
